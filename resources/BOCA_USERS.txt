@@ -1,0 +1,30 @@
+[user]
+usernumber=2023101500
+usersitenumber=1
+username=bruce.wayne
+usertype=team
+userfullname=BRUCE WAYNE
+userdesc=Major: 11 / Registration: 2023101500 / E-mail: bruce.wayne@edu.ufes.br
+userenabled=t
+usermultilogin=t
+userpassword=2023101500
+[user]
+usernumber=2022101501
+usersitenumber=1
+username=clark.kent
+usertype=team
+userfullname=CLARK KENT
+userdesc=Major: 11 / Registration: 2022101501 / E-mail: clark.kent@edu.ufes.br
+userenabled=t
+usermultilogin=t
+userpassword=2022101501
+[user]
+usernumber=2020101502
+usersitenumber=1
+username=tony.stork
+usertype=team
+userfullname=TONY STORK
+userdesc=Major: 11 / Registration: 2020101502 / E-mail: tony.stork@edu.ufes.br
+userenabled=t
+usermultilogin=t
+userpassword=2020101502
