@@ -1,51 +1,32 @@
-import {test, expect} from '@playwright/test';
+import {Dialog, Page} from "playwright";
+import {LoginModel} from "../data/login.ts";
+import {UsuarioModel} from "../data/user.ts";
 
-interface AdminModel {
-    username: string;
-    password: string;
-}
+const BASE_URL = "localhost:8000/boca"
 
-interface UsuarioModel {
-    userId: string;
-    userName: string;
-    userFullName: string;
-    userDesc: string;
-    userIp: string;
-    userIcpcId: string;
-    userSiteNumber: string;
-    userNumber: string;
-    userType: 'Team' | 'Judge' | 'Admin' | 'Staff' | 'Score' | 'Site';
-    userEnabled: 'Yes' | 'No';
-    userMultiLogin: 'Yes' | 'No';
-    userPassword: string;
-    userChangePass: 'Yes' | 'No';
-    adminPassword: string;
-}
-
-async function login(page, admin: AdminModel) {
-    await page.goto('/boca/');
+export async function login(page: Page, login: LoginModel) {
+    await page.goto(BASE_URL+'/');
     await page.locator('input[name="name"]').click();
-    await page.locator('input[name="name"]').fill(admin.username);
+    await page.locator('input[name="name"]').fill(login.username);
     await page.locator('input[name="name"]').press('Tab');
-    await page.locator('input[name="password"]').fill(admin.password);
+    await page.locator('input[name="password"]').fill(login.password);
     await page.locator('input[name="password"]').press('Enter');
 }
 
-async function insertUsers(page) {
+export async function insertUsers(page: Page) {
     await page.getByRole('link', { name: 'Users' }).click();
     await page.locator('input[name="importfile"]').click();
     await page.locator('input[name="importfile"]').setInputFiles('resources/BOCA_USERS.txt');
-    page.once('dialog', dialog => {
-      console.log(`Dialog message: ${dialog.message()}`);
-      dialog.accept().catch(() => {
-        console.log('Dialog was already closed when accepted');
-      });
+    page.once('dialog', (dialog: Dialog) => {
+        dialog.accept().catch(() => {
+            console.error('Dialog was already closed when accepted');
+        });
     });
     await page.getByRole('button', { name: 'Import' }).click();
 }
 
-async function fillUser(page, user: UsuarioModel) {
-    await page.goto('/boca/admin/');
+async function fillUser(page: Page, user: UsuarioModel) {
+    await page.goto(BASE_URL+'/admin/');
     await page.getByRole('link', { name: 'Users' }).click();
     await page.locator('input[name="usersitenumber"]').click();
     await page.locator('input[name="usersitenumber"]').fill(user.userSiteNumber);
@@ -77,68 +58,23 @@ async function fillUser(page, user: UsuarioModel) {
     await page.locator('input[name="passwordo"]').fill(user.adminPassword);
 }
 
-async function createUser(page, user: UsuarioModel) {
+export async function createUser(page: Page, user: UsuarioModel) {
     await fillUser(page, user);
     page.once('dialog', dialog => {
-        console.log(`Dialog message: ${dialog.message()}`);
         dialog.accept().catch(() => {
-            console.log('Dialog was already closed when accepted');
+            console.error('Dialog was already closed when accepted');
         });
     });
     await page.getByRole('button', { name: 'Send' }).click();
 }
 
-async function deleteUser(page, user: UsuarioModel) {
+export async function deleteUser(page: Page, user: UsuarioModel) {
     await page.getByRole('link', { name: 'Users' }).click();
     await page.getByRole('link', { name: user.userId }).click();
-    page.once('dialog', dialog => {
-        console.log(`Dialog message: ${dialog.message()}`);
+    page.once('dialog', (dialog: Dialog) => {
         dialog.accept().catch(() => {
-            console.log('Dialog was already closed when accepted');
+            console.error('Dialog was already closed when accepted');
         });
     });
     await page.getByRole('button', { name: 'Delete' }).click();
 }
-
-const user: UsuarioModel = {
-    userId: '2019202359',
-    userName: 'ryanmonteiro',
-    userFullName: 'Ryan Tavares Farias da Silva Monteiro',
-    userDesc: 'Ryan Tavares Farias da Silva Monteiro',
-    userIp: '',
-    userIcpcId: '',
-    userSiteNumber: '1',
-    userNumber: '2019202359',
-    userType: 'Team',
-    userEnabled: 'Yes',
-    userMultiLogin: 'No',
-    userPassword: 'boca',
-    userChangePass: 'Yes',
-    adminPassword: 'boca',
-}
-
-const admin: AdminModel = {
-    username: 'admin',
-    password: 'boca',
-}
-
-test('createUser', async ({ page }) => {
-    await login(page, admin);
-    await createUser(page, user);
-
-    await expect(await page.locator(`text=${user.userName}`).first()).toBeTruthy();
-})
-
-test('insertUsers', async ({ page }) => {
-    await login(page, admin);
-    await insertUsers(page);
-
-    await expect(await page.locator('text=ryanmonteiro').first()).toBeTruthy();
-})
-
-test('deleteUser', async ({ page }) => {
-    await login(page, admin);
-    await deleteUser(page, user);
-
-    await expect(await page.locator(`text=${user.userName}(inactive)`).first()).toBeTruthy();
-})

@@ -4,16 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "npx playwright test"
+    "start": "ts-node src/index.ts",
+    "test": "npx playwright test",
+    "test:debug": "npx playwright test --debug"
   },
+  "type": "commonjs",
   "author": "Ryan Monteiro",
   "license": "ISC",
   "devDependencies": {
-    "@playwright/test": "^1.38.0",
     "@types/node": "^20.6.3",
-    "bun-types": "^1.0.2"
-  },
-  "dependencies": {
-    "playwright": "^1.38.0"
+    "playwright": "^1.38.1"
   }
 }
