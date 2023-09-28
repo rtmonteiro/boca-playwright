@@ -13,10 +13,10 @@ export async function login(page: Page, login: LoginModel) {
     await page.locator('input[name="password"]').press('Enter');
 }
 
-export async function insertUsers(page: Page) {
+export async function insertUsers(page: Page, path: string) {
     await page.getByRole('link', { name: 'Users' }).click();
     await page.locator('input[name="importfile"]').click();
-    await page.locator('input[name="importfile"]').setInputFiles('resources/BOCA_USERS.txt');
+    await page.locator('input[name="importfile"]').setInputFiles(path);
     page.once('dialog', (dialog: Dialog) => {
         dialog.accept().catch(() => {
             console.error('Dialog was already closed when accepted');
@@ -62,7 +62,7 @@ async function fillUser(page: Page, user: UsuarioModel) {
 
 export async function createUser(page: Page, user: UsuarioModel) {
     await fillUser(page, user);
-    page.once('dialog', dialog => {
+    page.once('dialog', (dialog: Dialog) => {
         dialog.accept().catch(() => {
             console.error('Dialog was already closed when accepted');
         });

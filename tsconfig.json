@@ -1,8 +1,14 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "NodeNext",
+    "target": "ES2017",
+    "module": "CommonJS",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "lib": [
+      "ES6"
+    ],
     "strict": true,
+    "esModuleInterop": true,
     "noEmit": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -10,16 +16,19 @@
     "strictPropertyInitialization": true,
     "noImplicitThis": true,
     "alwaysStrict": true,
-    "noUnusedLocals": true,
+    "noUnusedLocals": false,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
-    "allowImportingTsExtensions": true
+    "allowImportingTsExtensions": true,
+    "sourceMap": true
   },
-  "include": [
-    "src/**/*"
-  ],
   "exclude": [
     "node_modules",
     "**/*.spec.ts"
-  ]
+  ],
+  "watchOptions": {
+    "excludeDirectories": [
+      "node_modules"
+    ]
+  }
 }

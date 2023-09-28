@@ -1,0 +1,85 @@
+{
+  "setup": {
+    "url": "",
+    "contestId": "1",
+    "userPath": ""
+  },
+  "logins": [
+    {
+      "username": "system",
+      "password": "boca"
+    },
+    {
+      "username": "admin",
+      "password": "boca"
+    }
+  ],
+  "users": [
+    {
+      "userId": "2019202359",
+      "userName": "ryanmonteiro",
+      "userFullName": "Ryan Tavares Farias da Silva Monteiro",
+      "userDesc": "Ryan Tavares Farias da Silva Monteiro",
+      "userIp": "",
+      "userIcpcId": "",
+      "userSiteNumber": "1",
+      "userNumber": "2019202359",
+      "userType": "Team",
+      "userEnabled": "Yes",
+      "userMultiLogin": "No",
+      "userPassword": "boca",
+      "userChangePass": "Yes",
+      "adminPassword": "boca"
+    },
+    {
+      "userId": "2019202359",
+      "userName": "ryanmonteiro2",
+      "userFullName": "Ryan Tavares Farias da Silva Monteiro",
+      "userDesc": "Ryan Tavares Farias da Silva Monteiro",
+      "userIp": "",
+      "userIcpcId": "",
+      "userSiteNumber": "1",
+      "userNumber": "2019202359",
+      "userType": "Team",
+      "userEnabled": "Yes",
+      "userMultiLogin": "No",
+      "userPassword": "boca",
+      "userChangePass": "Yes",
+      "adminPassword": "boca"
+    }
+  ],
+  "contests": [
+    {
+      "setup": {
+        "id": "1",
+        "name": "Contest 1",
+        "startDate": "2023/10/10",
+        "endDate": "2023/10/18",
+        "mainSiteNumber": "1",
+        "localSiteNumber": "1",
+        "active": true
+      },
+      "languages": [
+        {
+          "id": 1,
+          "name": "C",
+          "extension": "c"
+        }
+      ]
+    },
+    {
+      "setup": {
+        "startDate": "2023/10/10",
+        "endDate": "2023/10/18",
+        "active": true
+      },
+      "languages": [
+        {
+          "id": 1,
+          "name": "C",
+          "extension": "c"
+        }
+      ]
+    }
+  ]
+}

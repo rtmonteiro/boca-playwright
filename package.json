@@ -13,6 +13,7 @@
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^20.6.3",
-    "playwright": "^1.38.1"
+    "playwright": "^1.38.1",
+    "ts-node": "^10.2.1"
   }
 }
