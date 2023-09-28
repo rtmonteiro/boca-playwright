@@ -48,12 +48,14 @@ async function fillUser(page: Page, user: UsuarioModel) {
     await page.locator('input[name="userdesc"]').fill(user.userDesc);
     await page.locator('input[name="userip"]').click();
     await page.locator('input[name="userip"]').fill(user.userIp);
-    await page.locator('input[name="passwordn1"]').click();
-    await page.locator('input[name="passwordn1"]').fill(user.userPassword);
-    await page.locator('input[name="passwordn2"]').click();
-    await page.locator('input[name="passwordn2"]').fill(user.userPassword);
-    await page.locator('select[name="changepass"]').click();
-    await page.locator('select[name="changepass"]').selectOption({ label: user.userChangePass });
+    if (user.userPassword) {
+        await page.locator('input[name="passwordn1"]').click();
+        await page.locator('input[name="passwordn1"]').fill(user.userPassword);
+        await page.locator('input[name="passwordn2"]').click();
+        await page.locator('input[name="passwordn2"]').fill(user.userPassword);
+        await page.locator('select[name="changepass"]').click();
+        await page.locator('select[name="changepass"]').selectOption({ label: user.userChangePass });
+    }
     await page.locator('input[name="passwordo"]').click();
     await page.locator('input[name="passwordo"]').fill(user.adminPassword);
 }
