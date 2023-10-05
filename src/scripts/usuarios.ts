@@ -1,8 +1,8 @@
 import {Dialog, Page} from "playwright";
 import {LoginModel} from "../data/login.ts";
 import {UserModel} from "../data/user.ts";
+import {BASE_URL} from "../index.ts";
 
-const BASE_URL = 'http://localhost:8000/boca';
 
 export async function login(page: Page, login: LoginModel) {
     await page.goto(BASE_URL+'/');

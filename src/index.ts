@@ -2,12 +2,16 @@ import {chromium} from "playwright";
 import {LoginModel} from "./data/login.ts";
 import {UserModel} from "./data/user.ts";
 import {createUser, deleteUser, insertUsers, login} from "./scripts/usuarios.ts";
-import {Contest, createContest, clearContest} from "./scripts/system.ts";
+import {createContest, clearContest} from "./scripts/system.ts";
 import * as fs from "fs";
 import {SetupModel} from "./data/setup.ts";
+import {SiteModel} from "./data/site.ts";
+import {createSite} from "./scripts/site.ts";
+import {Contest} from "./scripts/contest.ts";
 
-const STEP_DURATION = 500;
+const STEP_DURATION = 200;
 const HEADLESS = false;
+export const BASE_URL = 'http://localhost:8000/boca';
 
 async function shouldCreateUser(path: string) {
     const admin: LoginModel = (JSON.parse(fs.readFileSync(path, 'utf8')) as SetupModel).logins.admin;
@@ -67,6 +71,17 @@ async function shouldClearContest(path: string) {
     await browser.close();
 }
 
+async function shouldCreateSite(path: string) {
+    const admin: LoginModel = (JSON.parse(fs.readFileSync(path, 'utf8')) as SetupModel).logins.admin;
+    const site: SiteModel = (JSON.parse(fs.readFileSync(path, 'utf8')) as SetupModel).contests[0].sites[0];
+
+    const browser = await chromium.launch({headless: HEADLESS, slowMo: STEP_DURATION});  // Or 'firefox' or 'webkit'.
+    const page = await browser.newPage();
+    await login(page, admin);
+    await createSite(page, site);
+    await browser.close();
+}
+
 
 function main() {
     const methods: Record<string, (path: string) => Promise<void>> = {
@@ -76,7 +91,9 @@ function main() {
         shouldDeleteUser,
         // Contests
         shouldCreateContest,
-        shouldClearContest
+        shouldClearContest,
+        // Sites
+        shouldCreateSite,
     }
     
     const args = process.argv.splice(2);
@@ -84,7 +101,7 @@ function main() {
     const method = args[1] as keyof typeof methods;
 
     const func = methods[method] as (path: string) => Promise<void>;
-    func(path);
+    func(path).then(() => console.log('Done!'));
     return 0;
 }
 

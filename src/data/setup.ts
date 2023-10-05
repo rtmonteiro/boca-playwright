@@ -1,6 +1,6 @@
 import {UserModel} from "./user.ts";
 import {LoginModel} from "./login.ts";
-import {Contest} from "../scripts/system.ts";
+import {Contest} from "../scripts/contest.ts";
 
 export interface SetupModel {
     setup: {

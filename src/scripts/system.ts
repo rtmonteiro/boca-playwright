@@ -1,34 +1,8 @@
 import {Dialog, Page} from "playwright";
-import { DateTime } from "luxon";
-
-const BASE_URL = 'http://localhost:8000/boca';
-
-interface Language {
-    id: number;
-    name: string;
-    extension: string;
-}
-export interface Contest {
-    setup: {
-        id?: number;
-        name: string;
-        startDate: string;
-        endDate: string;
-        stopAnswering?: number;
-        stopScorebord?: number;
-        penalty?: number;
-        maxFileSize?: number;
-        mainSiteUrl?: string;
-        mainSiteNumber: number;
-        localSiteNumber: number;
-        active: boolean;
-    },
-    languages: Language[],
-}
-
-async function defineDurationInMinutes(startDate: DateTime, endDate: DateTime) {
-    return endDate.diff(startDate, 'minutes').minutes;
-}
+import {DateTime} from "luxon";
+import {BASE_URL} from "../index.ts";
+import {defineDurationInMinutes} from "../utils/time.ts";
+import {Contest} from "./contest.ts";
 
 async function fillContest(page: Page, contest: Contest) {
     await page.goto(BASE_URL+'/system/');
@@ -65,8 +39,8 @@ async function fillContest(page: Page, contest: Contest) {
     }
 
     await page.locator('input[name="lastmilescore"]').click();
-    if (contest.setup.stopScorebord) {
-        await page.locator('input[name="lastmilescore"]').fill(contest.setup.stopScorebord.toString());
+    if (contest.setup.stopScoreboard) {
+        await page.locator('input[name="lastmilescore"]').fill(contest.setup.stopScoreboard.toString());
     } else {
         await page.locator('input[name="lastmilescore"]').fill(duration.toString());
     }
