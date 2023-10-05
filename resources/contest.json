@@ -48,6 +48,19 @@
   ],
   "contests": [
     {
+      "sites": [
+        {
+          "id": 1,
+          "name": "Site 1",
+          "startDate": "2023-10-10 10:00",
+          "endDate": "2023-10-18 10:00",
+          "runs": 1,
+          "tasks": 1,
+          "chiefUsername": "admin",
+          "active": true,
+          "autoEnd": true
+        }
+      ],
       "setup": {
         "id": "1",
         "name": "Contest 1",
