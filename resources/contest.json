@@ -76,6 +76,15 @@
           "name": "C",
           "extension": "c"
         }
+      ],
+      "problems": [
+        {
+            "id": 1,
+            "name": "l1",
+            "filePath": "resources/L1_1.zip",
+            "colorName": "medium",
+            "colorCode": "FFA500"
+        }
       ]
     },
     {

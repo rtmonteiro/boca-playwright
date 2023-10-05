@@ -1,5 +1,6 @@
 import {SiteModel} from "../data/site.ts";
 import {Language} from "./language.ts";
+import {Problem} from "./problem.ts";
 
 export interface Contest {
     sites: SiteModel[];
@@ -18,4 +19,5 @@ export interface Contest {
         active: boolean;
     },
     languages: Language[],
+    problems: Problem[]
 }
