@@ -1,6 +1,7 @@
 import {Dialog, Page} from "playwright";
+import { DateTime } from "luxon";
 
-const BASE_URL = "localhost:8000/boca"
+const BASE_URL = 'http://localhost:8000/boca';
 
 interface Language {
     id: number;
@@ -11,8 +12,8 @@ export interface Contest {
     setup: {
         id?: number;
         name: string;
-        startDate: Date;
-        endDate: Date;
+        startDate: string;
+        endDate: string;
         stopAnswering?: number;
         stopScorebord?: number;
         penalty?: number;
@@ -25,24 +26,11 @@ export interface Contest {
     languages: Language[],
 }
 
-async function defineDuration(page: Page, contest: Contest) {
-    const hour = await page.locator('input[name="startdateh"]').getAttribute('value') ?? "0";
-    const minute = await page.locator('input[name="startdatemin"]').getAttribute('value') ?? "0";
-    const day = await page.locator('input[name="startdated"]').getAttribute('value') ?? new Date().getDay().toString();
-    const month = await page.locator('input[name="startdatem"]').getAttribute('value') ?? new Date().getMonth().toString();
-    const year = await page.locator('input[name="startdatey"]').getAttribute('value') ?? new Date().getFullYear().toString();
-
-    const startDate = new Date(
-        Number(year),
-        Number(month),
-        Number(day),
-        Number(hour),
-        Number(minute)
-    );
-    return new Date(contest.setup.endDate).getTime() - startDate.getTime();
+async function defineDurationInMinutes(startDate: DateTime, endDate: DateTime) {
+    return endDate.diff(startDate, 'minutes').minutes;
 }
 
-async function fillContext(page: Page, contest: Contest) {
+async function fillContest(page: Page, contest: Contest) {
     await page.goto(BASE_URL+'/system/');
     await page.getByRole('link', { name: 'Contest' }).click();
     if (contest.setup.id) {
@@ -52,13 +40,8 @@ async function fillContext(page: Page, contest: Contest) {
     }
     await page.locator('input[name="name"]').click();
     await page.locator('input[name="name"]').fill(contest.setup.name);
-    const startDate = {
-        hour: 22,
-        minute: 0,
-        day: 1,
-        month: 1,
-        year: 2021,
-    }
+
+    const startDate = DateTime.fromFormat(contest.setup.startDate, 'yyyy-MM-dd HH:mm')
     await page.locator('input[name="startdateh"]').click();
     await page.locator('input[name="startdateh"]').fill(startDate.hour.toString());
     await page.locator('input[name="startdatemin"]').click();
@@ -70,7 +53,8 @@ async function fillContext(page: Page, contest: Contest) {
     await page.locator('input[name="startdatey"]').click();
     await page.locator('input[name="startdatey"]').fill(startDate.year.toString());
     await page.locator('input[name="duration"]').click();
-    const duration = await defineDuration(page, contest);
+    const endDate = DateTime.fromFormat(contest.setup.endDate, 'yyyy-MM-dd HH:mm');
+    const duration = await defineDurationInMinutes(startDate, endDate);
     await page.locator('input[name="duration"]').fill(duration.toString());
 
     await page.locator('input[name="lastmileanswer"]').click();
@@ -94,11 +78,9 @@ async function fillContext(page: Page, contest: Contest) {
         await page.locator('input[name="penalty"]').fill(duration.toString());
     }
 
-    await page.locator('input[name="maxfilesize"]').click();
     if (contest.setup.maxFileSize) {
+        await page.locator('input[name="maxfilesize"]').click();
         await page.locator('input[name="maxfilesize"]').fill(contest.setup.maxFileSize.toString());
-    } else {
-        await page.locator('input[name="maxfilesize"]').fill(duration.toString());
     }
 
     if (contest.setup.mainSiteUrl) {
@@ -114,8 +96,9 @@ async function fillContext(page: Page, contest: Contest) {
 }
 
 export async function createContest(page: Page, contest: Contest) {
-    await fillContext(page, contest);
+    await fillContest(page, contest);
     page.once('dialog', (dialog: Dialog) => {
+        console.log(dialog.message());
         dialog.accept().catch(() => {
             console.error('Dialog was already closed when accepted');
         });
@@ -125,4 +108,18 @@ export async function createContest(page: Page, contest: Contest) {
     } else {
         await page.getByRole('button', { name: 'Send' }).click();
     }
+}
+
+export async function clearContest(page: Page, contest: Contest) {
+    await page.goto(BASE_URL+'/system/');
+    await page.getByRole('link', { name: 'Contest' }).click();
+    await page.locator('select[name="contest"]').selectOption(contest.setup.id.toString());
+    await page.getByRole('button', { name: 'Clear' }).click();
+
+    page.once('dialog', (dialog: Dialog) => {
+        console.log(dialog.message());
+        dialog.accept().catch(() => {
+            console.error('Dialog was already closed when accepted');
+        });
+    });
 }

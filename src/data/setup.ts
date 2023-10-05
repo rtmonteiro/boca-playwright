@@ -1,4 +1,4 @@
-import {UsuarioModel} from "./user.ts";
+import {UserModel} from "./user.ts";
 import {LoginModel} from "./login.ts";
 import {Contest} from "../scripts/system.ts";
 
@@ -8,7 +8,10 @@ export interface SetupModel {
         contestId: string,
         userPath: string,
     },
-    logins: LoginModel[],
-    users: UsuarioModel[],
+    logins: {
+        system: LoginModel,
+        admin: LoginModel,
+    },
+    users: UserModel[],
     contests: Contest[],
 }

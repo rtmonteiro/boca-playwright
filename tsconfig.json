@@ -1,34 +1,12 @@
 {
   "compilerOptions": {
-    "target": "ES2017",
-    "module": "CommonJS",
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "lib": [
-      "ES6"
-    ],
-    "strict": true,
-    "esModuleInterop": true,
+    "module": "commonjs",
+    "target": "es5",
+    "sourceMap": true,
     "noEmit": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "strictPropertyInitialization": true,
-    "noImplicitThis": true,
-    "alwaysStrict": true,
-    "noUnusedLocals": false,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
     "allowImportingTsExtensions": true,
-    "sourceMap": true
   },
   "exclude": [
-    "node_modules",
-    "**/*.spec.ts"
-  ],
-  "watchOptions": {
-    "excludeDirectories": [
-      "node_modules"
-    ]
-  }
+    "node_modules"
+  ]
 }

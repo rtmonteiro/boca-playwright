@@ -1,8 +1,8 @@
 import {Dialog, Page} from "playwright";
 import {LoginModel} from "../data/login.ts";
-import {UsuarioModel} from "../data/user.ts";
+import {UserModel} from "../data/user.ts";
 
-const BASE_URL = "localhost:8000/boca"
+const BASE_URL = 'http://localhost:8000/boca';
 
 export async function login(page: Page, login: LoginModel) {
     await page.goto(BASE_URL+'/');
@@ -18,6 +18,7 @@ export async function insertUsers(page: Page, path: string) {
     await page.locator('input[name="importfile"]').click();
     await page.locator('input[name="importfile"]').setInputFiles(path);
     page.once('dialog', (dialog: Dialog) => {
+        console.log(dialog.message());
         dialog.accept().catch(() => {
             console.error('Dialog was already closed when accepted');
         });
@@ -25,7 +26,7 @@ export async function insertUsers(page: Page, path: string) {
     await page.getByRole('button', { name: 'Import' }).click();
 }
 
-async function fillUser(page: Page, user: UsuarioModel) {
+async function fillUser(page: Page, user: UserModel) {
     await page.goto(BASE_URL+'/admin/');
     await page.getByRole('link', { name: 'Users' }).click();
     await page.locator('input[name="usersitenumber"]').click();
@@ -60,9 +61,10 @@ async function fillUser(page: Page, user: UsuarioModel) {
     await page.locator('input[name="passwordo"]').fill(user.adminPassword);
 }
 
-export async function createUser(page: Page, user: UsuarioModel) {
+export async function createUser(page: Page, user: UserModel) {
     await fillUser(page, user);
     page.once('dialog', (dialog: Dialog) => {
+        console.log(dialog.message());
         dialog.accept().catch(() => {
             console.error('Dialog was already closed when accepted');
         });
@@ -70,10 +72,11 @@ export async function createUser(page: Page, user: UsuarioModel) {
     await page.getByRole('button', { name: 'Send' }).click();
 }
 
-export async function deleteUser(page: Page, user: UsuarioModel) {
+export async function deleteUser(page: Page, user: UserModel) {
     await page.getByRole('link', { name: 'Users' }).click();
     await page.getByRole('link', { name: user.userId }).click();
     page.once('dialog', (dialog: Dialog) => {
+        console.log(dialog.message());
         dialog.accept().catch(() => {
             console.error('Dialog was already closed when accepted');
         });

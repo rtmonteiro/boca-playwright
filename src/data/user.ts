@@ -1,4 +1,4 @@
-export interface UsuarioModel {
+export interface UserModel {
     userId: string;
     userName: string;
     userFullName: string;
@@ -15,7 +15,7 @@ export interface UsuarioModel {
     adminPassword: string;
 }
 
-export const user: UsuarioModel = {
+export const user: UserModel = {
     userId: '2019202359',
     userName: 'ryanmonteiro',
     userFullName: 'Ryan Tavares Farias da Silva Monteiro',
