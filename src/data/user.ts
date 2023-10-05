@@ -1,33 +1,25 @@
 export interface UserModel {
-    userId: string;
+    userSiteNumber?: string;
+    userNumber: string;
     userName: string;
+    userIcpcId?: string;
+    userType: 'Team' | 'Judge' | 'Admin' | 'Staff' | 'Score' | 'Site';
+    userEnabled?: 'Yes' | 'No';
+    userMultiLogin?: 'Yes' | 'No';
     userFullName: string;
     userDesc: string;
-    userIp: string;
-    userIcpcId: string;
-    userSiteNumber: string;
-    userNumber: string;
-    userType: 'Team' | 'Judge' | 'Admin' | 'Staff' | 'Score' | 'Site';
-    userEnabled: 'Yes' | 'No';
-    userMultiLogin: 'Yes' | 'No';
-    userPassword: string;
-    userChangePass: 'Yes' | 'No';
-    adminPassword: string;
+    userIp?: string;
+    userPassword?: string;
+    userChangePass?: 'Yes' | 'No';
 }
 
 export const user: UserModel = {
-    userId: '2019202359',
-    userName: 'ryanmonteiro',
-    userFullName: 'Ryan Tavares Farias da Silva Monteiro',
-    userDesc: 'Ryan Tavares Farias da Silva Monteiro',
-    userIp: '',
-    userIcpcId: '',
     userSiteNumber: '1',
     userNumber: '2019202359',
+    userName: 'ryanmonteiro',
     userType: 'Team',
-    userEnabled: 'Yes',
-    userMultiLogin: 'No',
+    userFullName: 'Ryan Tavares Farias da Silva Monteiro',
+    userDesc: 'Ryan Tavares Farias da Silva Monteiro',
     userPassword: 'boca',
     userChangePass: 'Yes',
-    adminPassword: 'boca',
 }

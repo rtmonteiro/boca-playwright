@@ -16,34 +16,28 @@
   },
   "users": [
     {
-      "userId": "2019202359",
-      "userName": "ryanmonteiro",
-      "userFullName": "Ryan Tavares Farias da Silva Monteiro",
-      "userDesc": "Ryan Tavares Farias da Silva Monteiro",
       "userSiteNumber": "1",
       "userNumber": "2019202359",
+      "userName": "ryanmonteiro",
+      "userType": "Team",
+      "userFullName": "Ryan Tavares Farias da Silva Monteiro",
+      "userDesc": "Ryan Tavares Farias da Silva Monteiro",
+      "userPassword": "boca",
+      "userChangePass": "Yes"
+    },
+    {
+      "userSiteNumber": "1",
+      "userNumber": "2019202359",
+      "userName": "ryanmonteiro2",
       "userType": "Team",
       "userEnabled": "Yes",
       "userMultiLogin": "No",
-      "userPassword": "boca",
-      "userChangePass": "Yes",
-      "adminPassword": "boca"
-    },
-    {
-      "userId": "2019202359",
-      "userName": "ryanmonteiro2",
       "userFullName": "Ryan Tavares Farias da Silva Monteiro",
       "userDesc": "Ryan Tavares Farias da Silva Monteiro",
       "userIp": "",
       "userIcpcId": "",
-      "userSiteNumber": "1",
-      "userNumber": "2019202359",
-      "userType": "Team",
-      "userEnabled": "Yes",
-      "userMultiLogin": "No",
       "userPassword": "boca",
-      "userChangePass": "Yes",
-      "adminPassword": "boca"
+      "userChangePass": "Yes"
     }
   ],
   "contests": [

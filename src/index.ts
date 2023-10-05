@@ -17,15 +17,16 @@ export const BASE_URL = 'http://localhost:8000/boca';
 async function shouldCreateUser(setup: SetupModel) {
     const admin: LoginModel = setup.logins.admin;
     const users: UserModel[] = setup.users;
+    const user: UserModel = users[0];
 
-    for (const user of users) {
+    // for (const user of users) {
         const browser = await chromium.launch({headless: HEADLESS, slowMo: STEP_DURATION});  // Or 'firefox' or 'webkit'.
         const page = await browser.newPage();
         await login(page, admin);
-        await createUser(page, user);
+        await createUser(page, user, admin);
 
         await browser.close();
-    }
+    // }
 }
 
 async function shouldInsertUsers(setup: SetupModel) {
@@ -42,11 +43,12 @@ async function shouldInsertUsers(setup: SetupModel) {
 async function shouldDeleteUser(setup: SetupModel) {
     const loginObj: LoginModel = setup.logins.admin;
     const user: UserModel = setup.users[0];
+    const admin: LoginModel = setup.logins.admin;
 
     const browser = await chromium.launch({headless: HEADLESS, slowMo: STEP_DURATION});  // Or 'firefox' or 'webkit'.
     const page = await browser.newPage();
     await login(page, loginObj);
-    await deleteUser(page, user);
+    await deleteUser(page, user, admin);
     await browser.close();
 }
 

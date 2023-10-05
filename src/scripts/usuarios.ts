@@ -26,43 +26,34 @@ export async function insertUsers(page: Page, path: string) {
     await page.getByRole('button', { name: 'Import' }).click();
 }
 
-async function fillUser(page: Page, user: UserModel) {
+async function fillUser(page: Page, user: UserModel, admin: LoginModel) {
     await page.goto(BASE_URL+'/admin/');
     await page.getByRole('link', { name: 'Users' }).click();
-    await page.locator('input[name="usersitenumber"]').click();
     await page.locator('input[name="usersitenumber"]').fill(user.userSiteNumber);
-    await page.locator('input[name="usernumber"]').click();
-    await page.locator('input[name="usernumber"]').fill(user.userId);
-    await page.locator('input[name="username"]').click();
+    await page.locator('input[name="usernumber"]').fill(user.userNumber);
     await page.locator('input[name="username"]').fill(user.userName);
-    await page.locator('input[name="usericpcid"]').click();
-    await page.locator('input[name="usericpcid"]').fill(user.userIcpcId);
-    await page.locator('select[name="usertype"]').click();
+    if (user.userIcpcId)
+        await page.locator('input[name="usericpcid"]').fill(user.userIcpcId);
     await page.locator('select[name="usertype"]').selectOption({ label: user.userType });
-    await page.locator('select[name="userenabled"]').click();
-    await page.locator('select[name="userenabled"]').selectOption({ label: user.userEnabled });
-    await page.locator('select[name="usermultilogin"]').click();
-    await page.locator('select[name="usermultilogin"]').selectOption({ label: user.userMultiLogin });
-    await page.locator('input[name="userfullname"]').click();
+    if (user.userEnabled)
+        await page.locator('select[name="userenabled"]').selectOption({ label: user.userEnabled });
+    if (user.userMultiLogin)
+        await page.locator('select[name="usermultilogin"]').selectOption({ label: user.userMultiLogin });
     await page.locator('input[name="userfullname"]').fill(user.userFullName);
-    await page.locator('input[name="userdesc"]').click();
     await page.locator('input[name="userdesc"]').fill(user.userDesc);
-    await page.locator('input[name="userip"]').click();
-    await page.locator('input[name="userip"]').fill(user.userIp);
+    if (user.userIp)
+        await page.locator('input[name="userip"]').fill(user.userIp);
     if (user.userPassword) {
-        await page.locator('input[name="passwordn1"]').click();
         await page.locator('input[name="passwordn1"]').fill(user.userPassword);
-        await page.locator('input[name="passwordn2"]').click();
         await page.locator('input[name="passwordn2"]').fill(user.userPassword);
-        await page.locator('select[name="changepass"]').click();
-        await page.locator('select[name="changepass"]').selectOption({ label: user.userChangePass });
+        if (user.userChangePass)
+            await page.locator('select[name="changepass"]').selectOption({ label: user.userChangePass });
     }
-    await page.locator('input[name="passwordo"]').click();
-    await page.locator('input[name="passwordo"]').fill(user.adminPassword);
+    await page.locator('input[name="passwordo"]').fill(admin.password);
 }
 
-export async function createUser(page: Page, user: UserModel) {
-    await fillUser(page, user);
+export async function createUser(page: Page, user: UserModel, admin: LoginModel) {
+    await fillUser(page, user, admin);
     page.once('dialog', (dialog: Dialog) => {
         console.log(dialog.message());
         dialog.accept().catch(() => {
@@ -72,9 +63,16 @@ export async function createUser(page: Page, user: UserModel) {
     await page.getByRole('button', { name: 'Send' }).click();
 }
 
-export async function deleteUser(page: Page, user: UserModel) {
+export async function deleteUser(page: Page, user: UserModel, admin: LoginModel) {
+    await page.goto(BASE_URL+'/admin/');
     await page.getByRole('link', { name: 'Users' }).click();
-    await page.getByRole('link', { name: user.userId }).click();
+
+    await page.locator("tr", {
+        has: page.locator("td", {hasText: user.userName})
+    }).locator("td").nth(0).click();
+
+    await page.locator('input[name="passwordo"]').fill(admin.password);
+
     page.once('dialog', (dialog: Dialog) => {
         console.log(dialog.message());
         dialog.accept().catch(() => {
