@@ -8,14 +8,15 @@ import {SetupModel} from "./data/setup.ts";
 import {SiteModel} from "./data/site.ts";
 import {createSite} from "./scripts/site.ts";
 import {Contest} from "./scripts/contest.ts";
+import {createProblem, Problem} from "./scripts/problem.ts";
 
 const STEP_DURATION = 200;
 const HEADLESS = false;
 export const BASE_URL = 'http://localhost:8000/boca';
 
-async function shouldCreateUser(path: string) {
-    const admin: LoginModel = (JSON.parse(fs.readFileSync(path, 'utf8')) as SetupModel).logins.admin;
-    const users: UserModel[] = (JSON.parse(fs.readFileSync(path, 'utf8')) as SetupModel).users;
+async function shouldCreateUser(setup: SetupModel) {
+    const admin: LoginModel = setup.logins.admin;
+    const users: UserModel[] = setup.users;
 
     for (const user of users) {
         const browser = await chromium.launch({headless: HEADLESS, slowMo: STEP_DURATION});  // Or 'firefox' or 'webkit'.
@@ -27,9 +28,9 @@ async function shouldCreateUser(path: string) {
     }
 }
 
-async function shouldInsertUsers(path: string) {
-    const userPath = (JSON.parse(fs.readFileSync(path, 'utf8')) as SetupModel).setup.userPath;
-    const admin: LoginModel = (JSON.parse(fs.readFileSync(path, 'utf8')) as SetupModel).logins.admin;
+async function shouldInsertUsers(setup: SetupModel) {
+    const userPath = setup.setup.userPath;
+    const admin: LoginModel = setup.logins.admin;
 
     const browser = await chromium.launch({headless: HEADLESS, slowMo: STEP_DURATION});  // Or 'firefox' or 'webkit'.
     const page = await browser.newPage();
@@ -38,9 +39,9 @@ async function shouldInsertUsers(path: string) {
     await browser.close();
 }
 
-async function shouldDeleteUser(path: string) {
-    const loginObj: LoginModel = (JSON.parse(fs.readFileSync(path, 'utf8')) as SetupModel).logins.admin;
-    const user: UserModel = (JSON.parse(fs.readFileSync(path, 'utf8')) as SetupModel).users[0];
+async function shouldDeleteUser(setup: SetupModel) {
+    const loginObj: LoginModel = setup.logins.admin;
+    const user: UserModel = setup.users[0];
 
     const browser = await chromium.launch({headless: HEADLESS, slowMo: STEP_DURATION});  // Or 'firefox' or 'webkit'.
     const page = await browser.newPage();
@@ -49,9 +50,9 @@ async function shouldDeleteUser(path: string) {
     await browser.close();
 }
 
-async function shouldCreateContest(path: string) {
-    const system: LoginModel = (JSON.parse(fs.readFileSync(path, 'utf8')) as SetupModel).logins.system;
-    const contest: Contest = (JSON.parse(fs.readFileSync(path, 'utf8')) as SetupModel).contests[0];
+async function shouldCreateContest(setup: SetupModel) {
+    const system: LoginModel = setup.logins.system;
+    const contest: Contest = setup.contests[0];
 
     const browser = await chromium.launch({headless: HEADLESS, slowMo: STEP_DURATION});  // Or 'firefox' or 'webkit'.
     const page = await browser.newPage();
@@ -60,9 +61,9 @@ async function shouldCreateContest(path: string) {
     await browser.close();
 }
 
-async function shouldClearContest(path: string) {
-    const system: LoginModel = (JSON.parse(fs.readFileSync(path, 'utf8')) as SetupModel).logins.system;
-    const contest: Contest = (JSON.parse(fs.readFileSync(path, 'utf8')) as SetupModel).contests[0];
+async function shouldClearContest(setup: SetupModel) {
+    const system: LoginModel = setup.logins.system;
+    const contest: Contest = setup.contests[0];
 
     const browser = await chromium.launch({headless: HEADLESS, slowMo: STEP_DURATION});  // Or 'firefox' or 'webkit'.
     const page = await browser.newPage();
@@ -71,9 +72,9 @@ async function shouldClearContest(path: string) {
     await browser.close();
 }
 
-async function shouldCreateSite(path: string) {
-    const admin: LoginModel = (JSON.parse(fs.readFileSync(path, 'utf8')) as SetupModel).logins.admin;
-    const site: SiteModel = (JSON.parse(fs.readFileSync(path, 'utf8')) as SetupModel).contests[0].sites[0];
+async function shouldCreateSite(setup: SetupModel) {
+    const admin: LoginModel = setup.logins.admin;
+    const site: SiteModel = setup.contests[0].sites[0];
 
     const browser = await chromium.launch({headless: HEADLESS, slowMo: STEP_DURATION});  // Or 'firefox' or 'webkit'.
     const page = await browser.newPage();
@@ -82,9 +83,22 @@ async function shouldCreateSite(path: string) {
     await browser.close();
 }
 
+async function shouldCreateProblem(setup: SetupModel) {
+    const admin: LoginModel = setup.logins.admin;
+    const problems: Problem[] = setup.contests[0].problems;
+
+    for (const problem of problems) {
+        const browser = await chromium.launch({headless: HEADLESS, slowMo: STEP_DURATION});  // Or 'firefox' or 'webkit'.
+        const page = await browser.newPage();
+        await login(page, admin);
+        await createProblem(page, problem);
+        await browser.close();
+    }
+}
+
 
 function main() {
-    const methods: Record<string, (path: string) => Promise<void>> = {
+    const methods: Record<string, (setup: SetupModel) => Promise<void>> = {
         // Users
         shouldCreateUser,
         shouldInsertUsers,
@@ -94,14 +108,18 @@ function main() {
         shouldClearContest,
         // Sites
         shouldCreateSite,
+        // Problems
+        shouldCreateProblem
     }
-    
+
     const args = process.argv.splice(2);
     const path = args[0];
     const method = args[1] as keyof typeof methods;
 
-    const func = methods[method] as (path: string) => Promise<void>;
-    func(path).then(() => console.log('Done!'));
+    const setup = (JSON.parse(fs.readFileSync(path, 'utf8')) as SetupModel);
+
+    const func = methods[method] as (setup: SetupModel) => Promise<void>;
+    func(setup).then(() => console.log('Done!'));
     return 0;
 }
 
