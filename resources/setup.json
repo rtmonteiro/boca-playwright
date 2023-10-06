@@ -1,8 +1,8 @@
 {
   "setup": {
-    "url": "",
-    "contestId": "1",
-    "userPath": ""
+    "url": "localhost:8000/boca",
+    "userPath": "resources/BOCA_USERS.txt",
+    "outDir": "out"
   },
   "logins": {
     "system": {
