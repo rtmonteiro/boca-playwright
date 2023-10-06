@@ -1,12 +1,12 @@
 import {UserModel} from "./user.ts";
 import {LoginModel} from "./login.ts";
-import {Contest} from "../scripts/contest.ts";
+import {Contest} from "./contest.ts";
 
 export interface SetupModel {
     setup: {
         url: string,
-        contestId: string,
         userPath: string,
+        outDir: string;
     },
     logins: {
         system: LoginModel,

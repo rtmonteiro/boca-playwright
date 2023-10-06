@@ -1,19 +1,21 @@
-import {chromium} from "playwright";
-import {LoginModel} from "./data/login.ts";
-import {UserModel} from "./data/user.ts";
-import {createUser, deleteUser, insertUsers, login} from "./scripts/usuarios.ts";
-import {createContest, clearContest} from "./scripts/system.ts";
 import * as fs from "fs";
+import {chromium} from "playwright";
+import {Contest} from "./data/contest.ts";
+import {LoginModel} from "./data/login.ts";
 import {SetupModel} from "./data/setup.ts";
 import {SiteModel} from "./data/site.ts";
-import {createSite} from "./scripts/site.ts";
-import {Contest} from "./scripts/contest.ts";
+import {UserModel} from "./data/user.ts";
+import {createContest, clearContest} from "./scripts/system.ts";
 import {createProblem, Problem} from "./scripts/problem.ts";
+import {createSite} from "./scripts/site.ts";
+import {createUser, deleteUser, insertUsers, login} from "./scripts/usuarios.ts";
+import {retrieveFiles} from "./scripts/report.ts";
 
 const STEP_DURATION = 200;
 const HEADLESS = false;
-export const BASE_URL = 'http://localhost:8000/boca';
+export let BASE_URL = 'http://localhost:8000/boca';
 
+// region Users
 async function shouldCreateUser(setup: SetupModel) {
     const admin: LoginModel = setup.logins.admin;
     const users: UserModel[] = setup.users;
@@ -51,7 +53,9 @@ async function shouldDeleteUser(setup: SetupModel) {
     await deleteUser(page, user, admin);
     await browser.close();
 }
+// endregion
 
+// region Contests
 async function shouldCreateContest(setup: SetupModel) {
     const system: LoginModel = setup.logins.system;
     const contest: Contest = setup.contests[0];
@@ -73,7 +77,9 @@ async function shouldClearContest(setup: SetupModel) {
     await clearContest(page, contest);
     await browser.close();
 }
+// endregion
 
+// region Sites
 async function shouldCreateSite(setup: SetupModel) {
     const admin: LoginModel = setup.logins.admin;
     const site: SiteModel = setup.contests[0].sites[0];
@@ -84,7 +90,9 @@ async function shouldCreateSite(setup: SetupModel) {
     await createSite(page, site);
     await browser.close();
 }
+// endregion
 
+// region Problems
 async function shouldCreateProblem(setup: SetupModel) {
     const admin: LoginModel = setup.logins.admin;
     const problems: Problem[] = setup.contests[0].problems;
@@ -97,7 +105,22 @@ async function shouldCreateProblem(setup: SetupModel) {
         await browser.close();
     }
 }
+// endregion
 
+// region Reports
+
+async function shouldGenerateReport(setup: SetupModel) {
+    const admin: LoginModel = setup.logins.admin;
+    const outDir = setup.setup.outDir;
+
+    const browser = await chromium.launch({headless: HEADLESS, slowMo: STEP_DURATION});  // Or 'firefox' or 'webkit'.
+    const page = await browser.newPage();
+    await login(page, admin);
+    await retrieveFiles(page, outDir);
+    await browser.close();
+}
+
+// endregion
 
 function main() {
     const methods: Record<string, (setup: SetupModel) => Promise<void>> = {
@@ -111,7 +134,9 @@ function main() {
         // Sites
         shouldCreateSite,
         // Problems
-        shouldCreateProblem
+        shouldCreateProblem,
+        // Reports
+        shouldGenerateReport,
     }
 
     const args = process.argv.splice(2);
@@ -119,8 +144,9 @@ function main() {
     const method = args[1] as keyof typeof methods;
 
     const setup = (JSON.parse(fs.readFileSync(path, 'utf8')) as SetupModel);
+    BASE_URL = setup.setup.url;
 
-    const func = methods[method] as (setup: SetupModel) => Promise<void>;
+    const func = methods[method];
     func(setup).then(() => console.log('Done!'));
     return 0;
 }

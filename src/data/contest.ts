@@ -1,6 +1,6 @@
-import {SiteModel} from "../data/site.ts";
-import {Language} from "./language.ts";
-import {Problem} from "./problem.ts";
+import {SiteModel} from "./site.ts";
+import {Language} from "../scripts/language.ts";
+import {Problem} from "../scripts/problem.ts";
 
 export interface Contest {
     sites: SiteModel[];

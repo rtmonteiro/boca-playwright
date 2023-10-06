@@ -2,7 +2,7 @@ import {Dialog, Page} from "playwright";
 import {DateTime} from "luxon";
 import {BASE_URL} from "../index.ts";
 import {defineDurationInMinutes} from "../utils/time.ts";
-import {Contest} from "./contest.ts";
+import {Contest} from "../data/contest.ts";
 
 async function fillContest(page: Page, contest: Contest) {
     await page.goto(BASE_URL+'/system/');
