@@ -1,5 +1,5 @@
 import {SiteModel} from "./site";
-import {Language} from "../scripts/language";
+import {Language} from "./language";
 import {Problem} from "../scripts/problem";
 
 export interface Contest {

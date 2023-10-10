@@ -10,6 +10,7 @@ import {createProblem, Problem} from "./scripts/problem";
 import {createSite} from "./scripts/site";
 import {createUser, deleteUser, insertUsers, login} from "./scripts/usuarios";
 import { retrieveFiles } from "./scripts/report";
+import {Language} from "./data/language";
 
 const STEP_DURATION = 200;
 const HEADLESS = false;

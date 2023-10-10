@@ -15,7 +15,7 @@ async function fillContest(page: Page, contest: Contest) {
     await page.locator('input[name="name"]').click();
     await page.locator('input[name="name"]').fill(contest.setup.name);
 
-    const startDate = DateTime.fromFormat(contest.setup.startDate, 'yyyy-MM-dd HH:mm')
+    const startDate = DateTime.fromFormat(contest.setup.startDate, 'yyyy-MM-dd HH:mm');
     await page.locator('input[name="startdateh"]').click();
     await page.locator('input[name="startdateh"]').fill(startDate.hour.toString());
     await page.locator('input[name="startdatemin"]').click();
@@ -28,7 +28,7 @@ async function fillContest(page: Page, contest: Contest) {
     await page.locator('input[name="startdatey"]').fill(startDate.year.toString());
     await page.locator('input[name="duration"]').click();
     const endDate = DateTime.fromFormat(contest.setup.endDate, 'yyyy-MM-dd HH:mm');
-    const duration = await defineDurationInMinutes(startDate, endDate);
+    const duration = defineDurationInMinutes(startDate, endDate);
     await page.locator('input[name="duration"]').fill(duration.toString());
 
     await page.locator('input[name="lastmileanswer"]').click();
@@ -85,6 +85,9 @@ export async function createContest(page: Page, contest: Contest) {
 }
 
 export async function clearContest(page: Page, contest: Contest) {
+    if (!contest.setup.id) {
+        throw new Error('Contest ID is not defined');
+    }
     await page.goto(BASE_URL+'/system/');
     await page.getByRole('link', { name: 'Contest' }).click();
     await page.locator('select[name="contest"]').selectOption(contest.setup.id.toString());

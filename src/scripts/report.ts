@@ -21,7 +21,7 @@ async function saveFiles(page: Page, link: Locator, outDir: string, username: st
     const statusInt : number = Number(await page.locator("select").inputValue());
     const status : string = statusArr[statusInt];
     const label = statusInt == 1 ? 'YES' : 'NO';
-    const run = (await page.locator("html > body > form > center:nth-of-type(1) > table > tbody > tr:nth-of-type(2) > td:nth-of-type(2)").textContent()).trim();
+    const run = (await page.locator("html > body > form > center:nth-of-type(1) > table > tbody > tr:nth-of-type(2) > td:nth-of-type(2)").textContent())!!.trim();
 
     const path = `${outDir}/${username}/${problem}/${run}_${label}`;
 
@@ -52,8 +52,8 @@ export async function retrieveFiles(page: Page, outDir: string) {
 
     for (const row of rows) {
         const link = await row.locator("td:nth-of-type(1) > a");
-        const username = await row.locator("td:nth-of-type(3)").textContent();
-        const problem = await row.locator("td:nth-of-type(5)").textContent();
+        const username = (await row.locator("td:nth-of-type(3)").textContent())!!;
+        const problem = (await row.locator("td:nth-of-type(5)").textContent())!!;
 
         await saveFiles(page, link, outDir, username, problem);
 
