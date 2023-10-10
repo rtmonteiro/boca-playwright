@@ -1,15 +1,15 @@
 import * as fs from "fs";
 import {chromium} from "playwright";
-import {Contest} from "./data/contest.ts";
-import {LoginModel} from "./data/login.ts";
-import {SetupModel} from "./data/setup.ts";
-import {SiteModel} from "./data/site.ts";
-import {UserModel} from "./data/user.ts";
-import {createContest, clearContest} from "./scripts/system.ts";
-import {createProblem, Problem} from "./scripts/problem.ts";
-import {createSite} from "./scripts/site.ts";
-import {createUser, deleteUser, insertUsers, login} from "./scripts/usuarios.ts";
-import {retrieveFiles} from "./scripts/report.ts";
+import {Contest} from "./data/contest";
+import {LoginModel} from "./data/login";
+import {SetupModel} from "./data/setup";
+import {SiteModel} from "./data/site";
+import {UserModel} from "./data/user";
+import {createContest, clearContest} from "./scripts/system";
+import {createProblem, Problem} from "./scripts/problem";
+import {createSite} from "./scripts/site";
+import {createUser, deleteUser, insertUsers, login} from "./scripts/usuarios";
+import { retrieveFiles } from "./scripts/report";
 
 const STEP_DURATION = 200;
 const HEADLESS = false;

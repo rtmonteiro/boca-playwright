@@ -1,8 +1,8 @@
 import {Page} from "playwright";
-import {BASE_URL} from "../index.ts";
-import {SiteModel} from "../data/site.ts";
+import {BASE_URL} from "../index";
+import {SiteModel} from "../data/site";
 import {DateTime} from "luxon";
-import {defineDurationInMinutes} from "../utils/time.ts";
+import {defineDurationInMinutes} from "../utils/time";
 export async function fillSite(page: Page, site: SiteModel) {
     await page.goto(BASE_URL+'/admin/');
     await page.getByRole('link', { name: 'Site' }).click();

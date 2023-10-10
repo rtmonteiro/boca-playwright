@@ -1,5 +1,5 @@
 import {Dialog, Page} from "playwright";
-import {BASE_URL} from "../index.ts";
+import {BASE_URL} from "../index";
 export interface Problem {
     id: number;
     name: string;

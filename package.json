@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node src/index.ts",
+    "start": "ts-node src/index",
     "test": "npx playwright test",
     "test:debug": "npx playwright test --debug"
   },

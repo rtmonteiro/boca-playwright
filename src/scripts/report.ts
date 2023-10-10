@@ -1,6 +1,6 @@
 import {Locator, Page} from "playwright";
 import * as fs from "fs";
-import {BASE_URL} from "../index.ts";
+import {BASE_URL} from "../index";
 
 const statusArr = [ 'NA', 'YES', 'NO_Compilation', 'NO_Runtime', 'NO_Timelimit', 'NO_Presentation', 'NO_Wrong', 'NO_Contact', 'NO_Name' ];
 
