@@ -10,6 +10,7 @@ import {createProblem, Problem} from "./scripts/problem";
 import {createSite} from "./scripts/site";
 import {createUser, deleteUser, insertUsers, login} from "./scripts/usuarios";
 import { retrieveFiles } from "./scripts/report";
+import {createLanguage, deleteLanguage} from "./scripts/language";
 import {Language} from "./data/language";
 
 const STEP_DURATION = 200;
@@ -108,6 +109,36 @@ async function shouldCreateProblem(setup: SetupModel) {
 }
 // endregion
 
+// region Languages
+
+async function shouldCreateLanguage(setup: SetupModel) {
+    const admin: LoginModel = setup.logins.admin;
+    const languages: Language[] = setup.contests[0].languages;
+
+    for (const language of languages) {
+        const browser = await chromium.launch({headless: HEADLESS, slowMo: STEP_DURATION});  // Or 'firefox' or 'webkit'.
+        const page = await browser.newPage();
+        await login(page, admin);
+        await createLanguage(page, language);
+        await browser.close();
+    }
+}
+
+async function shouldDeleteLanguage(setup: SetupModel) {
+    const admin: LoginModel = setup.logins.admin;
+    const languages: Language[] = setup.contests[0].languages;
+
+    for (const language of languages) {
+        const browser = await chromium.launch({headless: HEADLESS, slowMo: STEP_DURATION});  // Or 'firefox' or 'webkit'.
+        const page = await browser.newPage();
+        await login(page, admin);
+        await deleteLanguage(page, language);
+        await browser.close();
+    }
+}
+
+// endregion
+
 // region Reports
 
 async function shouldGenerateReport(setup: SetupModel) {
@@ -136,6 +167,9 @@ function main() {
         shouldCreateSite,
         // Problems
         shouldCreateProblem,
+        // Languages
+        shouldCreateLanguage,
+        shouldDeleteLanguage,
         // Reports
         shouldGenerateReport,
     }
