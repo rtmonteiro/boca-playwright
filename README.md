@@ -2,11 +2,31 @@
 
 ## Como rodar o projeto
 
+### Localmente
+
 - Instalar o [Node.js](https://nodejs.org/en/download/)
 - Executar o comando `npm install` na pasta do projeto
-- Executar o comando `npm start -- resources/setup.json shouldCreateUser` na pasta do projeto
+- Executar o comando `npm start -- <caminho do arquivo de configuração> <comando>` na pasta do projeto
 
-## Lista de ações
+### Docker
+
+- Instalar o [Docker](https://docs.docker.com/get-docker/)
+- Criar um arquivo de configuração seguindo o modelo do arquivo `resources/setup.json`
+- Executar o comando `docker build -t boca-playwright .` na pasta do projeto
+- Executar o comando `docker run -it --rm boca-playwright <caminho do arquivo de configuração> <comando>` na pasta do projeto
+
+## Lista de comandos
+
+- shouldCreateUser
+- shouldInsertUsers
+- shouldDeleteUser
+- shouldCreateContest
+- shouldClearContest
+- shouldCreateSite
+- shouldCreateProblem
+- shouldGenerateReport
+
+### Exemplos
 
 - Cria usuário a partir dos valores dentro do arquivo JSON na propriedade `users`
     ```bash
