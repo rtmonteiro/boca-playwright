@@ -14,7 +14,7 @@ import {createLanguage, deleteLanguage} from "./scripts/language";
 import {Language} from "./data/language";
 
 const STEP_DURATION = 200;
-const HEADLESS = false;
+const HEADLESS = true;
 export let BASE_URL = 'http://localhost:8000/boca';
 
 // region Users
