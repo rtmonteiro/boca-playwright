@@ -2,9 +2,9 @@ import {Dialog, Page} from "playwright";
 import {DateTime} from "luxon";
 import {BASE_URL} from "../index";
 import {defineDurationInMinutes} from "../utils/time";
-import {Contest} from "../data/contest";
+import {ContestModel} from "../data/contest";
 
-async function fillContest(page: Page, contest: Contest) {
+async function fillContest(page: Page, contest: ContestModel) {
     await page.goto(BASE_URL+'/system/');
     await page.getByRole('link', { name: 'Contest' }).click();
     if (contest.setup.id) {
@@ -69,7 +69,7 @@ async function fillContest(page: Page, contest: Contest) {
     await page.locator('input[name="localsite"]').fill(contest.setup.localSiteNumber.toString());
 }
 
-export async function createContest(page: Page, contest: Contest) {
+export async function createContest(page: Page, contest: ContestModel) {
     await fillContest(page, contest);
     page.once('dialog', (dialog: Dialog) => {
         console.log(dialog.message());
@@ -84,7 +84,7 @@ export async function createContest(page: Page, contest: Contest) {
     }
 }
 
-export async function clearContest(page: Page, contest: Contest) {
+export async function clearContest(page: Page, contest: ContestModel) {
     if (!contest.setup.id) {
         throw new Error('Contest ID is not defined');
     }

@@ -1,6 +1,7 @@
-import {UserModel} from "./user";
-import {LoginModel} from "./login";
-import {Contest} from "./contest";
+import {UserModel, userModelSchema} from "./user";
+import {LoginModel, loginModelSchema} from "./login";
+import {ContestModel, contestModelSchema} from "./contest";
+import {z} from "zod";
 
 export interface SetupModel {
     setup: {
@@ -13,5 +14,19 @@ export interface SetupModel {
         admin: LoginModel,
     },
     users: UserModel[],
-    contests: Contest[],
+    contests: ContestModel[],
 }
+
+export const setupModelSchema = z.object({
+    setup: z.object({
+        url: z.string().url(),
+        userPath: z.string(),
+        outDir: z.string(),
+    }),
+    logins: z.object({
+        system: loginModelSchema,
+        admin: loginModelSchema,
+    }),
+    users: z.array(userModelSchema).optional(),
+    contests: z.array(contestModelSchema).optional(),
+});

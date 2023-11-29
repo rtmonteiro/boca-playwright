@@ -1,12 +1,12 @@
 import * as fs from "fs";
 import {chromium} from "playwright";
-import {Contest} from "./data/contest";
+import {ContestModel} from "./data/contest";
 import {LoginModel} from "./data/login";
-import {SetupModel} from "./data/setup";
+import {SetupModel, setupModelSchema} from "./data/setup";
 import {SiteModel} from "./data/site";
 import {UserModel} from "./data/user";
 import {createContest, clearContest} from "./scripts/system";
-import {createProblem, Problem} from "./scripts/problem";
+import {createProblem} from "./scripts/problem";
 import {createSite} from "./scripts/site";
 import {createUser, deleteUser, insertUsers, login} from "./scripts/usuarios";
 import { retrieveFiles } from "./scripts/report";
@@ -14,6 +14,8 @@ import {createLanguage, deleteLanguage} from "./scripts/language";
 import {Language} from "./data/language";
 import {Logger} from "./logger";
 import {ReadErrors} from "./errors/read_errors";
+import {ZodError} from "zod";
+import {Problem} from "./data/problem";
 
 const STEP_DURATION = 200;
 const HEADLESS = true;
@@ -62,7 +64,7 @@ async function shouldDeleteUser(setup: SetupModel) {
 // region Contests
 async function shouldCreateContest(setup: SetupModel) {
     const system: LoginModel = setup.logins.system;
-    const contest: Contest = setup.contests[0];
+    const contest: ContestModel = setup.contests[0];
 
     const browser = await chromium.launch({headless: HEADLESS, slowMo: STEP_DURATION});  // Or 'firefox' or 'webkit'.
     const page = await browser.newPage();
@@ -73,7 +75,7 @@ async function shouldCreateContest(setup: SetupModel) {
 
 async function shouldClearContest(setup: SetupModel) {
     const system: LoginModel = setup.logins.system;
-    const contest: Contest = setup.contests[0];
+    const contest: ContestModel = setup.contests[0];
 
     const browser = await chromium.launch({headless: HEADLESS, slowMo: STEP_DURATION});  // Or 'firefox' or 'webkit'.
     const page = await browser.newPage();
@@ -187,6 +189,14 @@ function main() {
         return 1;
     }
     const setup = (JSON.parse(fs.readFileSync(path, 'utf8')) as SetupModel);
+    try {
+        setupModelSchema.parse(setup);
+    } catch (e) {
+        if (e instanceof ZodError) {
+            console.error(e);
+        }
+        return 1;
+    }
     BASE_URL = setup.setup.url;
 
     const func = methods[method];

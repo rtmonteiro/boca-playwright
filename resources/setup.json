@@ -17,7 +17,7 @@
   "users": [
     {
       "userSiteNumber": "1",
-      "userNumber": "2019202359",
+      "userNumber": 2019202359,
       "userName": "ryanmonteiro",
       "userType": "Team",
       "userFullName": "Ryan Tavares Farias da Silva Monteiro",
@@ -27,15 +27,13 @@
     },
     {
       "userSiteNumber": "1",
-      "userNumber": "2019202359",
+      "userNumber": 2019202359,
       "userName": "ryanmonteiro2",
       "userType": "Team",
       "userEnabled": "Yes",
       "userMultiLogin": "No",
       "userFullName": "Ryan Tavares Farias da Silva Monteiro",
       "userDesc": "Ryan Tavares Farias da Silva Monteiro",
-      "userIp": "",
-      "userIcpcId": "",
       "userPassword": "boca",
       "userChangePass": "Yes"
     }
@@ -56,12 +54,12 @@
         }
       ],
       "setup": {
-        "id": "1",
+        "id": 1,
         "name": "Contest 1",
         "startDate": "2023-10-10 10:00",
         "endDate": "2023-10-18 10:00",
-        "mainSiteNumber": "1",
-        "localSiteNumber": "1",
+        "mainSiteNumber": 1,
+        "localSiteNumber": 1,
         "active": true
       },
       "languages": [
@@ -83,9 +81,13 @@
     },
     {
       "setup": {
+        "id": 2,
+        "name": "Contest 2",
         "startDate": "2023-10-10 10:00",
         "endDate": "2023-10-18 10:00",
-        "active": true
+        "active": true,
+        "mainSiteNumber": 1,
+        "localSiteNumber": 1
       },
       "languages": [
         {
