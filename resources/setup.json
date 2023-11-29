@@ -87,7 +87,7 @@
         "endDate": "2023-10-18 10:00",
         "active": true,
         "mainSiteNumber": 1,
-        "localSiteNumber": 1
+        "localSiteNumber": "1"
       },
       "languages": [
         {

@@ -1,4 +1,6 @@
 import {createLogger, format, transports, Logger as LoggerW} from "winston";
+import {ZodError} from "zod";
+import {ReadErrors} from "./errors/read_errors";
 
 export class Logger {
 
@@ -36,15 +38,16 @@ export class Logger {
         return Logger.instance;
     }
 
-    logInfo(message: string) {
-        this.log.info({
-            message: message
-        });
+    logInfo(message: string, ...params: any[]) {
+        this.log.info(message, ...params);
     }
 
-    logError(message: string) {
-        this.log.error({
-            message: message
-        });
+    logError(message: string, ...params: any[]) {
+        this.log.error(message, ...params);
+    }
+
+    logZodError(error: ZodError) {
+        this.log.error(ReadErrors.SETUP_INVALID);
+        console.error(error.errors);
     }
 }

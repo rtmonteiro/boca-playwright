@@ -181,11 +181,12 @@ function main() {
     const args = process.argv.splice(2);
     const path = args[0];
     const method = args[1] as keyof typeof methods;
+    const logger = Logger.getInstance();
 
     try {
         fs.accessSync(path, fs.constants.R_OK);
     } catch (e) {
-        Logger.getInstance().logError(ReadErrors.SETUP_NOT_FOUND);
+        logger.logError(ReadErrors.SETUP_NOT_FOUND);
         return 1;
     }
     const setup = (JSON.parse(fs.readFileSync(path, 'utf8')) as SetupModel);
@@ -193,14 +194,16 @@ function main() {
         setupModelSchema.parse(setup);
     } catch (e) {
         if (e instanceof ZodError) {
-            console.error(e);
+            logger.logZodError(e)
         }
         return 1;
+    } finally {
+        logger.logInfo('Using setup file: %s', path);
     }
     BASE_URL = setup.setup.url;
 
     const func = methods[method];
-    func(setup).then(() => console.log('Done!'));
+    func(setup).then(() => logger.logInfo('Done!'));
     return 0;
 }
 
