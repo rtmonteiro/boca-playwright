@@ -12,6 +12,8 @@ import {createUser, deleteUser, insertUsers, login} from "./scripts/usuarios";
 import { retrieveFiles } from "./scripts/report";
 import {createLanguage, deleteLanguage} from "./scripts/language";
 import {Language} from "./data/language";
+import {Logger} from "./logger";
+import {ReadErrors} from "./errors/read_errors";
 
 const STEP_DURATION = 200;
 const HEADLESS = true;
@@ -178,6 +180,12 @@ function main() {
     const path = args[0];
     const method = args[1] as keyof typeof methods;
 
+    try {
+        fs.accessSync(path, fs.constants.R_OK);
+    } catch (e) {
+        Logger.getInstance().logError(ReadErrors.SETUP_NOT_FOUND);
+        return 1;
+    }
     const setup = (JSON.parse(fs.readFileSync(path, 'utf8')) as SetupModel);
     BASE_URL = setup.setup.url;
 
