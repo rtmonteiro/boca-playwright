@@ -1,0 +1,22 @@
+{
+    "setup": {
+        "url": "localhost:8000/boca"
+    },
+    "logins": {
+        "system": {
+            "username": "system",
+            "password": "boca"
+        }
+    },
+    "contests": [
+        {
+            "setup": {
+                "name": "Contest 1",
+                "startDate": "2023-10-10 10:00",
+                "endDate": "2023-10-18 10:00",
+                "mainSiteNumber": 1,
+                "active": true
+            }
+        }
+    ]
+}

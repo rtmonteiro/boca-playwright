@@ -64,6 +64,10 @@ async function shouldDeleteUser(setup: SetupModel) {
 
 // region Contests
 async function shouldCreateContest(setup: SetupModel) {
+    // instantiate logger
+    const logger = Logger.getInstance();
+    logger.logInfo('Creating contest');
+
     // validate setup file with zod
     const validate = new Validate(setup);
     validate.loginSystem();
@@ -71,9 +75,12 @@ async function shouldCreateContest(setup: SetupModel) {
     validate.createContest();
     const contest: ContestModel = setup.contests[0];
 
+    // create contest
     const browser = await chromium.launch({headless: HEADLESS, slowMo: STEP_DURATION});  // Or 'firefox' or 'webkit'.
     const page = await browser.newPage();
+    logger.logInfo('Logging in with system user: %s', system.username);
     await login(page, system);
+    logger.logInfo('Creating contest: %s', contest.setup.name);
     await createContest(page, contest);
     await browser.close();
 }
