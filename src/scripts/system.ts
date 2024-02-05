@@ -65,8 +65,11 @@ async function fillContest(page: Page, contest: ContestModel) {
     await page.locator('input[name="mainsite"]').click();
     await page.locator('input[name="mainsite"]').fill(contest.setup.mainSiteNumber.toString());
 
-    await page.locator('input[name="localsite"]').click();
-    await page.locator('input[name="localsite"]').fill(contest.setup.localSiteNumber.toString());
+    if (contest.setup.localSiteNumber) {
+        await page.locator('input[name="localsite"]').fill(contest.setup.localSiteNumber.toString());
+    } else {
+        await page.locator('input[name="localsite"]').fill(contest.setup.mainSiteNumber.toString());
+    }
 }
 
 export async function createContest(page: Page, contest: ContestModel) {

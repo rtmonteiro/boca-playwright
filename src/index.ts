@@ -16,6 +16,7 @@ import {Logger} from "./logger";
 import {ReadErrors} from "./errors/read_errors";
 import {ZodError} from "zod";
 import {Problem} from "./data/problem";
+import { Validate } from "./data/validate";
 
 const STEP_DURATION = 200;
 const HEADLESS = true;
@@ -63,7 +64,11 @@ async function shouldDeleteUser(setup: SetupModel) {
 
 // region Contests
 async function shouldCreateContest(setup: SetupModel) {
+    // validate setup file with zod
+    const validate = new Validate(setup);
+    validate.loginSystem();
     const system: LoginModel = setup.logins.system;
+    validate.createContest();
     const contest: ContestModel = setup.contests[0];
 
     const browser = await chromium.launch({headless: HEADLESS, slowMo: STEP_DURATION});  // Or 'firefox' or 'webkit'.
@@ -203,7 +208,9 @@ function main() {
     BASE_URL = setup.setup.url;
 
     const func = methods[method];
-    func(setup).then(() => logger.logInfo('Done!'));
+    func(setup)
+        .catch((e) => logger.logError(e))
+        .then(() => logger.logInfo('Done!'));
     return 0;
 }
 

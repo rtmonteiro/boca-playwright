@@ -20,13 +20,5 @@ export interface SetupModel {
 export const setupModelSchema = z.object({
     setup: z.object({
         url: z.string().url(),
-        userPath: z.string(),
-        outDir: z.string(),
-    }),
-    logins: z.object({
-        system: loginModelSchema,
-        admin: loginModelSchema,
-    }),
-    users: z.array(userModelSchema).optional(),
-    contests: z.array(contestModelSchema).optional(),
+    })
 });
