@@ -69,7 +69,7 @@ export async function fillSite(page: Page, site: SiteModel) {
 export async function createSite(page: Page, site: SiteModel) {
     await fillSite(page, site);
     page.once('dialog', dialog => {
-        console.log(`Dialog message: ${dialog.message()}`);
+
         dialog.dismiss().catch(() => {});
     });
     await page.getByRole('button', { name: 'Send' }).click();

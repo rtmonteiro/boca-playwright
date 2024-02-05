@@ -21,7 +21,7 @@ async function fillProblems(page: Page, problem: Problem) {
 export async function createProblem(page: Page, problem: Problem) {
     await fillProblems(page, problem);
     page.once('dialog', (dialog: Dialog) => {
-        console.log(`Dialog message: ${dialog.message()}`);
+
         dialog.accept().catch(() => {
             console.error('Dialog was already closed when dismissed');
         })

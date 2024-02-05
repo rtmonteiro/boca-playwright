@@ -3,7 +3,16 @@ import { SetupModel } from "./setup";
 
 export class Validate {
 
-    createContestSchema = z.object({
+    private loginSystemSchema = z.object({
+        logins: z.object({
+            system: z.object({
+                username: z.string(),
+                password: z.string(),
+            }),
+        }),
+    })
+
+    private createContestSchema = z.object({
         contests: z.array(z.object({
             setup: z.object({
                 name: z.string(),
@@ -21,14 +30,14 @@ export class Validate {
         })),
     });
 
-    loginSystemSchema = z.object({
-        logins: z.object({
-            system: z.object({
-                username: z.string(),
-                password: z.string(),
-            }),
-        }),
-    })
+    private updateContestSchema = this.createContestSchema
+        .extend({
+            contests: z.array(z.object({
+                setup: z.object({
+                    id: z.number(),
+                })
+            })),
+        });
 
     constructor(public setup: SetupModel) {}
 
@@ -38,5 +47,9 @@ export class Validate {
 
     createContest() {
         this.createContestSchema.parse(this.setup);
+    }
+
+    updateContest() {
+        this.updateContestSchema.parse(this.setup);
     }
 }
