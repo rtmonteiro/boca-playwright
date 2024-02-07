@@ -28,7 +28,7 @@ export async function insertUsers(page: Page, path: string) {
 async function fillUser(page: Page, user: UserModel, admin: LoginModel) {
     await page.goto(BASE_URL+'/admin/');
     await page.getByRole('link', { name: 'Users' }).click();
-    await page.locator('input[name="usersitenumber"]').fill(user.userSiteNumber || '1');
+    await page.locator('input[name="usersitenumber"]').fill(user.userSiteNumber?.toString() || '1');
     await page.locator('input[name="usernumber"]').fill(user.userNumber);
     await page.locator('input[name="username"]').fill(user.userName);
     if (user.userIcpcId)

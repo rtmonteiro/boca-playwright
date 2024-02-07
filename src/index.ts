@@ -26,7 +26,7 @@ export let BASE_URL = 'http://localhost:8000/boca';
 async function shouldCreateUser(setup: SetupModel) {
     // instantiate logger
     const logger = Logger.getInstance();
-    logger.logInfo('Creating contest');
+    logger.logInfo('Creating users');
 
     // validate setup file with zod
     const validate = new Validate(setup);
@@ -35,14 +35,14 @@ async function shouldCreateUser(setup: SetupModel) {
     validate.createUser();
     const users: UserModel[] = setup.users;
 
+    const browser = await chromium.launch({headless: HEADLESS, slowMo: STEP_DURATION});
+    const page = await browser.newPage();
+    logger.logInfo('Logging in with admin user: %s', admin.username);
+    await login(page, admin);
     for (const user of users) {
-        const browser = await chromium.launch({headless: HEADLESS, slowMo: STEP_DURATION});
-        const page = await browser.newPage();
-        await login(page, admin);
         await createUser(page, user, admin);
-
-        await browser.close();
     }
+    await browser.close();
 }
 
 async function shouldInsertUsers(setup: SetupModel) {

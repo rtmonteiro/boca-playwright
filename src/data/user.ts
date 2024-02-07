@@ -1,7 +1,7 @@
 import {z} from "zod";
 
 export interface UserModel {
-    userSiteNumber?: string;
+    userSiteNumber?: number;
     userNumber: string;
     userName: string;
     userIcpcId?: string;
@@ -38,7 +38,7 @@ export const userModelSchema = z.object({
 })
 
 export const user: UserModel = {
-    userSiteNumber: '1',
+    userSiteNumber: 1,
     userNumber: '2019202359',
     userName: 'ryanmonteiro',
     userType: 'Team',

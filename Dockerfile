@@ -15,6 +15,6 @@ RUN npx playwright install
 RUN npx playwright install-deps
 
 # Bundle app source
-COPY . .
+COPY src src
 
 ENTRYPOINT [ "npm", "start" ]

@@ -1,4 +1,4 @@
- name: boca-playwright
+name: boca-playwright
 services:
     script:
         build: .
@@ -7,4 +7,4 @@ services:
         volumes:
             - ./resources/mocks:/mocks
         network_mode: host
-        command: /mocks/clear_contest.json shouldClearContest
+        command: /mocks/create_user.json shouldCreateUser
