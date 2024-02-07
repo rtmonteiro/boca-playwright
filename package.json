@@ -17,6 +17,8 @@
     "luxon": "^3.4.3",
     "playwright": "^1.38.1",
     "ts-node": "^10.9.1",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "winston": "^3.11.0",
+    "zod": "^3.22.4"
   }
 }

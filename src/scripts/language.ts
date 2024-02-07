@@ -14,7 +14,6 @@ export async function deleteLanguage(page: Page, language: Language) {
     await page.goto(BASE_URL + '/admin/language.php');
 
     page.on('dialog', (dialog: Dialog) => {
-        console.log(`Dialog message: ${dialog.message()}`);
         dialog.accept().catch(() => {
             console.error('Dialog was already closed when dismissed');
         })

@@ -1,12 +1,6 @@
 import {Dialog, Page} from "playwright";
 import {BASE_URL} from "../index";
-export interface Problem {
-    id: number;
-    name: string;
-    filePath: string;
-    colorName?: string;
-    colorCode?: string;
-}
+import {Problem} from "../data/problem";
 
 async function fillProblems(page: Page, problem: Problem) {
     await page.goto(BASE_URL+'/admin/');
@@ -27,7 +21,7 @@ async function fillProblems(page: Page, problem: Problem) {
 export async function createProblem(page: Page, problem: Problem) {
     await fillProblems(page, problem);
     page.once('dialog', (dialog: Dialog) => {
-        console.log(`Dialog message: ${dialog.message()}`);
+
         dialog.accept().catch(() => {
             console.error('Dialog was already closed when dismissed');
         })

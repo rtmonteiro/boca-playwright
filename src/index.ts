@@ -1,17 +1,22 @@
 import * as fs from "fs";
 import {chromium} from "playwright";
-import {Contest} from "./data/contest";
+import {ContestModel} from "./data/contest";
 import {LoginModel} from "./data/login";
-import {SetupModel} from "./data/setup";
+import {SetupModel, setupModelSchema} from "./data/setup";
 import {SiteModel} from "./data/site";
 import {UserModel} from "./data/user";
 import {createContest, clearContest} from "./scripts/system";
-import {createProblem, Problem} from "./scripts/problem";
+import {createProblem} from "./scripts/problem";
 import {createSite} from "./scripts/site";
 import {createUser, deleteUser, insertUsers, login} from "./scripts/usuarios";
 import { retrieveFiles } from "./scripts/report";
 import {createLanguage, deleteLanguage} from "./scripts/language";
 import {Language} from "./data/language";
+import {Logger} from "./logger";
+import {ReadErrors} from "./errors/read_errors";
+import {ZodError} from "zod";
+import {Problem} from "./data/problem";
+import { Validate } from "./data/validate";
 
 const STEP_DURATION = 200;
 const HEADLESS = true;
@@ -59,19 +64,52 @@ async function shouldDeleteUser(setup: SetupModel) {
 
 // region Contests
 async function shouldCreateContest(setup: SetupModel) {
-    const system: LoginModel = setup.logins.system;
-    const contest: Contest = setup.contests[0];
+    // instantiate logger
+    const logger = Logger.getInstance();
+    logger.logInfo('Creating contest');
 
+    // validate setup file with zod
+    const validate = new Validate(setup);
+    validate.loginSystem();
+    const system: LoginModel = setup.logins.system;
+    validate.createContest();
+    const contest: ContestModel = setup.contests[0];
+
+    // create contest
     const browser = await chromium.launch({headless: HEADLESS, slowMo: STEP_DURATION});  // Or 'firefox' or 'webkit'.
     const page = await browser.newPage();
+    logger.logInfo('Logging in with system user: %s', system.username);
     await login(page, system);
+    logger.logInfo('Creating contest: %s', contest.setup.name);
+    await createContest(page, contest);
+    await browser.close();
+}
+
+async function shouldUpdateContest(setup: SetupModel) {
+    // instantiate logger
+    const logger = Logger.getInstance();
+    logger.logInfo('Edit contest');
+
+    // validate setup file with zod
+    const validate = new Validate(setup);
+    validate.loginSystem();
+    const system: LoginModel = setup.logins.system;
+    validate.updateContest();
+    const contest: ContestModel = setup.contests[0];
+
+    // create contest
+    const browser = await chromium.launch({headless: HEADLESS, slowMo: STEP_DURATION});  // Or 'firefox' or 'webkit'.
+    const page = await browser.newPage();
+    logger.logInfo('Logging in with system user: %s', system.username);
+    await login(page, system);
+    logger.logInfo('Editing contest: %s', contest.setup.name);
     await createContest(page, contest);
     await browser.close();
 }
 
 async function shouldClearContest(setup: SetupModel) {
     const system: LoginModel = setup.logins.system;
-    const contest: Contest = setup.contests[0];
+    const contest: ContestModel = setup.contests[0];
 
     const browser = await chromium.launch({headless: HEADLESS, slowMo: STEP_DURATION});  // Or 'firefox' or 'webkit'.
     const page = await browser.newPage();
@@ -162,6 +200,7 @@ function main() {
         shouldDeleteUser,
         // Contests
         shouldCreateContest,
+        shouldUpdateContest,
         shouldClearContest,
         // Sites
         shouldCreateSite,
@@ -177,12 +216,31 @@ function main() {
     const args = process.argv.splice(2);
     const path = args[0];
     const method = args[1] as keyof typeof methods;
+    const logger = Logger.getInstance();
 
+    try {
+        fs.accessSync(path, fs.constants.R_OK);
+    } catch (e) {
+        logger.logError(ReadErrors.SETUP_NOT_FOUND);
+        return 1;
+    }
     const setup = (JSON.parse(fs.readFileSync(path, 'utf8')) as SetupModel);
+    try {
+        setupModelSchema.parse(setup);
+    } catch (e) {
+        if (e instanceof ZodError) {
+            logger.logZodError(e)
+        }
+        return 1;
+    } finally {
+        logger.logInfo('Using setup file: %s', path);
+    }
     BASE_URL = setup.setup.url;
 
     const func = methods[method];
-    func(setup).then(() => console.log('Done!'));
+    func(setup)
+        .catch((e) => logger.logError(e))
+        .then(() => logger.logInfo('Done!'));
     return 0;
 }
 

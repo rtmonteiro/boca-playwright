@@ -47,6 +47,11 @@
     ```bash
     npm start -- resources/setup.json shouldCreateContest
     ```
+
+- Atualiza um contest a partir do primeiro valor dentro do arquivo JSON na propriedade `contests`
+    ```bash
+    npm start -- resources/setup.json shouldUpdateContest
+    ```
   
 - Limpa valores de um contest a partir do primeiro valor dentro do arquivo JSON na propriedade `contests`
     ```bash
