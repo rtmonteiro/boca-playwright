@@ -62,7 +62,6 @@ async function fillContest(page: Page, contest: ContestModel) {
 export async function createContest(page: Page, contest: ContestModel) {
     await fillContest(page, contest);
     page.once('dialog', (dialog: Dialog) => {
-        console.log(dialog.message());
         dialog.accept().catch(() => {
             console.error('Dialog was already closed when accepted');
         });
@@ -75,16 +74,12 @@ export async function createContest(page: Page, contest: ContestModel) {
 }
 
 export async function clearContest(page: Page, contest: ContestModel) {
-    if (!contest.setup.id) {
-        throw new Error('Contest ID is not defined');
-    }
     await page.goto(BASE_URL+'/system/');
     await page.getByRole('link', { name: 'Contest' }).click();
-    await page.locator('select[name="contest"]').selectOption(contest.setup.id.toString());
+    await page.locator('select[name="contest"]').selectOption(contest.setup.id!.toString());
     await page.getByRole('button', { name: 'Clear' }).click();
 
     page.once('dialog', (dialog: Dialog) => {
-        console.log(dialog.message());
         dialog.accept().catch(() => {
             console.error('Dialog was already closed when accepted');
         });

@@ -39,10 +39,47 @@ export class Validate {
             })),
         });
 
+    private clearContestSchema = z.object({
+        contests: z.array(z.object({
+            setup: z.object({
+                id : z.number(),
+            })
+        })),
+    });
+    private createUsersSchema = z.object({
+        users: z.array(z.object({
+            userSiteNumber: z.number().optional(),
+            userNumber: z.string(),
+            userName: z.string(),
+            userType: z.union([
+                z.literal("Team"),
+                z.literal("Judge"),
+                z.literal("Admin"),
+                z.literal("Staff"),
+                z.literal("Score"),
+                z.literal("Site")
+            ]),
+            userFullName: z.string(),
+            userDesc: z.string(),
+        })),
+    });
+    private loginAdminSchema = z.object({
+        logins: z.object({
+            admin: z.object({
+                username: z.string(),
+                password: z.string(),
+            }),
+        }),
+    });
+
     constructor(public setup: SetupModel) {}
 
     loginSystem() {
         this.loginSystemSchema.parse(this.setup);
+    }
+
+    loginAdmin() {
+        this.loginAdminSchema.parse(this.setup);
     }
 
     createContest() {
@@ -51,5 +88,13 @@ export class Validate {
 
     updateContest() {
         this.updateContestSchema.parse(this.setup);
+    }
+
+    clearContest() {
+        this.clearContestSchema.parse(this.setup);
+    }
+
+    createUser() {
+        this.createUsersSchema.parse(this.setup);
     }
 }

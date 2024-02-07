@@ -18,7 +18,6 @@ export async function insertUsers(page: Page, path: string) {
     await page.locator('input[name="importfile"]').click();
     await page.locator('input[name="importfile"]').setInputFiles(path);
     page.once('dialog', (dialog: Dialog) => {
-        console.log(dialog.message());
         dialog.accept().catch(() => {
             console.error('Dialog was already closed when accepted');
         });
@@ -55,7 +54,6 @@ async function fillUser(page: Page, user: UserModel, admin: LoginModel) {
 export async function createUser(page: Page, user: UserModel, admin: LoginModel) {
     await fillUser(page, user, admin);
     page.once('dialog', (dialog: Dialog) => {
-        console.log(dialog.message());
         dialog.accept().catch(() => {
             console.error('Dialog was already closed when accepted');
         });
@@ -74,7 +72,6 @@ export async function deleteUser(page: Page, user: UserModel, admin: LoginModel)
     await page.locator('input[name="passwordo"]').fill(admin.password);
 
     page.once('dialog', (dialog: Dialog) => {
-        console.log(dialog.message());
         dialog.accept().catch(() => {
             console.error('Dialog was already closed when accepted');
         });

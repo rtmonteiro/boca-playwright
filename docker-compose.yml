@@ -1,0 +1,10 @@
+ name: boca-playwright
+services:
+    script:
+        build: .
+        stdin_open: true
+        tty: true
+        volumes:
+            - ./resources/mocks:/mocks
+        network_mode: host
+        command: /mocks/clear_contest.json shouldClearContest

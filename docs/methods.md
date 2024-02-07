@@ -60,3 +60,28 @@ Será necessário um login de nível system e as informações base de um contes
     ]
 }
 ```
+
+### Limpar um Contest
+
+Será necessário um login de nível system e o id de um contest já criado
+
+```json
+{
+    "setup": {
+        "url": "localhost:8000/boca"
+    },
+    "logins": {
+        "system": {
+            "username": "system",
+            "password": "boca"
+        }
+    },
+    "contests": [
+        {
+            "setup": {
+                "id": 1
+            }
+        }
+    ]
+}
+```

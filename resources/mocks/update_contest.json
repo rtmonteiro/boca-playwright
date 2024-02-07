@@ -11,10 +11,10 @@
   "contests": [
     {
       "setup": {
-        "id": 3,
-        "name": "Contest 3",
-        "startDate": "2023-10-10 10:00",
-        "endDate": "2023-10-20 10:00",
+        "id": 2,
+        "name": "Contest 2",
+        "startDate": "2023-10-20 10:00",
+        "endDate": "2023-10-30 22:00",
         "mainSiteNumber": 1,
         "active": true
       }
