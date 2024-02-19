@@ -1,0 +1,12 @@
+{
+  "setup": {
+    "url": "localhost:8000/boca",
+    "userPath": "/resources/BOCA_USERS.txt"
+  },
+  "logins": {
+    "admin": {
+      "username": "admin",
+      "password": "boca"
+    }
+  }
+}

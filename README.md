@@ -17,7 +17,7 @@
 
 ## Lista de comandos
 
-- shouldCreateUser
+- shouldCreateUsers
 - shouldInsertUsers
 - shouldDeleteUser
 - shouldCreateContest
@@ -30,7 +30,7 @@
 
 - Cria usuário a partir dos valores dentro do arquivo JSON na propriedade `users`
     ```bash
-    npm start -- resources/setup.json shouldCreateUser
+    npm start -- resources/setup.json shouldCreateUsers
     ```
 
 - Cria usuário a partir do arquivo localizado na url da propriedade `setup.userPath`

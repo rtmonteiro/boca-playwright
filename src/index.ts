@@ -23,7 +23,7 @@ const HEADLESS = true;
 export let BASE_URL = 'http://localhost:8000/boca';
 
 // region Users
-async function shouldCreateUser(setup: SetupModel) {
+async function shouldCreateUsers(setup: SetupModel) {
     // instantiate logger
     const logger = Logger.getInstance();
     logger.logInfo('Creating users');
@@ -40,18 +40,28 @@ async function shouldCreateUser(setup: SetupModel) {
     logger.logInfo('Logging in with admin user: %s', admin.username);
     await login(page, admin);
     for (const user of users) {
+        logger.logInfo('Creating user: %s', user.userName);
         await createUser(page, user, admin);
     }
     await browser.close();
 }
 
-async function shouldInsertUsers(setup: SetupModel) {
+async function  shouldInsertUsers(setup: SetupModel) {
+    // instantiate logger
+    const logger = Logger.getInstance();
+    logger.logInfo('Creating users');
+
+    const validate = new Validate(setup);
+    validate.loginAdmin();
     const userPath = setup.setup.userPath;
+    validate.insertUsers();
     const admin: LoginModel = setup.logins.admin;
 
     const browser = await chromium.launch({headless: HEADLESS, slowMo: STEP_DURATION});
     const page = await browser.newPage();
+    logger.logInfo('Logging in with admin user: %s', admin.username);
     await login(page, admin);
+    logger.logInfo('Inserting users from file: %s', userPath);
     await insertUsers(page, userPath);
     await browser.close();
 }
@@ -212,7 +222,7 @@ async function shouldGenerateReport(setup: SetupModel) {
 function main() {
     const methods: Record<string, (setup: SetupModel) => Promise<void>> = {
         // Users
-        shouldCreateUser,
+        shouldCreateUsers,
         shouldInsertUsers,
         shouldDeleteUser,
         // Contests

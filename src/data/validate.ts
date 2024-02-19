@@ -71,6 +71,11 @@ export class Validate {
             }),
         }),
     });
+    private insertUsersSchema = z.object({
+        setup: z.object({
+            userPath: z.string(),
+        })
+    });
 
     constructor(public setup: SetupModel) {}
 
@@ -96,5 +101,9 @@ export class Validate {
 
     createUser() {
         this.createUsersSchema.parse(this.setup);
+    }
+
+    insertUsers() {
+        this.insertUsersSchema.parse(this.setup);
     }
 }

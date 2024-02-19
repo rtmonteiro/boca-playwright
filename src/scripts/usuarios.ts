@@ -14,7 +14,7 @@ export async function login(page: Page, login: LoginModel) {
 }
 
 export async function insertUsers(page: Page, path: string) {
-    await page.getByRole('link', { name: 'Users' }).click();
+    await page.goto(`${BASE_URL}/admin/user.php`);
     await page.locator('input[name="importfile"]').click();
     await page.locator('input[name="importfile"]').setInputFiles(path);
     page.once('dialog', (dialog: Dialog) => {
@@ -26,8 +26,7 @@ export async function insertUsers(page: Page, path: string) {
 }
 
 async function fillUser(page: Page, user: UserModel, admin: LoginModel) {
-    await page.goto(BASE_URL+'/admin/');
-    await page.getByRole('link', { name: 'Users' }).click();
+    await page.goto(`${BASE_URL}/admin/user.php`);
     await page.locator('input[name="usersitenumber"]').fill(user.userSiteNumber?.toString() || '1');
     await page.locator('input[name="usernumber"]').fill(user.userNumber);
     await page.locator('input[name="username"]').fill(user.userName);
@@ -45,9 +44,9 @@ async function fillUser(page: Page, user: UserModel, admin: LoginModel) {
     if (user.userPassword) {
         await page.locator('input[name="passwordn1"]').fill(user.userPassword);
         await page.locator('input[name="passwordn2"]').fill(user.userPassword);
-        if (user.userChangePass)
-            await page.locator('select[name="changepass"]').selectOption({ label: user.userChangePass });
     }
+    if (user.userChangePass)
+        await page.locator('select[name="changepass"]').selectOption({ label: user.userChangePass });
     await page.locator('input[name="passwordo"]').fill(admin.password);
 }
 
