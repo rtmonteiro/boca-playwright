@@ -47,7 +47,7 @@ export class Validate {
         })),
     });
     private createUsersSchema = z.object({
-        users: z.array(z.object({
+        user: z.object({
             userSiteNumber: z.number().optional(),
             userNumber: z.string(),
             userName: z.string(),
@@ -61,7 +61,7 @@ export class Validate {
             ]),
             userFullName: z.string(),
             userDesc: z.string(),
-        })),
+        }),
     });
     private loginAdminSchema = z.object({
         logins: z.object({
@@ -75,6 +75,11 @@ export class Validate {
         setup: z.object({
             userPath: z.string(),
         })
+    });
+    private deleteUserSchema = z.object({
+        user: z.object({
+            userName: z.string(),
+        }),
     });
 
     constructor(public setup: SetupModel) {}
@@ -105,5 +110,9 @@ export class Validate {
 
     insertUsers() {
         this.insertUsersSchema.parse(this.setup);
+    }
+
+    deleteUser() {
+        this.deleteUserSchema.parse(this.setup);
     }
 }

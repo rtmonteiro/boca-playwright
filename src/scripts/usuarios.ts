@@ -61,8 +61,7 @@ export async function createUser(page: Page, user: UserModel, admin: LoginModel)
 }
 
 export async function deleteUser(page: Page, user: UserModel, admin: LoginModel) {
-    await page.goto(BASE_URL+'/admin/');
-    await page.getByRole('link', { name: 'Users' }).click();
+    await page.goto(BASE_URL+'/admin/user.php');
 
     await page.locator("tr", {
         has: page.locator("td", {hasText: user.userName})
@@ -71,9 +70,8 @@ export async function deleteUser(page: Page, user: UserModel, admin: LoginModel)
     await page.locator('input[name="passwordo"]').fill(admin.password);
 
     page.once('dialog', (dialog: Dialog) => {
-        dialog.accept().catch(() => {
-            console.error('Dialog was already closed when accepted');
-        });
+        dialog.accept()
+            .catch(() => console.error('Dialog was already closed when accepted'));
     });
     await page.getByRole('button', { name: 'Delete' }).click();
 }

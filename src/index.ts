@@ -23,7 +23,7 @@ const HEADLESS = true;
 export let BASE_URL = 'http://localhost:8000/boca';
 
 // region Users
-async function shouldCreateUsers(setup: SetupModel) {
+async function shouldCreateUser(setup: SetupModel) {
     // instantiate logger
     const logger = Logger.getInstance();
     logger.logInfo('Creating users');
@@ -33,16 +33,14 @@ async function shouldCreateUsers(setup: SetupModel) {
     validate.loginAdmin();
     const admin: LoginModel = setup.logins.admin;
     validate.createUser();
-    const users: UserModel[] = setup.users;
+    const user: UserModel = setup.user;
 
     const browser = await chromium.launch({headless: HEADLESS, slowMo: STEP_DURATION});
     const page = await browser.newPage();
     logger.logInfo('Logging in with admin user: %s', admin.username);
     await login(page, admin);
-    for (const user of users) {
-        logger.logInfo('Creating user: %s', user.userName);
-        await createUser(page, user, admin);
-    }
+    logger.logInfo('Creating user: %s', user.userName);
+    await createUser(page, user, admin);
     await browser.close();
 }
 
@@ -67,13 +65,20 @@ async function  shouldInsertUsers(setup: SetupModel) {
 }
 
 async function shouldDeleteUser(setup: SetupModel) {
-    const loginObj: LoginModel = setup.logins.admin;
-    const user: UserModel = setup.users[0];
+    // instantiate logger
+    const logger = Logger.getInstance();
+    logger.logInfo('Deleting users');
+
+    const validate = new Validate(setup);
+    validate.loginAdmin();
     const admin: LoginModel = setup.logins.admin;
+    validate.deleteUser();
+    const user: UserModel = setup.user;
 
     const browser = await chromium.launch({headless: HEADLESS, slowMo: STEP_DURATION});
     const page = await browser.newPage();
-    await login(page, loginObj);
+    await login(page, admin);
+    logger.logInfo('Deleting user: %s', user.userName);
     await deleteUser(page, user, admin);
     await browser.close();
 }
@@ -222,7 +227,7 @@ async function shouldGenerateReport(setup: SetupModel) {
 function main() {
     const methods: Record<string, (setup: SetupModel) => Promise<void>> = {
         // Users
-        shouldCreateUsers,
+        shouldCreateUser,
         shouldInsertUsers,
         shouldDeleteUser,
         // Contests

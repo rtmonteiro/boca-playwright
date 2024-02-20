@@ -1,6 +1,6 @@
-import {UserModel, userModelSchema} from "./user";
-import {LoginModel, loginModelSchema} from "./login";
-import {ContestModel, contestModelSchema} from "./contest";
+import {UserModel} from "./user";
+import {LoginModel} from "./login";
+import {ContestModel} from "./contest";
 import {z} from "zod";
 
 export interface SetupModel {
@@ -13,7 +13,7 @@ export interface SetupModel {
         system: LoginModel,
         admin: LoginModel,
     },
-    users: UserModel[],
+    user: UserModel,
     contests: ContestModel[],
 }
 

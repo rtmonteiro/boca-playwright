@@ -8,16 +8,14 @@
       "password": "boca"
     }
   },
-  "users": [
-    {
-      "userSiteNumber": 1,
-      "userNumber": "2019202359",
-      "userName": "ryanmonteiro",
-      "userType": "Team",
-      "userFullName": "Ryan Tavares Farias da Silva Monteiro",
-      "userDesc": "ryan.monteiro@aluno.ufes.br",
-      "userPassword": "boca",
-      "userChangePass": "Yes"
-    }
-  ]
+  "user": {
+    "userSiteNumber": 1,
+    "userNumber": "2019202359",
+    "userName": "ryanmonteiro",
+    "userType": "Team",
+    "userFullName": "Ryan Tavares Farias da Silva Monteiro",
+    "userDesc": "ryan.monteiro@aluno.ufes.br",
+    "userPassword": "boca",
+    "userChangePass": "Yes"
+  }
 }
