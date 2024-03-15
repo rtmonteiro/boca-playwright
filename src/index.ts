@@ -1,3 +1,23 @@
+// ========================================================================
+// Copyright Universidade Federal do Espirito Santo (Ufes)
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+//
+// This program is released under license GNU GPL v3+ license.
+//
+// ========================================================================
+
 import * as fs from "fs";
 import {chromium} from "playwright";
 import {ContestModel} from "./data/contest";
@@ -8,7 +28,7 @@ import {UserModel} from "./data/user";
 import {createContest, clearContest} from "./scripts/system";
 import {createProblem} from "./scripts/problem";
 import {createSite} from "./scripts/site";
-import {createUser, deleteUser, insertUsers, login} from "./scripts/usuarios";
+import {createUser, deleteUser, insertUsers, login} from "./scripts/user";
 import { retrieveFiles } from "./scripts/report";
 import {createLanguage, deleteLanguage} from "./scripts/language";
 import {Language} from "./data/language";
@@ -21,6 +41,13 @@ import { Validate } from "./data/validate";
 const STEP_DURATION = 200;
 const HEADLESS = true;
 export let BASE_URL = 'http://localhost:8000/boca';
+
+if (process.argv.length === 2) {
+    console.error('Missing command-line argument(s). ' +
+     'To see the options available visit: ' + 
+     'https://github.com/rtmonteiro/boca-playwright\n');
+    process.exit(1);
+}
 
 // region Users
 async function shouldCreateUser(setup: SetupModel) {
