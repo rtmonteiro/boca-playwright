@@ -34,6 +34,8 @@
 - [Why boca-playwright?](#why-boca-playwright)
 - [Requirements](#requirements)
 - [Quick Start](#quick-start)
+- [How To Build It (For Development)](#how-to-build-it-for-development)
+- [How To Publish It](#how-to-publish-it)
 - [How To Contribute](#how-to-contribute)
 - [License](#license)
 - [Support](#support)
@@ -131,7 +133,7 @@ docker run -it \
     npm start -- resources/setup.json shouldGenerateReport
     ```
 
-## How To Build It
+## How To Build It (For Development)
 
 * Clone this repository and set it as your working directory:
 
@@ -147,7 +149,7 @@ docker run -it \
   docker image ls
 
   # Build image
-  docker build --build-arg NODE_ENV=production -f Dockerfile -t boca-playwright .
+  docker build --build-arg NODE_ENV=development -f Dockerfile -t boca-playwright .
   ```
 
 ## How To Publish It
@@ -176,7 +178,33 @@ docker run -it \
 
 If you would like to help contribute to this project, please see [CONTRIBUTING](https://github.com/rtmonteiro/boca-playwright/blob/main/CONTRIBUTING.md).
 
-Before submitting a PR consider building and testing a Docker image locally and checking your code with Super-Linter:
+This repository makes use of the Visual Studio Code Dev Containers extension to develop inside a Docker container and take advantage of Visual Studio Code's full feature set. A **development container** is a running container with a well-defined tool/runtime stack and its prerequisites.
+
+To get started, follow these steps:
+
+* Install [VS Code](https://code.visualstudio.com/) and the [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension;
+
+* Clone this repository and open it in VS Code:
+
+  ```sh
+  git clone https://github.com/rtmonteiro/boca-playwright.git
+  cd boca-playwright
+  code .
+  ```
+
+* Try it out with the [**Dev Containers: Reopen in Container**](https://code.visualstudio.com/assets/docs/devcontainers/create-dev-container/dev-containers-reopen.png) command;
+
+* When VS Code restarts, you'll be within a container. You can open a terminal window and test the program:
+
+  ```sh
+  npm start -- tests/new_contest.json shouldCreateContest
+  ```
+
+* Close the window to stop the container;
+
+* Before submitting a PR consider building and testing a Docker image locally (see [here](#how-to-build-it-for-development));
+
+* And checking your code with Super-Linter:
 
   ```sh
   docker run --rm \
