@@ -18,90 +18,67 @@
 //
 //========================================================================
 
-// For format details, see https://aka.ms/devcontainer.json. For config options, see the
-// README at: https://github.com/devcontainers/templates/tree/main/src/typescript-node
+// For format details, see https://aka.ms/devcontainer.json. For config
+// options, see the README at:
+// https://github.com/devcontainers/templates/tree/main/src/typescript-node
 {
-	// A name for the dev container displayed in the UI.
-	"name": "Node.js & TypeScript",
-	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/typescript-node:1-20-bullseye",
+    // A name for the dev container displayed in the UI.
+    "name": "Node.js & TypeScript",
 
-	// An array of Docker CLI arguments that should be used when running the
-	// container.
-	"runArgs": [
-        "--name=dev-node",
-        "--rm"
-	],
+    // "image": "mcr.microsoft.com/devcontainers/typescript-node:1-20",
+    // Or use a Dockerfile or Docker Compose file. More info:
+    // https://containers.dev/guide/dockerfile
+    // "build": {
+    //     // Sets the run context to the same level of the .devcontainer folder.
+    //     "context": ".",
+    //     // Update the 'dockerFile' property if you aren't using the standard
+    //     // 'Dockerfile' filename.
+    //     "dockerfile": "Dockerfile"
+    // },
+    "dockerComposeFile": "docker-compose.yml",
+    "service": "devcontainer",
 
-	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "npx playwright install-deps && npm ci && npm cache clean --force && npx playwright install",
+    // An array of Docker CLI arguments that should be used when running the
+    // container.
+    // "runArgs": [
+    //     "--name=devcontainer",
+    //     "--rm"
+    // ],
 
-	// Indicates whether devcontainer.json supporting tools should stop the
-	// containers when the related tool window is closed / shut down.
-	"shutdownAction": "stopContainer",
+    // Use 'postCreateCommand' to run commands after the container is created.
+    "postCreateCommand": 
+        "npx playwright install-deps && npm install && npx playwright install",
 
-	//  Overrides the default local mount point for the workspace when the
-	// container is created.
-	// "workspaceMount": "source=${localWorkspaceFolder},target=/usr/src/boca-playwright,type=bind,consistency=cached",
+    // Indicates whether devcontainer.json supporting tools should stop the
+    // containers when the related tool window is closed / shut down.
+    // "shutdownAction": "stopContainer",
+    "shutdownAction": "stopCompose",
 
-	// Sets the default path that devcontainer.json supporting services / tools
-	// should open when connecting to the container. Defaults to the automatic
-	// source code mount location.
-	"workspaceFolder": "/usr/src/boca-playwright",
+    // Sets the default path that devcontainer.json supporting services / tools
+    // should open when connecting to the container. Defaults to the automatic
+    // source code mount location.
+    "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
 
-	// Cross-orchestrator way to add additional mounts to a container.
-	"mounts": [
-		{ "source": "${localWorkspaceFolder}/package.json",
-		  "target": "/usr/src/boca-playwright/package.json",
-		  "type": "bind"
-		},
-		{ "source": "${localWorkspaceFolder}/package-lock.json",
-		  "target": "/usr/src/boca-playwright/package-lock.json",
-		  "type": "bind"
-		},
-		{ "source": "${localWorkspaceFolder}/src",
-		  "target": "/usr/src/boca-playwright/src",
-		  "type": "bind"
-		},
-		{ "source": "${localWorkspaceFolder}/resources",
-		  "target": "/tmp/playwright",
-		  "type": "bind"
-		}
-	],
+    // Features to add to the dev container.
+    // More info: https://containers.dev/features.
+    // "features": {},
 
-	// Features to add to the dev container. More info: https://containers.dev/features.
-	// "features": {},
+    // Use 'forwardPorts' to make a list of ports inside the container
+    // available locally.
+    // "forwardPorts": [],
 
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
+    // Configure tool-specific properties.
+    "customizations": {
+        // Configure properties specific to VS Code.
+        "vscode": {
+            "settings": {},
+            "extensions": [
+                "streetsidesoftware.code-spell-checker",
+                "dbaeumer.vscode-eslint"
+            ]
+        }
+    },
 
-	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "yarn install",
-
-	// Configure tool-specific properties.
-	"customizations": {
-		// Configure properties specific to VS Code.
-		"vscode": {
-			"settings": {},
-			"extensions": [
-				"dbaeumer.vscode-eslint"
-			]
-		}
-	},
-
-	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-	"remoteUser": "node"
+    // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+    "remoteUser": "node"
 }
-
-
-	// Or use a Dockerfile or Docker Compose file. More info:
-	// https://containers.dev/guide/dockerfile
-	// "build": {
-	// 	// Sets the run context to the same level of the .devcontainer folder.
-	// 	"context": ".",
-	// 	// Update the 'dockerFile' property if you aren't using the standard
-	// 	// 'Dockerfile' filename.
-	// 	"dockerfile": "Dockerfile"
-	// },
-	
-	

@@ -18,23 +18,11 @@
 #
 #========================================================================
 
-FROM mcr.microsoft.com/devcontainers/typescript-node:0-18
+FROM mcr.microsoft.com/devcontainers/typescript-node:1-20
 
 LABEL authors="Rodrigo Laiola Guimaraes"
 ENV CREATED_AT 2024-03-11
-ENV UPDATED_AT 2024-03-11
+ENV UPDATED_AT 2024-03-15
 
-# # No interactive frontend during docker build
-# ENV DEBIAN_FRONTEND noninteractive
-
-# Install hadolint (Dockerfile linter)
-# RUN wget -q -O /bin/hadolint \
-#         https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64 \
-#     && chmod +x /bin/hadolint
-
-# # Install dependencies
-# RUN apt-get -y update \
-#     && apt-get -y install --no-install-recommends \
-#             gnumeric \
-#     && rm -rf /var/lib/apt/lists/*
-
+# No interactive frontend during docker build
+ENV DEBIAN_FRONTEND noninteractive
