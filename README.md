@@ -20,8 +20,8 @@
 [packages_cleanup_workflow_link]: https://github.com/rtmonteiro/boca-playwright/actions?workflow=delete%20untagged "delete untagged/unsupported images"
 [close_stale_workflow_badge]: https://img.shields.io/github/actions/workflow/status/rtmonteiro/boca-playwright/close-stale.yml?label=close%20stale&logo=github
 [close_stale_workflow_link]: https://github.com/rtmonteiro/boca-playwright/actions?workflow=close%20stale "close stale issues and prs"
-[node_hydrogen_badge]: https://img.shields.io/badge/Node.js-v20-43853D.svg?logo=Node.js
-[node_iron_badge]: https://img.shields.io/badge/Node.js-v18-43853D.svg?logo=Node.js
+[node_hydrogen_badge]: https://img.shields.io/badge/Node.js-v20-43853D.svg?logo=Node.js&logoColor=white
+[node_iron_badge]: https://img.shields.io/badge/Node.js-v18-43853D.svg?logo=Node.js&logoColor=white
 [node_hydrogen_link]: https://hub.docker.com/_/node/tags?page=1&name=hydrogen "node:hydrogen image"
 [node_iron_link]: https://hub.docker.com/_/node/tags?page=1&name=iron "node:iron image"
 [arch_badge]: https://img.shields.io/badge/multi--arch-%20amd64%20|%20arm/v7%20|%20arm64/v8%20|%20ppc64le%20|%20s390x%20-lightgray.svg?logo=Docker&logoColor=white
