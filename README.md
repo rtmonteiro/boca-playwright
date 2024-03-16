@@ -9,6 +9,7 @@
 [![Node IRON][node_iron_badge]][node_iron_link]
 [![Multi-Architecture][arch_badge]][arch_link]
 
+[![Open in Dev Containers](https://img.shields.io/static/v1?label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/rtmonteiro/boca-playwright)
 [![Google_Groups][groups_badge]][groups_link]
 
 [build_publish_workflow_badge]: https://img.shields.io/github/actions/workflow/status/rtmonteiro/boca-playwright/ci.yml?label=build%20images&logo=github
@@ -19,8 +20,8 @@
 [packages_cleanup_workflow_link]: https://github.com/rtmonteiro/boca-playwright/actions?workflow=delete%20untagged "delete untagged/unsupported images"
 [close_stale_workflow_badge]: https://img.shields.io/github/actions/workflow/status/rtmonteiro/boca-playwright/close-stale.yml?label=close%20stale&logo=github
 [close_stale_workflow_link]: https://github.com/rtmonteiro/boca-playwright/actions?workflow=close%20stale "close stale issues and prs"
-[node_hydrogen_badge]: https://img.shields.io/badge/Node.js-v20-43853D.svg?logo=Node
-[node_iron_badge]: https://img.shields.io/badge/Node.js-v18-43853D.svg?logo=Node
+[node_hydrogen_badge]: https://img.shields.io/badge/Node.js-v20-43853D.svg?logo=Node.js
+[node_iron_badge]: https://img.shields.io/badge/Node.js-v18-43853D.svg?logo=Node.js
 [node_hydrogen_link]: https://hub.docker.com/_/node/tags?page=1&name=hydrogen "node:hydrogen image"
 [node_iron_link]: https://hub.docker.com/_/node/tags?page=1&name=iron "node:iron image"
 [arch_badge]: https://img.shields.io/badge/multi--arch-%20amd64%20|%20arm/v7%20|%20arm64/v8%20|%20ppc64le%20|%20s390x%20-lightgray.svg?logo=Docker&logoColor=white
