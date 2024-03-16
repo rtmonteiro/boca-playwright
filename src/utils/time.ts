@@ -18,8 +18,10 @@
 //
 // ========================================================================
 
-import {DateTime} from "luxon";
+import { DateTime } from "luxon";
 
-export function defineDurationInMinutes(startDate: DateTime, endDate: DateTime): number {
-    return endDate.diff(startDate, 'minutes').minutes;
+export function defineDurationInMinutes(
+  startDate: DateTime, endDate: DateTime
+): number {
+  return endDate.diff(startDate, 'minutes').minutes;
 }
