@@ -6,7 +6,9 @@
   "scripts": {
     "start": "ts-node src/index",
     "test": "npx playwright test",
-    "test:debug": "npx playwright test --debug"
+    "test:debug": "npx playwright test --debug",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "type": "commonjs",
   "author": "Ryan Monteiro",
@@ -14,14 +16,18 @@
   "devDependencies": {
     "@types/luxon": "^3.3.2",
     "@types/node": "^20.6.3",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "eslint": "^8.57.0",
+    "eslint-config-love": "^43.0.1",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-n": "^16.6.2",
+    "eslint-plugin-promise": "^6.1.1",
     "luxon": "^3.4.3",
     "playwright": "^1.38.1",
     "ts-node": "^10.9.1",
-    "typescript": "^5.2.2",
+    "typescript": "^5.4.0",
+    "typescript-eslint": "^7.5.0",
     "winston": "^3.11.0",
     "zod": "^3.22.4"
-  },
-  "dependencies": {
-    "eslint": "^8.57.0"
   }
 }

@@ -1,5 +1,5 @@
-import {DateTime} from "luxon";
+import { type DateTime } from 'luxon';
 
-export function defineDurationInMinutes(startDate: DateTime, endDate: DateTime): number {
-    return endDate.diff(startDate, 'minutes').minutes;
+export function defineDurationInMinutes (startDate: DateTime, endDate: DateTime): number {
+  return endDate.diff(startDate, 'minutes').minutes;
 }
