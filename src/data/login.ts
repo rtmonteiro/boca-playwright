@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
 export interface LoginModel {
-  username: string
-  password: string
+  username: string;
+  password: string;
 }
 
 export const loginModelSchema = z.object({

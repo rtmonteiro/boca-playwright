@@ -4,23 +4,23 @@ import { type Problem, problemSchema } from './problem';
 import { z } from 'zod';
 
 export interface ContestModel {
-  sites: SiteModel[]
+  sites: SiteModel[];
   setup: {
-    id?: number
-    name: string
-    startDate: string
-    endDate: string
-    stopAnswering?: number
-    stopScoreboard?: number
-    penalty?: number
-    maxFileSize?: number
-    mainSiteUrl?: string
-    mainSiteNumber: number
-    localSiteNumber?: number
-    active: boolean
-  }
-  languages: Language[]
-  problems: Problem[]
+    id?: number;
+    name: string;
+    startDate: string;
+    endDate: string;
+    stopAnswering?: number;
+    stopScoreboard?: number;
+    penalty?: number;
+    maxFileSize?: number;
+    mainSiteUrl?: string;
+    mainSiteNumber: number;
+    localSiteNumber?: number;
+    active: boolean;
+  };
+  languages: Language[];
+  problems: Problem[];
 }
 
 export const contestModelSchema = z.object({

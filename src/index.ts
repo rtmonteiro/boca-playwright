@@ -23,7 +23,7 @@ const HEADLESS = true;
 export let BASE_URL = 'http://localhost:8000/boca';
 
 // region Users
-async function shouldCreateUser (setup: SetupModel): Promise<void> {
+async function shouldCreateUser(setup: SetupModel): Promise<void> {
   // instantiate logger
   const logger = Logger.getInstance();
   logger.logInfo('Creating users');
@@ -35,7 +35,10 @@ async function shouldCreateUser (setup: SetupModel): Promise<void> {
   validate.createUser();
   const user: UserModel = setup.user;
 
-  const browser = await chromium.launch({ headless: HEADLESS, slowMo: STEP_DURATION });
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
   const page = await browser.newPage();
   logger.logInfo('Logging in with admin user: %s', admin.username);
   await login(page, admin);
@@ -44,7 +47,7 @@ async function shouldCreateUser (setup: SetupModel): Promise<void> {
   await browser.close();
 }
 
-async function shouldInsertUsers (setup: SetupModel): Promise<void> {
+async function shouldInsertUsers(setup: SetupModel): Promise<void> {
   // instantiate logger
   const logger = Logger.getInstance();
   logger.logInfo('Creating users');
@@ -55,7 +58,10 @@ async function shouldInsertUsers (setup: SetupModel): Promise<void> {
   validate.insertUsers();
   const admin: LoginModel = setup.logins.admin;
 
-  const browser = await chromium.launch({ headless: HEADLESS, slowMo: STEP_DURATION });
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
   const page = await browser.newPage();
   logger.logInfo('Logging in with admin user: %s', admin.username);
   await login(page, admin);
@@ -64,7 +70,7 @@ async function shouldInsertUsers (setup: SetupModel): Promise<void> {
   await browser.close();
 }
 
-async function shouldDeleteUser (setup: SetupModel): Promise<void> {
+async function shouldDeleteUser(setup: SetupModel): Promise<void> {
   // instantiate logger
   const logger = Logger.getInstance();
   logger.logInfo('Deleting users');
@@ -75,7 +81,10 @@ async function shouldDeleteUser (setup: SetupModel): Promise<void> {
   validate.deleteUser();
   const user: UserModel = setup.user;
 
-  const browser = await chromium.launch({ headless: HEADLESS, slowMo: STEP_DURATION });
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
   const page = await browser.newPage();
   await login(page, admin);
   logger.logInfo('Deleting user: %s', user.userName);
@@ -85,7 +94,7 @@ async function shouldDeleteUser (setup: SetupModel): Promise<void> {
 // endregion
 
 // region Contests
-async function shouldCreateContest (setup: SetupModel): Promise<void> {
+async function shouldCreateContest(setup: SetupModel): Promise<void> {
   // instantiate logger
   const logger = Logger.getInstance();
   logger.logInfo('Creating contest');
@@ -98,7 +107,10 @@ async function shouldCreateContest (setup: SetupModel): Promise<void> {
   const contest: ContestModel = setup.contests[0];
 
   // create contest
-  const browser = await chromium.launch({ headless: HEADLESS, slowMo: STEP_DURATION });
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
   const page = await browser.newPage();
   logger.logInfo('Logging in with system user: %s', system.username);
   await login(page, system);
@@ -107,7 +119,7 @@ async function shouldCreateContest (setup: SetupModel): Promise<void> {
   await browser.close();
 }
 
-async function shouldUpdateContest (setup: SetupModel): Promise<void> {
+async function shouldUpdateContest(setup: SetupModel): Promise<void> {
   // instantiate logger
   const logger = Logger.getInstance();
   logger.logInfo('Edit contest');
@@ -120,7 +132,10 @@ async function shouldUpdateContest (setup: SetupModel): Promise<void> {
   const contest: ContestModel = setup.contests[0];
 
   // create contest
-  const browser = await chromium.launch({ headless: HEADLESS, slowMo: STEP_DURATION });
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
   const page = await browser.newPage();
   logger.logInfo('Logging in with system user: %s', system.username);
   await login(page, system);
@@ -129,7 +144,7 @@ async function shouldUpdateContest (setup: SetupModel): Promise<void> {
   await browser.close();
 }
 
-async function shouldClearContest (setup: SetupModel): Promise<void> {
+async function shouldClearContest(setup: SetupModel): Promise<void> {
   // instantiate logger
   const logger = Logger.getInstance();
   logger.logInfo('Clear contest');
@@ -141,7 +156,10 @@ async function shouldClearContest (setup: SetupModel): Promise<void> {
   validate.clearContest();
   const contest: ContestModel = setup.contests[0];
 
-  const browser = await chromium.launch({ headless: HEADLESS, slowMo: STEP_DURATION });
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
   const page = await browser.newPage();
   logger.logInfo('Logging in with system user: %s', system.username);
   await login(page, system);
@@ -152,11 +170,14 @@ async function shouldClearContest (setup: SetupModel): Promise<void> {
 // endregion
 
 // region Sites
-async function shouldCreateSite (setup: SetupModel): Promise<void> {
+async function shouldCreateSite(setup: SetupModel): Promise<void> {
   const admin: LoginModel = setup.logins.admin;
   const site: SiteModel = setup.contests[0].sites[0];
 
-  const browser = await chromium.launch({ headless: HEADLESS, slowMo: STEP_DURATION });
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
   const page = await browser.newPage();
   await login(page, admin);
   await createSite(page, site);
@@ -165,12 +186,15 @@ async function shouldCreateSite (setup: SetupModel): Promise<void> {
 // endregion
 
 // region Problems
-async function shouldCreateProblem (setup: SetupModel): Promise<void> {
+async function shouldCreateProblem(setup: SetupModel): Promise<void> {
   const admin: LoginModel = setup.logins.admin;
   const problems: Problem[] = setup.contests[0].problems;
 
   for (const problem of problems) {
-    const browser = await chromium.launch({ headless: HEADLESS, slowMo: STEP_DURATION });
+    const browser = await chromium.launch({
+      headless: HEADLESS,
+      slowMo: STEP_DURATION
+    });
     const page = await browser.newPage();
     await login(page, admin);
     await createProblem(page, problem);
@@ -181,12 +205,15 @@ async function shouldCreateProblem (setup: SetupModel): Promise<void> {
 
 // region Languages
 
-async function shouldCreateLanguage (setup: SetupModel): Promise<void> {
+async function shouldCreateLanguage(setup: SetupModel): Promise<void> {
   const admin: LoginModel = setup.logins.admin;
   const languages: Language[] = setup.contests[0].languages;
 
   for (const language of languages) {
-    const browser = await chromium.launch({ headless: HEADLESS, slowMo: STEP_DURATION });
+    const browser = await chromium.launch({
+      headless: HEADLESS,
+      slowMo: STEP_DURATION
+    });
     const page = await browser.newPage();
     await login(page, admin);
     await createLanguage(page, language);
@@ -194,12 +221,15 @@ async function shouldCreateLanguage (setup: SetupModel): Promise<void> {
   }
 }
 
-async function shouldDeleteLanguage (setup: SetupModel): Promise<void> {
+async function shouldDeleteLanguage(setup: SetupModel): Promise<void> {
   const admin: LoginModel = setup.logins.admin;
   const languages: Language[] = setup.contests[0].languages;
 
   for (const language of languages) {
-    const browser = await chromium.launch({ headless: HEADLESS, slowMo: STEP_DURATION });
+    const browser = await chromium.launch({
+      headless: HEADLESS,
+      slowMo: STEP_DURATION
+    });
     const page = await browser.newPage();
     await login(page, admin);
     await deleteLanguage(page, language);
@@ -211,11 +241,14 @@ async function shouldDeleteLanguage (setup: SetupModel): Promise<void> {
 
 // region Reports
 
-async function shouldGenerateReport (setup: SetupModel): Promise<void> {
+async function shouldGenerateReport(setup: SetupModel): Promise<void> {
   const admin: LoginModel = setup.logins.admin;
   const outDir = setup.setup.outDir;
 
-  const browser = await chromium.launch({ headless: HEADLESS, slowMo: STEP_DURATION });
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
   const page = await browser.newPage();
   await login(page, admin);
   await retrieveFiles(page, outDir);
@@ -224,7 +257,7 @@ async function shouldGenerateReport (setup: SetupModel): Promise<void> {
 
 // endregion
 
-function main (): number {
+function main(): number {
   const methods: Record<string, (setup: SetupModel) => Promise<void>> = {
     // Users
     shouldCreateUser,
@@ -256,7 +289,7 @@ function main (): number {
     logger.logError(ReadErrors.SETUP_NOT_FOUND);
     return 1;
   }
-  const setup = (JSON.parse(fs.readFileSync(path, 'utf8')) as SetupModel);
+  const setup = JSON.parse(fs.readFileSync(path, 'utf8')) as SetupModel;
   try {
     setupModelSchema.parse(setup);
   } catch (e) {
@@ -271,9 +304,11 @@ function main (): number {
 
   const func = methods[method];
   func(setup)
-    .then(() => { logger.logInfo('Done!'); })
+    .then(() => {
+      logger.logInfo('Done!');
+    })
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    .catch((e) => { 
+    .catch((e) => {
       logger.logError(e);
       return 1;
     });

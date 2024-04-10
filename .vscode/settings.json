@@ -6,9 +6,13 @@
         ".gitignore",
         "LICENSE"
     ],
+    "[typescript]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
     // "shellcheck.exclude": ["1090", "2034"],
     "linter.linters": {
-            
+
         "brakeman": {
             "capabilities": [],
             "command": [

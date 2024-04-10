@@ -12,38 +12,43 @@ export class Validate {
   });
 
   private readonly createContestSchema = z.object({
-    contests: z.array(z.object({
-      setup: z.object({
-        name: z.string(),
-        startDate: z.string(),
-        endDate: z.string(),
-        stopAnswering: z.number().optional(),
-        stopScoreboard: z.number().optional(),
-        penalty: z.number().optional(),
-        maxFileSize: z.number().optional(),
-        mainSiteUrl: z.string().optional(),
-        mainSiteNumber: z.number(),
-        localSiteNumber: z.number().optional(),
-        active: z.boolean()
+    contests: z.array(
+      z.object({
+        setup: z.object({
+          name: z.string(),
+          startDate: z.string(),
+          endDate: z.string(),
+          stopAnswering: z.number().optional(),
+          stopScoreboard: z.number().optional(),
+          penalty: z.number().optional(),
+          maxFileSize: z.number().optional(),
+          mainSiteUrl: z.string().optional(),
+          mainSiteNumber: z.number(),
+          localSiteNumber: z.number().optional(),
+          active: z.boolean()
+        })
       })
-    }))
+    )
   });
 
-  private readonly updateContestSchema = this.createContestSchema
-    .extend({
-      contests: z.array(z.object({
+  private readonly updateContestSchema = this.createContestSchema.extend({
+    contests: z.array(
+      z.object({
         setup: z.object({
           id: z.number()
         })
-      }))
-    });
+      })
+    )
+  });
 
   private readonly clearContestSchema = z.object({
-    contests: z.array(z.object({
-      setup: z.object({
-        id: z.number()
+    contests: z.array(
+      z.object({
+        setup: z.object({
+          id: z.number()
+        })
       })
-    }))
+    )
   });
 
   private readonly createUsersSchema = z.object({
@@ -85,37 +90,37 @@ export class Validate {
     })
   });
 
-  constructor (public setup: SetupModel) {}
+  constructor(public setup: SetupModel) {}
 
-  loginSystem (): void {
+  loginSystem(): void {
     this.loginSystemSchema.parse(this.setup);
   }
 
-  loginAdmin (): void {
+  loginAdmin(): void {
     this.loginAdminSchema.parse(this.setup);
   }
 
-  createContest (): void {
+  createContest(): void {
     this.createContestSchema.parse(this.setup);
   }
 
-  updateContest (): void {
+  updateContest(): void {
     this.updateContestSchema.parse(this.setup);
   }
 
-  clearContest (): void {
+  clearContest(): void {
     this.clearContestSchema.parse(this.setup);
   }
 
-  createUser (): void {
+  createUser(): void {
     this.createUsersSchema.parse(this.setup);
   }
 
-  insertUsers (): void {
+  insertUsers(): void {
     this.insertUsersSchema.parse(this.setup);
   }
 
-  deleteUser (): void {
+  deleteUser(): void {
     this.deleteUserSchema.parse(this.setup);
   }
 }

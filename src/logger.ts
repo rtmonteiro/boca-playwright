@@ -1,5 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
-import { createLogger, format, transports, type Logger as LoggerW } from 'winston';
+import {
+  createLogger,
+  format,
+  transports,
+  type Logger as LoggerW
+} from 'winston';
 import { type ZodError } from 'zod';
 import { ReadErrors } from './errors/read_errors';
 
@@ -8,7 +13,7 @@ export class Logger {
 
   log: LoggerW;
 
-  private constructor () {
+  private constructor() {
     this.log = createLogger({
       level: 'info',
       format: format.combine(
@@ -24,13 +29,11 @@ export class Logger {
         })
       ),
       defaultMeta: { service: 'user-service' },
-      transports: [
-        new transports.Console()
-      ]
+      transports: [new transports.Console()]
     });
   }
 
-  public static getInstance (): Logger {
+  public static getInstance(): Logger {
     if (Logger.instance === null) {
       Logger.instance = new Logger();
     }
@@ -39,16 +42,16 @@ export class Logger {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  logInfo (message: string, ...params: any[]): void {
+  logInfo(message: string, ...params: any[]): void {
     this.log.info(message, ...params);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  logError (message: string, ...params: any[]): void {
+  logError(message: string, ...params: any[]): void {
     this.log.error(message, ...params);
   }
 
-  logZodError (error: ZodError): void {
+  logZodError(error: ZodError): void {
     this.log.error(ReadErrors.SETUP_INVALID);
     console.error(error.errors);
   }

@@ -4,7 +4,12 @@ import { BASE_URL } from '../index';
 
 // const statusArr = ['NA', 'YES', 'NO_Compilation', 'NO_Runtime', 'NO_Timelimit', 'NO_Presentation', 'NO_Wrong', 'NO_Contact', 'NO_Name']
 
-async function downloadFile (page: Page, path: string, file: Locator, filename?: string): Promise<void> {
+async function downloadFile(
+  page: Page,
+  path: string,
+  file: Locator,
+  filename?: string
+): Promise<void> {
   // Start waiting for download before clicking. Note no await.
   const downloadPromise = page.waitForEvent('download');
   await file.click();
@@ -15,12 +20,22 @@ async function downloadFile (page: Page, path: string, file: Locator, filename?:
   await download.saveAs(`${path}/${filename}`);
 }
 
-async function saveFiles (page: Page, link: Locator, outDir: string, username: string, problem: string): Promise<void> {
+async function saveFiles(
+  page: Page,
+  link: Locator,
+  outDir: string,
+  username: string,
+  problem: string
+): Promise<void> {
   await link.click();
 
   const statusInt: number = Number(await page.locator('select').inputValue());
   const label = statusInt === 1 ? 'YES' : 'NO';
-  let run = await page.locator('html > body > form > center:nth-of-type(1) > table > tbody > tr:nth-of-type(2) > td:nth-of-type(2)').textContent();
+  let run = await page
+    .locator(
+      'html > body > form > center:nth-of-type(1) > table > tbody > tr:nth-of-type(2) > td:nth-of-type(2)'
+    )
+    .textContent();
   run = run?.trim() ?? '';
 
   const path = `${outDir}/${username}/${problem}/${run}_${label}`;
@@ -28,32 +43,44 @@ async function saveFiles (page: Page, link: Locator, outDir: string, username: s
   // Verify if the folder exist and create it if not
   if (!fs.existsSync(path)) fs.mkdirSync(path, { recursive: true });
 
-  const code = page.locator('table > tbody > tr:nth-of-type(6) > td:nth-of-type(2) > a:nth-of-type(1)');
+  const code = page.locator(
+    'table > tbody > tr:nth-of-type(6) > td:nth-of-type(2) > a:nth-of-type(1)'
+  );
   await downloadFile(page, path, code);
 
   if (statusInt !== 0) {
-    const stdout = page.locator('html > body > form > center:nth-of-type(3) > table > tbody > tr:nth-of-type(3) > td:nth-of-type(2)');
+    const stdout = page.locator(
+      'html > body > form > center:nth-of-type(3) > table > tbody > tr:nth-of-type(3) > td:nth-of-type(2)'
+    );
     await downloadFile(page, path, stdout, 'stdout.txt');
 
-    const stderr = page.locator('html > body > form > center:nth-of-type(3) > table > tbody > tr:nth-of-type(4) > td:nth-of-type(2)');
+    const stderr = page.locator(
+      'html > body > form > center:nth-of-type(3) > table > tbody > tr:nth-of-type(4) > td:nth-of-type(2)'
+    );
     await downloadFile(page, path, stderr, 'stderr.txt');
   }
 
   await page.goBack();
 }
 
-export async function retrieveFiles (page: Page, outDir: string): Promise<void> {
+export async function retrieveFiles(page: Page, outDir: string): Promise<void> {
   await page.goto(BASE_URL + '/admin');
 
   await page.getByRole('link', { name: 'Run' }).click();
 
   // Get link, username and problem name
-  const rows = await page.locator('html > body > form > table > tbody > tr:nth-of-type(n+2)', { hasText: /\d+/ }).all();
+  const rows = await page
+    .locator('html > body > form > table > tbody > tr:nth-of-type(n+2)', {
+      hasText: /\d+/
+    })
+    .all();
 
   for (const row of rows) {
     const link = row.locator('td:nth-of-type(1) > a');
-    const username = await row.locator('td:nth-of-type(3)').textContent() ?? '';
-    const problem = await row.locator('td:nth-of-type(5)').textContent() ?? '';
+    const username =
+      (await row.locator('td:nth-of-type(3)').textContent()) ?? '';
+    const problem =
+      (await row.locator('td:nth-of-type(5)').textContent()) ?? '';
 
     await saveFiles(page, link, outDir, username, problem);
   }

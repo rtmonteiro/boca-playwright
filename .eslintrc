@@ -2,16 +2,19 @@
     "root": true,
     "parser": "@typescript-eslint/parser",
     "plugins": [
-      "@typescript-eslint"
+      "@typescript-eslint",
+      "prettier"
     ],
     "extends": [
       "eslint:recommended",
       "plugin:@typescript-eslint/eslint-recommended",
-      "plugin:@typescript-eslint/recommended"
+      "plugin:@typescript-eslint/recommended",
+      "prettier"
     ],
     "rules": {
       "semi": "off",
-      "@typescript-eslint/semi": ["error"]
+      "@typescript-eslint/semi": ["error"],
+      "prettier/prettier": "error"
     },
     "overrides": [
         {

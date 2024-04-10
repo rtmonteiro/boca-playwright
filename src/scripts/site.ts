@@ -3,7 +3,7 @@ import { BASE_URL } from '../index';
 import { type SiteModel } from '../data/site';
 import { DateTime } from 'luxon';
 import { defineDurationInMinutes } from '../utils/time';
-export async function fillSite (page: Page, site: SiteModel): Promise<void> {
+export async function fillSite(page: Page, site: SiteModel): Promise<void> {
   await page.goto(BASE_URL + '/admin/');
   await page.getByRole('link', { name: 'Site' }).click();
 
@@ -20,15 +20,23 @@ export async function fillSite (page: Page, site: SiteModel): Promise<void> {
   const endDate = DateTime.fromFormat(site.endDate, 'yyyy-MM-dd HH:mm');
 
   await page.locator('input[name="startdateh"]').click();
-  await page.locator('input[name="startdateh"]').fill(startDate.hour.toString());
+  await page
+    .locator('input[name="startdateh"]')
+    .fill(startDate.hour.toString());
   await page.locator('input[name="startdatemin"]').click();
-  await page.locator('input[name="startdatemin"]').fill(startDate.minute.toString());
+  await page
+    .locator('input[name="startdatemin"]')
+    .fill(startDate.minute.toString());
   await page.locator('input[name="startdated"]').click();
   await page.locator('input[name="startdated"]').fill(startDate.day.toString());
   await page.locator('input[name="startdatem"]').click();
-  await page.locator('input[name="startdatem"]').fill(startDate.month.toString());
+  await page
+    .locator('input[name="startdatem"]')
+    .fill(startDate.month.toString());
   await page.locator('input[name="startdatey"]').click();
-  await page.locator('input[name="startdatey"]').fill(startDate.year.toString());
+  await page
+    .locator('input[name="startdatey"]')
+    .fill(startDate.year.toString());
   const duration = defineDurationInMinutes(startDate, endDate);
   await page.locator('input[name="duration"]').fill(duration.toString());
   await page.locator('input[name="lastmileanswer"]').fill(duration.toString());
@@ -49,7 +57,9 @@ export async function fillSite (page: Page, site: SiteModel): Promise<void> {
   }
 
   if (site.globalScore != null) {
-    await page.locator('input[name="globalscore"]').fill(site.globalScore.toString());
+    await page
+      .locator('input[name="globalscore"]')
+      .fill(site.globalScore.toString());
   }
 
   if (site.autoJudge ?? false) {
@@ -57,17 +67,21 @@ export async function fillSite (page: Page, site: SiteModel): Promise<void> {
   }
 
   if (site.scoreLevel != null) {
-    await page.locator('input[name="scorelevel"]').fill(site.scoreLevel.toString());
+    await page
+      .locator('input[name="scorelevel"]')
+      .fill(site.scoreLevel.toString());
   }
 
   if (site.globalScoreboard != null) {
-    await page.locator('input[name="globalscoreboard"]').fill(site.globalScoreboard.toString());
+    await page
+      .locator('input[name="globalscoreboard"]')
+      .fill(site.globalScoreboard.toString());
   }
 }
 
-export async function createSite (page: Page, site: SiteModel): Promise<void> {
+export async function createSite(page: Page, site: SiteModel): Promise<void> {
   await fillSite(page, site);
-  page.once('dialog', dialog => {
+  page.once('dialog', (dialog) => {
     dialog.dismiss().catch(() => {});
   });
   await page.getByRole('button', { name: 'Send' }).click();
