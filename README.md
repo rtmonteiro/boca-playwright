@@ -35,6 +35,10 @@
 - [Why boca-playwright?](#why-boca-playwright)
 - [Requirements](#requirements)
 - [Quick Start](#quick-start)
+  - [Localmente](#localmente)
+  - [Docker](#docker)
+- [Lista de comandos](#lista-de-comandos)
+  - [Exemplos](#exemplos)
 - [How To Run On Different Node Release Images](#how-to-run-on-different-node-release-images)
 - [How To Build It (For Development)](#how-to-build-it-for-development)
 - [How To Publish It](#how-to-publish-it)
@@ -91,46 +95,55 @@ docker run -it \
 ```
 
 - Cria usuário a partir dos valores dentro do arquivo JSON na propriedade `user`
+
     ```bash
     npm start -- resources/setup.json shouldCreateUser
     ```
 
 - Cria usuário a partir do arquivo localizado na url da propriedade `setup.userPath`
+
     ```bash
     npm start -- resources/setup.json shouldInsertUsers
     ```
-  
+
 - Deleta um usuário a partir do primeiro valor dentro do arquivo JSON na propriedade `user`
+
     ```bash
     npm start -- resources/setup.json shouldDeleteUser
     ```
 
 - Cria um contest a partir do primeiro valor dentro do arquivo JSON na propriedade `contests`
+
     ```bash
     npm start -- resources/setup.json shouldCreateContest
     ```
 
 - Atualiza um contest a partir do primeiro valor dentro do arquivo JSON na propriedade `contests`
+
     ```bash
     npm start -- resources/setup.json shouldUpdateContest
     ```
-  
+
 - Limpa valores de um contest a partir do primeiro valor dentro do arquivo JSON na propriedade `contests`
+
     ```bash
     npm start -- resources/setup.json shouldClearContest
     ```
 
 - Cria um site a partir do primeiro valor dentro do arquivo JSON na propriedade `sites`
+
     ```bash
     npm start -- resources/setup.json shouldCreateSite
     ```
 
 - Cria um problema a partir do primeiro valor dentro do arquivo JSON na propriedade `problems`
+
     ```bash
     npm start -- resources/setup.json shouldCreateProblem
     ```
 
 - Gera um relatório de runs do site e deposita os arquivos na pasta definida na propriedade `outDir`
+
     ```bash
     npm start -- resources/setup.json shouldGenerateReport
     ```
@@ -141,14 +154,14 @@ TODO
 
 ## How To Build It (For Development)
 
-* Clone this repository and set it as your working directory:
+- Clone this repository and set it as your working directory:
 
   ```sh
   git clone https://github.com/rtmonteiro/boca-playwright.git
   cd boca-playwright
   ```
 
-* Then, use the commands below to build the image:
+-Then, use the commands below to build the image:
 
   ```sh
   # List images
@@ -162,19 +175,19 @@ TODO
 
 > **NOTE:** These instructions take into account the Docker image generated in the previous section (no multi-platform support).
 
-* After building, set the user and image tags accordingly. The IMAGE_ID's will show up with the `docker image ls`;
+- After building, set the user and image tags accordingly. The IMAGE_ID's will show up with the `docker image ls`;
 
   ```sh
   docker tag IMAGE_ID ghcr.io/rtmonteiro/boca-playwright:1.0.0
   ```
 
-* Log in into GitHub's Container Registry using your username and personal access token (details [here](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-to-the-container-registry));
+- Log in into GitHub's Container Registry using your username and personal access token (details [here](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-to-the-container-registry));
 
   ```sh
   docker login ghcr.io
   ```
 
-* Push the container image to registry.
+- Push the container image to registry.
 
   ```sh
   docker push ghcr.io/rtmonteiro/boca-playwright:1.0.0
@@ -188,9 +201,9 @@ This repository makes use of the Visual Studio Code Dev Containers extension to 
 
 To get started, follow these steps:
 
-* Install [VS Code](https://code.visualstudio.com/) and the [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension;
+- Install [VS Code](https://code.visualstudio.com/) and the [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension;
 
-* Clone this repository and open it in VS Code:
+- Clone this repository and open it in VS Code:
 
   ```sh
   git clone https://github.com/rtmonteiro/boca-playwright.git
@@ -198,19 +211,19 @@ To get started, follow these steps:
   code .
   ```
 
-* Try it out with the [**Dev Containers: Reopen in Container**](https://code.visualstudio.com/assets/docs/devcontainers/create-dev-container/dev-containers-reopen.png) command;
+- Try it out with the [**Dev Containers: Reopen in Container**](https://code.visualstudio.com/assets/docs/devcontainers/create-dev-container/dev-containers-reopen.png) command;
 
-* When VS Code restarts, you'll be within a container. You can open a terminal window and test the program:
+- When VS Code restarts, you'll be within a container. You can open a terminal window and test the program:
 
   ```sh
   npm start -- tests/new_contest.json shouldCreateContest
   ```
 
-* Close the window to stop the container;
+- Close the window to stop the container;
 
-* Before submitting a PR consider building and testing a Docker image locally (see [here](#how-to-build-it-for-development));
+- Before submitting a PR consider building and testing a Docker image locally (see [here](#how-to-build-it-for-development));
 
-* And checking your code with Super-Linter:
+- And checking your code with Super-Linter:
 
   ```sh
   docker run --rm \
