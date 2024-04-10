@@ -31,20 +31,22 @@
 
 ## Table of Contents
 
-- [What Is BOCA?](#what-is-boca)
-- [Why boca-playwright?](#why-boca-playwright)
-- [Requirements](#requirements)
-- [Quick Start](#quick-start)
-  - [Localmente](#localmente)
-  - [Docker](#docker)
-- [Lista de comandos](#lista-de-comandos)
-  - [Exemplos](#exemplos)
-- [How To Run On Different Node Release Images](#how-to-run-on-different-node-release-images)
-- [How To Build It (For Development)](#how-to-build-it-for-development)
-- [How To Publish It](#how-to-publish-it)
-- [How To Contribute](#how-to-contribute)
-- [License](#license)
-- [Support](#support)
+- [:balloon: boca-playwright](#balloon-boca-playwright)
+  - [Table of Contents](#table-of-contents)
+  - [What Is BOCA?](#what-is-boca)
+  - [Why boca-playwright?](#why-boca-playwright)
+  - [Requirements](#requirements)
+  - [Quick Start](#quick-start)
+    - [Localmente](#localmente)
+    - [Docker](#docker)
+  - [Lista de comandos](#lista-de-comandos)
+    - [Exemplos](#exemplos)
+  - [How To Run On Different Node Release Images](#how-to-run-on-different-node-release-images)
+  - [How To Build It (For Development)](#how-to-build-it-for-development)
+  - [How To Publish It](#how-to-publish-it)
+  - [How To Contribute](#how-to-contribute)
+  - [License](#license)
+  - [Support](#support)
 
 ## What Is BOCA?
 
@@ -56,7 +58,7 @@ TODO
 
 ## Requirements
 
-* Install and configure [Docker](https://www.docker.com/get-started) for your operating system.
+- Install and configure [Docker](https://www.docker.com/get-started) for your operating system.
 
 ## Quick Start
 
