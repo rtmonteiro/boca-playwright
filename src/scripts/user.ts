@@ -1,4 +1,4 @@
-// ========================================================================
+// =======================================================================
 // Copyright Universidade Federal do Espirito Santo (Ufes)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -18,13 +18,13 @@
 //
 // ========================================================================
 
-import { Dialog, Page } from "playwright";
-import { LoginModel } from "../data/login";
-import { UserModel } from "../data/user";
-import { BASE_URL } from "../index";
+import { Dialog, Page } from 'playwright';
+import { LoginModel } from '../data/login';
+import { UserModel } from '../data/user';
+import { BASE_URL } from '../index';
 
 export async function login(page: Page, login: LoginModel) {
-  await page.goto(BASE_URL+'/');
+  await page.goto(BASE_URL + '/');
   await page.locator('input[name="name"]').click();
   await page.locator('input[name="name"]').fill(login.username);
   await page.locator('input[name="name"]').press('Tab');
@@ -46,30 +46,34 @@ export async function insertUsers(page: Page, path: string) {
 
 async function fillUser(page: Page, user: UserModel, admin: LoginModel) {
   await page.goto(`${BASE_URL}/admin/user.php`);
-  await page.locator('input[name="usersitenumber"]')
+  await page
+    .locator('input[name="usersitenumber"]')
     .fill(user.userSiteNumber?.toString() || '1');
   await page.locator('input[name="usernumber"]').fill(user.userNumber);
   await page.locator('input[name="username"]').fill(user.userName);
   if (user.userIcpcId)
     await page.locator('input[name="usericpcid"]').fill(user.userIcpcId);
-  await page.locator('select[name="usertype"]')
+  await page
+    .locator('select[name="usertype"]')
     .selectOption({ label: user.userType });
   if (user.userEnabled)
-    await page.locator('select[name="userenabled"]')
+    await page
+      .locator('select[name="userenabled"]')
       .selectOption({ label: user.userEnabled });
   if (user.userMultiLogin)
-    await page.locator('select[name="usermultilogin"]')
+    await page
+      .locator('select[name="usermultilogin"]')
       .selectOption({ label: user.userMultiLogin });
   await page.locator('input[name="userfullname"]').fill(user.userFullName);
   await page.locator('input[name="userdesc"]').fill(user.userDesc);
-  if (user.userIp)
-    await page.locator('input[name="userip"]').fill(user.userIp);
+  if (user.userIp) await page.locator('input[name="userip"]').fill(user.userIp);
   if (user.userPassword) {
     await page.locator('input[name="passwordn1"]').fill(user.userPassword);
     await page.locator('input[name="passwordn2"]').fill(user.userPassword);
   }
   if (user.userChangePass)
-    await page.locator('select[name="changepass"]')
+    await page
+      .locator('select[name="changepass"]')
       .selectOption({ label: user.userChangePass });
   await page.locator('input[name="passwordo"]').fill(admin.password);
 }
@@ -93,18 +97,22 @@ export async function deleteUser(
   user: UserModel,
   admin: LoginModel
 ) {
-  await page.goto(BASE_URL+'/admin/user.php');
+  await page.goto(BASE_URL + '/admin/user.php');
 
-  await page.locator("tr", {
-    has: page.locator("td", {hasText: user.userName})
-  }).locator("td").nth(0).click();
+  await page
+    .locator('tr', {
+      has: page.locator('td', { hasText: user.userName })
+    })
+    .locator('td')
+    .nth(0)
+    .click();
 
   await page.locator('input[name="passwordo"]').fill(admin.password);
 
   page.once('dialog', (dialog: Dialog) => {
-    dialog.accept()
-      .catch(() => 
-        console.error('Dialog was already closed when accepted'));
+    dialog
+      .accept()
+      .catch(() => console.error('Dialog was already closed when accepted'));
   });
   await page.getByRole('button', { name: 'Delete' }).click();
 }
