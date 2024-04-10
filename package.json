@@ -4,13 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node src/index",
+    "start": "npm run build && node build/index.js",
+    "dev": "ts-node src/index",
+    "build": "tsc",
     "test": "npx playwright test",
     "test:debug": "npx playwright test --debug",
-    "lint": "eslint .",
+    "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --fix"
   },
-  "type": "commonjs",
   "author": "Ryan Monteiro",
   "license": "ISC",
   "devDependencies": {
@@ -23,11 +24,20 @@
     "eslint-plugin-n": "^16.6.2",
     "eslint-plugin-promise": "^6.1.1",
     "luxon": "^3.4.3",
+    "npm-run-all": "^4.1.5",
     "playwright": "^1.38.1",
     "ts-node": "^10.9.1",
     "typescript": "^5.4.0",
     "typescript-eslint": "^7.5.0",
     "winston": "^3.11.0",
     "zod": "^3.22.4"
+  },
+  "exports": {
+    ".": {
+      "types": "./build/types/lib.d.ts",
+      "require": "./build/cjs/lib.js",
+      "import": "./build/esm/lib.js",
+      "default": "./build/esm/lib.js"
+    }
   }
 }

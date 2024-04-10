@@ -38,10 +38,12 @@ export class Logger {
     return Logger.instance;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   logInfo (message: string, ...params: any[]): void {
     this.log.info(message, ...params);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   logError (message: string, ...params: any[]): void {
     this.log.error(message, ...params);
   }
