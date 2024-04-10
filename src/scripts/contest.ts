@@ -18,16 +18,16 @@
 //
 // ========================================================================
 
-import { Dialog, Page } from 'playwright';
+import { type Dialog, type Page } from 'playwright';
 import { DateTime } from 'luxon';
 import { BASE_URL } from '../index';
 import { defineDurationInMinutes } from '../utils/time';
-import { ContestModel } from '../data/contest';
+import { type ContestModel } from '../data/contest';
 
-async function fillContest(page: Page, contest: ContestModel) {
+async function fillContest(page: Page, contest: ContestModel): Promise<void> {
   await page.goto(BASE_URL + '/system/');
   await page.getByRole('link', { name: 'Contest' }).click();
-  if (contest.setup.id) {
+  if (contest.setup.id != null) {
     await page
       .locator('select[name="contest"]')
       .selectOption(contest.setup.id.toString());
@@ -60,7 +60,7 @@ async function fillContest(page: Page, contest: ContestModel) {
   const duration = defineDurationInMinutes(startDate, endDate);
   await page.locator('input[name="duration"]').fill(duration.toString());
 
-  if (contest.setup.stopAnswering) {
+  if (contest.setup.stopAnswering != null) {
     await page
       .locator('input[name="lastmileanswer"]')
       .fill(contest.setup.stopAnswering.toString());
@@ -70,7 +70,7 @@ async function fillContest(page: Page, contest: ContestModel) {
       .fill(duration.toString());
   }
 
-  if (contest.setup.stopScoreboard) {
+  if (contest.setup.stopScoreboard != null) {
     await page
       .locator('input[name="lastmilescore"]')
       .fill(contest.setup.stopScoreboard.toString());
@@ -78,7 +78,7 @@ async function fillContest(page: Page, contest: ContestModel) {
     await page.locator('input[name="lastmilescore"]').fill(duration.toString());
   }
 
-  if (contest.setup.penalty) {
+  if (contest.setup.penalty != null) {
     await page
       .locator('input[name="penalty"]')
       .fill(contest.setup.penalty.toString());
@@ -86,13 +86,13 @@ async function fillContest(page: Page, contest: ContestModel) {
     await page.locator('input[name="penalty"]').fill(duration.toString());
   }
 
-  if (contest.setup.maxFileSize) {
+  if (contest.setup.maxFileSize != null) {
     await page
       .locator('input[name="maxfilesize"]')
       .fill(contest.setup.maxFileSize.toString());
   }
 
-  if (contest.setup.mainSiteUrl) {
+  if (contest.setup.mainSiteUrl != null) {
     await page
       .locator('input[name="mainsiteurl"]')
       .fill(contest.setup.mainSiteUrl);
@@ -102,7 +102,7 @@ async function fillContest(page: Page, contest: ContestModel) {
     .locator('input[name="mainsite"]')
     .fill(contest.setup.mainSiteNumber.toString());
 
-  if (contest.setup.localSiteNumber) {
+  if (contest.setup.localSiteNumber !== undefined) {
     await page
       .locator('input[name="localsite"]')
       .fill(contest.setup.localSiteNumber.toString());
@@ -113,7 +113,10 @@ async function fillContest(page: Page, contest: ContestModel) {
   }
 }
 
-export async function createContest(page: Page, contest: ContestModel) {
+export async function createContest(
+  page: Page,
+  contest: ContestModel
+): Promise<void> {
   await fillContest(page, contest);
   page.once('dialog', (dialog: Dialog) => {
     dialog.accept().catch(() => {
@@ -127,12 +130,15 @@ export async function createContest(page: Page, contest: ContestModel) {
   }
 }
 
-export async function clearContest(page: Page, contest: ContestModel) {
+export async function clearContest(
+  page: Page,
+  contest: ContestModel
+): Promise<void> {
   await page.goto(BASE_URL + '/system/');
   await page.getByRole('link', { name: 'Contest' }).click();
   await page
     .locator('select[name="contest"]')
-    .selectOption(contest.setup.id!.toString());
+    .selectOption(contest.setup.id?.toString() ?? 'new');
   await page.getByRole('button', { name: 'Clear' }).click();
 
   page.once('dialog', (dialog: Dialog) => {
