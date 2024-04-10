@@ -1,3 +1,23 @@
+// ========================================================================
+// Copyright Universidade Federal do Espirito Santo (Ufes)
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+//
+// This program is released under license GNU GPL v3+ license.
+//
+// ========================================================================
+
 import { type Locator, type Page } from 'playwright';
 import * as fs from 'fs';
 import { BASE_URL } from '../index';
@@ -50,12 +70,12 @@ async function saveFiles(
 
   if (statusInt !== 0) {
     const stdout = page.locator(
-      'html > body > form > center:nth-of-type(3) > table > tbody > tr:nth-of-type(3) > td:nth-of-type(2)'
+      'form > center:nth-of-type(3) > table > tbody > tr:nth-of-type(3) > td:nth-of-type(2)'
     );
     await downloadFile(page, path, stdout, 'stdout.txt');
 
     const stderr = page.locator(
-      'html > body > form > center:nth-of-type(3) > table > tbody > tr:nth-of-type(4) > td:nth-of-type(2)'
+      'form > center:nth-of-type(3) > table > tbody > tr:nth-of-type(4) > td:nth-of-type(2)'
     );
     await downloadFile(page, path, stderr, 'stderr.txt');
   }
@@ -70,7 +90,7 @@ export async function retrieveFiles(page: Page, outDir: string): Promise<void> {
 
   // Get link, username and problem name
   const rows = await page
-    .locator('html > body > form > table > tbody > tr:nth-of-type(n+2)', {
+    .locator('form > table > tbody > tr:nth-of-type(n+2)', {
       hasText: /\d+/
     })
     .all();
