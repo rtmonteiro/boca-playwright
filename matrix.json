@@ -1,0 +1,31 @@
+{
+    "//comment1": "Matrix of supported image tags/releases (latest: first value)",
+    "release": [
+        "1.0.0",
+        "1.0.0-20",
+        "1.0.0-18",
+        "1.0",
+        "1.0-20",
+        "1.0-18",
+        "latest",
+        "nightly",
+        "nightly-20",
+        "nightly-18",
+        "main",
+        "main-20",
+        "main-18"
+    ],
+    "//comment2": "Matrix of parent/base images used in builds (default: first value)",
+    "parent": [
+        "node:20",
+        "node:18"
+    ],
+    "//comment3": "Matrix of target os/platforms (multi-arch)",
+    "platform": [
+        "linux/amd64",
+        "linux/arm/v7",
+        "linux/arm64/v8",
+        "linux/ppc64le",
+        "linux/s390x"
+    ]
+}

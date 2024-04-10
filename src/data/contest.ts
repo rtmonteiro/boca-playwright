@@ -18,10 +18,10 @@
 //
 // ========================================================================
 
-import { SiteModel, siteModelSchema } from "./site";
-import { Language, languageSchema } from "./language";
-import { Problem, problemSchema } from "./problem";
-import { z } from "zod";
+import { type SiteModel, siteModelSchema } from './site';
+import { type Language, languageSchema } from './language';
+import { type Problem, problemSchema } from './problem';
+import { z } from 'zod';
 
 export interface ContestModel {
   sites: SiteModel[];
@@ -36,11 +36,11 @@ export interface ContestModel {
     maxFileSize?: number;
     mainSiteUrl?: string;
     mainSiteNumber: number;
-    localSiteNumber: number;
+    localSiteNumber?: number;
     active: boolean;
-  },
-  languages: Language[],
-  problems: Problem[]
+  };
+  languages: Language[];
+  problems: Problem[];
 }
 
 export const contestModelSchema = z.object({
@@ -56,9 +56,9 @@ export const contestModelSchema = z.object({
     maxFileSize: z.number().optional(),
     mainSiteUrl: z.string().optional(),
     mainSiteNumber: z.number(),
-    localSiteNumber: z.number(),
-    active: z.boolean(),
+    localSiteNumber: z.number().optional(),
+    active: z.boolean()
   }),
   languages: z.array(languageSchema).optional(),
   problems: z.array(problemSchema).optional()
-})
+});

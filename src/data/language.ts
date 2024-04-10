@@ -18,7 +18,7 @@
 //
 // ========================================================================
 
-import { z } from "zod"
+import { z } from 'zod';
 
 export interface Language {
   id: number;
@@ -30,4 +30,4 @@ export const languageSchema = z.object({
   id: z.number(),
   name: z.string(),
   extension: z.string()
-})
+});

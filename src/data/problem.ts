@@ -18,8 +18,8 @@
 //
 // ========================================================================
 
-import { z } from "zod"
-import { ProblemErrors } from "../errors/read_errors";
+import { z } from 'zod';
+import { ProblemErrors } from '../errors/read_errors';
 
 export interface Problem {
   id: number;
@@ -34,10 +34,11 @@ export const problemSchema = z.object({
   name: z.string(),
   filePath: z.string(),
   colorName: z.string().optional(),
-  colorCode: z.string()
+  colorCode: z
+    .string()
     .refine(
       (value) => /^([0-9a-f]{3}){1,2}([0-9a-f]{2})?$/i.test(value),
       ProblemErrors.INVALID_COLOR_CODE
     )
     .optional()
-})
+});

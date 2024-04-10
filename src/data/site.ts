@@ -18,7 +18,7 @@
 //
 // ========================================================================
 
-import { z } from "zod";
+import { z } from 'zod';
 
 export interface SiteModel {
   id?: number;
@@ -50,4 +50,4 @@ export const siteModelSchema = z.object({
   autoJudge: z.boolean().optional(),
   scoreLevel: z.number().optional(),
   globalScoreboard: z.number().optional()
-})
+});

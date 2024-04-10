@@ -18,7 +18,7 @@
 //
 // ========================================================================
 
-import { z } from "zod";
+import { z } from 'zod';
 
 export interface LoginModel {
   username: string;
@@ -28,14 +28,14 @@ export interface LoginModel {
 export const loginModelSchema = z.object({
   username: z.string(),
   password: z.string()
-})
-
-export const system: LoginModel = {
-  username: 'system',
-  password: 'boca',
-}
+});
 
 export const admin: LoginModel = {
   username: 'admin',
-  password: 'boca',
-}
+  password: 'boca'
+};
+
+export const system: LoginModel = {
+  username: 'system',
+  password: 'boca'
+};
