@@ -20,24 +20,11 @@
 
 import { z } from 'zod';
 
-export interface UserModel {
-  userSiteNumber?: number;
-  userNumber: string;
-  userName: string;
-  userIcpcId?: string;
-  userType: 'Team' | 'Judge' | 'Admin' | 'Staff' | 'Score' | 'Site';
-  userEnabled?: 'Yes' | 'No';
-  userMultiLogin?: 'Yes' | 'No';
-  userFullName: string;
-  userDesc: string;
-  userIp?: string;
-  userPassword?: string;
-  userChangePass?: 'Yes' | 'No';
-}
+export type UserModel = z.infer<typeof userModelSchema>;
 
 export const userModelSchema = z.object({
-  userSiteNumber: z.string().optional(),
-  userNumber: z.number(),
+  userSiteNumber: z.number().optional(),
+  userNumber: z.string(),
   userName: z.string(),
   userIcpcId: z.string().optional(),
   userType: z.union([

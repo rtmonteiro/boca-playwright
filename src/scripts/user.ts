@@ -104,14 +104,14 @@ export async function createUser(
 
 export async function deleteUser(
   page: Page,
-  user: UserModel,
+  userName: string,
   admin: LoginModel
 ): Promise<void> {
   await page.goto(BASE_URL + '/admin/user.php');
 
   await page
     .locator('tr', {
-      has: page.locator('td', { hasText: user.userName })
+      has: page.locator('td', { hasText: userName })
     })
     .locator('td')
     .nth(0)

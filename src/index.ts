@@ -25,7 +25,7 @@ import { type LoginModel } from './data/login';
 import { type SetupModel, setupModelSchema } from './data/setup';
 import { type SiteModel } from './data/site';
 import { type UserModel } from './data/user';
-import { createContest, clearContest } from './scripts/contest';
+import { createContest, updateContest } from './scripts/contest';
 import { createProblem } from './scripts/problem';
 import { createSite } from './scripts/site';
 import { createUser, deleteUser, insertUsers, login } from './scripts/user';
@@ -42,15 +42,6 @@ const STEP_DURATION = 200;
 const HEADLESS = true;
 export let BASE_URL = 'http://localhost:8000/boca';
 
-if (process.argv.length === 2) {
-  console.error(
-    'Missing command-line argument(s). ' +
-      'To see the options available visit: ' +
-      'https://github.com/rtmonteiro/boca-playwright\n'
-  );
-  process.exit(1);
-}
-
 // region Users
 async function shouldCreateUser(setup: SetupModel): Promise<void> {
   // instantiate logger
@@ -58,11 +49,9 @@ async function shouldCreateUser(setup: SetupModel): Promise<void> {
   logger.logInfo('Creating users');
 
   // validate setup file with zod
-  const validate = new Validate(setup);
-  validate.loginAdmin();
-  const admin: LoginModel = setup.logins.admin;
-  validate.createUser();
-  const user: UserModel = setup.user;
+  const setupValidated = new Validate(setup).createUser();
+  const admin: LoginModel = setupValidated.login;
+  const user: UserModel = setupValidated.user;
 
   const browser = await chromium.launch({
     headless: HEADLESS,
@@ -81,11 +70,9 @@ async function shouldInsertUsers(setup: SetupModel): Promise<void> {
   const logger = Logger.getInstance();
   logger.logInfo('Creating users');
 
-  const validate = new Validate(setup);
-  validate.loginAdmin();
-  const userPath = setup.setup.userPath;
-  validate.insertUsers();
-  const admin: LoginModel = setup.logins.admin;
+  const setupValidated = new Validate(setup).insertUsers();
+  const userPath = setupValidated.config.userPath;
+  const admin: LoginModel = setupValidated.login;
 
   const browser = await chromium.launch({
     headless: HEADLESS,
@@ -104,11 +91,9 @@ async function shouldDeleteUser(setup: SetupModel): Promise<void> {
   const logger = Logger.getInstance();
   logger.logInfo('Deleting users');
 
-  const validate = new Validate(setup);
-  validate.loginAdmin();
-  const admin: LoginModel = setup.logins.admin;
-  validate.deleteUser();
-  const user: UserModel = setup.user;
+  const setupValidated = new Validate(setup).deleteUser();
+  const admin: LoginModel = setupValidated.login;
+  const userName: string = setupValidated.user.userName;
 
   const browser = await chromium.launch({
     headless: HEADLESS,
@@ -116,8 +101,8 @@ async function shouldDeleteUser(setup: SetupModel): Promise<void> {
   });
   const page = await browser.newPage();
   await login(page, admin);
-  logger.logInfo('Deleting user: %s', user.userName);
-  await deleteUser(page, user, admin);
+  logger.logInfo('Deleting user: %s', userName);
+  await deleteUser(page, userName, admin);
   await browser.close();
 }
 // endregion
@@ -129,11 +114,9 @@ async function shouldCreateContest(setup: SetupModel): Promise<void> {
   logger.logInfo('Creating contest');
 
   // validate setup file with zod
-  const validate = new Validate(setup);
-  validate.loginSystem();
-  const system: LoginModel = setup.logins.system;
-  validate.createContest();
-  const contest: ContestModel = setup.contests[0];
+  const setupValidated = new Validate(setup).createContest();
+  const system: LoginModel = setupValidated.login;
+  const contest: ContestModel = setupValidated.contest;
 
   // create contest
   const browser = await chromium.launch({
@@ -143,7 +126,7 @@ async function shouldCreateContest(setup: SetupModel): Promise<void> {
   const page = await browser.newPage();
   logger.logInfo('Logging in with system user: %s', system.username);
   await login(page, system);
-  logger.logInfo('Creating contest: %s', contest.setup.name);
+  logger.logInfo('Creating contest: %s', contest.config.name);
   await createContest(page, contest);
   await browser.close();
 }
@@ -154,11 +137,9 @@ async function shouldUpdateContest(setup: SetupModel): Promise<void> {
   logger.logInfo('Edit contest');
 
   // validate setup file with zod
-  const validate = new Validate(setup);
-  validate.loginSystem();
-  const system: LoginModel = setup.logins.system;
-  validate.updateContest();
-  const contest: ContestModel = setup.contests[0];
+  const setupValidated = new Validate(setup).updateContest();
+  const system: LoginModel = setupValidated.login;
+  const contest: ContestModel = setupValidated.contest;
 
   // create contest
   const browser = await chromium.launch({
@@ -168,40 +149,22 @@ async function shouldUpdateContest(setup: SetupModel): Promise<void> {
   const page = await browser.newPage();
   logger.logInfo('Logging in with system user: %s', system.username);
   await login(page, system);
-  logger.logInfo('Editing contest: %s', contest.setup.name);
-  await createContest(page, contest);
-  await browser.close();
-}
-
-async function shouldClearContest(setup: SetupModel): Promise<void> {
-  // instantiate logger
-  const logger = Logger.getInstance();
-  logger.logInfo('Clear contest');
-
-  // validate setup file with zod
-  const validate = new Validate(setup);
-  validate.loginSystem();
-  const system: LoginModel = setup.logins.system;
-  validate.clearContest();
-  const contest: ContestModel = setup.contests[0];
-
-  const browser = await chromium.launch({
-    headless: HEADLESS,
-    slowMo: STEP_DURATION
-  });
-  const page = await browser.newPage();
-  logger.logInfo('Logging in with system user: %s', system.username);
-  await login(page, system);
-  logger.logInfo('Clearing contest id: %s', contest.setup.id);
-  await clearContest(page, contest);
+  logger.logInfo('Editing contest: %s', contest.config.name);
+  await updateContest(page, contest);
   await browser.close();
 }
 // endregion
 
 // region Sites
 async function shouldCreateSite(setup: SetupModel): Promise<void> {
-  const admin: LoginModel = setup.logins.admin;
-  const site: SiteModel = setup.contests[0].sites[0];
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Creating site');
+
+  // validate setup file with zod
+  const setupValidated = new Validate(setup).createSite();
+  const admin: LoginModel = setupValidated.login;
+  const site: SiteModel = setupValidated.site;
 
   const browser = await chromium.launch({
     headless: HEADLESS,
@@ -216,8 +179,14 @@ async function shouldCreateSite(setup: SetupModel): Promise<void> {
 
 // region Problems
 async function shouldCreateProblem(setup: SetupModel): Promise<void> {
-  const admin: LoginModel = setup.logins.admin;
-  const problems: Problem[] = setup.contests[0].problems;
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Creating problems');
+
+  // validate setup file with zod
+  const setupValidated = new Validate(setup).createProblem();
+  const admin: LoginModel = setupValidated.login;
+  const problems: Problem[] = setupValidated.problems;
 
   for (const problem of problems) {
     const browser = await chromium.launch({
@@ -235,8 +204,14 @@ async function shouldCreateProblem(setup: SetupModel): Promise<void> {
 // region Languages
 
 async function shouldCreateLanguage(setup: SetupModel): Promise<void> {
-  const admin: LoginModel = setup.logins.admin;
-  const languages: Language[] = setup.contests[0].languages;
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Creating languages');
+
+  // validate setup file with zod
+  const setupValidated = new Validate(setup).createLanguages();
+  const admin: LoginModel = setupValidated.login;
+  const languages: Language[] = setupValidated.languages;
 
   for (const language of languages) {
     const browser = await chromium.launch({
@@ -251,8 +226,14 @@ async function shouldCreateLanguage(setup: SetupModel): Promise<void> {
 }
 
 async function shouldDeleteLanguage(setup: SetupModel): Promise<void> {
-  const admin: LoginModel = setup.logins.admin;
-  const languages: Language[] = setup.contests[0].languages;
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Deleting languages');
+
+  // validate setup file with zod
+  const setupValidated = new Validate(setup).deleteLanguages();
+  const admin: LoginModel = setupValidated.login;
+  const languages = setupValidated.languages;
 
   for (const language of languages) {
     const browser = await chromium.launch({
@@ -261,7 +242,7 @@ async function shouldDeleteLanguage(setup: SetupModel): Promise<void> {
     });
     const page = await browser.newPage();
     await login(page, admin);
-    await deleteLanguage(page, language);
+    await deleteLanguage(page, language.name);
     await browser.close();
   }
 }
@@ -271,8 +252,14 @@ async function shouldDeleteLanguage(setup: SetupModel): Promise<void> {
 // region Reports
 
 async function shouldGenerateReport(setup: SetupModel): Promise<void> {
-  const admin: LoginModel = setup.logins.admin;
-  const outDir = setup.setup.outDir;
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Generating reports');
+
+  // validate setup file with zod
+  const setupValidated = new Validate(setup).generateReport();
+  const admin: LoginModel = setupValidated.login;
+  const outDir = setupValidated.config.outDir;
 
   const browser = await chromium.launch({
     headless: HEADLESS,
@@ -287,6 +274,15 @@ async function shouldGenerateReport(setup: SetupModel): Promise<void> {
 // endregion
 
 function main(): number {
+  if (process.argv.length === 2) {
+    console.error(
+      'Missing command-line argument(s). ' +
+        'To see the options available visit: ' +
+        'https://github.com/rtmonteiro/boca-playwright\n'
+    );
+    process.exit(1);
+  }
+
   const methods: Record<string, (setup: SetupModel) => Promise<void>> = {
     // Users
     shouldCreateUser,
@@ -295,7 +291,6 @@ function main(): number {
     // Contests
     shouldCreateContest,
     shouldUpdateContest,
-    shouldClearContest,
     // Sites
     shouldCreateSite,
     // Problems
@@ -329,7 +324,7 @@ function main(): number {
   } finally {
     logger.logInfo('Using setup file: %s', path);
   }
-  BASE_URL = setup.setup.url;
+  BASE_URL = setup.config.url;
 
   const func = methods[method];
   func(setup)

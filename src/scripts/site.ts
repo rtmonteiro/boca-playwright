@@ -19,10 +19,11 @@
 // ========================================================================
 
 import { type Page } from 'playwright';
+import { DateTime } from 'luxon';
 import { BASE_URL } from '../index';
 import { type SiteModel } from '../data/site';
-import { DateTime } from 'luxon';
 import { defineDurationInMinutes } from '../utils/time';
+
 export async function fillSite(page: Page, site: SiteModel): Promise<void> {
   await page.goto(BASE_URL + '/admin/');
   await page.getByRole('link', { name: 'Site' }).click();

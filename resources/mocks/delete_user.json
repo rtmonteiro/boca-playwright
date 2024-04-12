@@ -1,12 +1,10 @@
 {
-  "setup": {
+  "config": {
     "url": "localhost:8000/boca"
   },
-  "logins": {
-    "admin": {
-      "username": "admin",
-      "password": "boca"
-    }
+  "login": {
+    "username": "admin",
+    "password": "boca"
   },
   "user": {
     "userName": "brucewayne"

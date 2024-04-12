@@ -35,7 +35,7 @@ export async function createLanguage(
 
 export async function deleteLanguage(
   page: Page,
-  language: Language
+  languageName: string
 ): Promise<void> {
   await page.goto(BASE_URL + '/admin/language.php');
 
@@ -45,7 +45,7 @@ export async function deleteLanguage(
     });
   });
 
-  const el = page.locator('td:nth-of-type(2)', { hasText: language.name });
+  const el = page.locator('td:nth-of-type(2)', { hasText: languageName });
 
   await page
     .locator('table:nth-of-type(3) > tbody > tr', { has: el })
