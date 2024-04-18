@@ -128,8 +128,9 @@ async function shouldCreateContest(setup: Setup): Promise<void> {
   logger.logInfo('Logging in with system user: %s', system.username);
   await login(page, system);
   logger.logInfo('Creating contest');
-  await createContest(page, contest);
+  const id = await createContest(page, contest);
   await browser.close();
+  logger.logInfo('Contest created with id: %s', id ?? 'undefined');
 }
 
 async function shouldUpdateContest(setup: Setup): Promise<void> {

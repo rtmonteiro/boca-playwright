@@ -112,7 +112,7 @@ async function fillContest(page: Page, contest: Contest): Promise<void> {
 export async function createContest(
   page: Page,
   contest: CreateContest | undefined
-): Promise<void> {
+): Promise<string | null> {
   await page.goto(BASE_URL + '/system/');
   await page.getByRole('link', { name: 'Contest' }).click();
   await selectContest(page, contest);
@@ -130,6 +130,10 @@ export async function createContest(
   } else {
     await page.getByRole('button', { name: 'Send' }).click();
   }
+  return await page.$eval(
+    'form > center:nth-child(5) > table > tbody > tr:nth-child(1) > td:nth-child(2) > select',
+    (element) => element.value
+  );
 }
 
 export async function updateContest(
@@ -143,24 +147,6 @@ export async function updateContest(
     });
   });
   await page.getByRole('button', { name: 'Send' }).click();
-}
-
-export async function clearContest(
-  page: Page,
-  contest: Contest
-): Promise<void> {
-  await page.goto(BASE_URL + '/system/');
-  await page.getByRole('link', { name: 'Contest' }).click();
-  await page
-    .locator('select[name="contest"]')
-    .selectOption(contest.id?.toString() ?? 'new');
-  await page.getByRole('button', { name: 'Clear' }).click();
-
-  page.once('dialog', (dialog: Dialog) => {
-    dialog.accept().catch(() => {
-      console.error('Dialog was already closed when accepted');
-    });
-  });
 }
 
 async function selectContest(
