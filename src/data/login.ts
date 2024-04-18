@@ -20,19 +20,9 @@
 
 import { z } from 'zod';
 
-export type LoginModel = z.infer<typeof loginModelSchema>;
+export type Login = z.infer<typeof loginSchema>;
 
-export const loginModelSchema = z.object({
+export const loginSchema = z.object({
   username: z.string(),
   password: z.string()
 });
-
-export const admin: LoginModel = {
-  username: 'admin',
-  password: 'boca'
-};
-
-export const system: LoginModel = {
-  username: 'system',
-  password: 'boca'
-};

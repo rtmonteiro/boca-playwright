@@ -20,23 +20,25 @@
 
 import { z } from 'zod';
 
-export type ContestModel = z.infer<typeof contestModelSchema>;
+export type Contest = z.infer<typeof contestSchema>;
 
-export const contestConfigSchema = z.object({
-  id: z.number().optional(),
-  name: z.string(),
-  startDate: z.string(),
-  endDate: z.string(),
-  stopAnswering: z.number().optional(),
-  stopScoreboard: z.number().optional(),
-  penalty: z.number().optional(),
-  maxFileSize: z.number().optional(),
-  mainSiteUrl: z.string().optional(),
-  mainSiteNumber: z.number(),
-  localSiteNumber: z.number().optional(),
-  active: z.boolean()
-});
+export type CreateContest = z.infer<typeof createContestSchema>;
 
-export const contestModelSchema = z.object({
-  config: contestConfigSchema
-});
+export const contestSchema = z
+  .object({
+    id: z.number(),
+    name: z.string(),
+    startDate: z.string(),
+    endDate: z.string(),
+    stopAnsweringDate: z.string(),
+    stopScoreboardDate: z.string(),
+    penaltyDate: z.string(),
+    maxFileSize: z.number(),
+    mainSiteUrl: z.string(),
+    mainSiteNumber: z.number(),
+    localSiteNumber: z.number(),
+    active: z.boolean()
+  })
+  .partial();
+
+export const createContestSchema = contestSchema.omit({ id: true }).optional();

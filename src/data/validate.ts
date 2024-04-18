@@ -19,163 +19,117 @@
 // ========================================================================
 
 import { z } from 'zod';
-import { type SetupModel } from './setup';
-import { contestConfigSchema, contestModelSchema } from './contest';
-import { userModelSchema } from './user';
-import { loginModelSchema } from './login';
-import { siteModelSchema } from './site';
+import { type Setup } from './setup';
+import { deleteUserSchema, userSchema } from './user';
+import { loginSchema } from './login';
+import { siteSchema } from './site';
 import { problemSchema } from './problem';
-import { languageSchema } from './language';
+import { deleteLanguageSchema, languageSchema } from './language';
+import { contestSchema, createContestSchema } from './contest';
 
 export class Validate {
-  private readonly loginSchema = z.object({
-    login: loginModelSchema
-  });
-
-  private readonly createContestSchema = z.object({
-    contest: contestModelSchema
-  });
-
-  private readonly updateContestSchema = z.object({
-    contest: contestModelSchema.merge(
-      z.object({
-        config: contestConfigSchema.merge(
-          z.object({
-            id: z.number()
-          })
-        )
-      })
-    )
-  });
-
-  private readonly clearContestSchema = z.object({
-    contest: contestModelSchema.merge(
-      z.object({
-        config: z.object({
-          id: z.number()
-        })
-      })
-    )
-  });
-
-  private readonly createUsersSchema = z.object({
-    user: userModelSchema
-  });
-
   private readonly insertUsersSchema = z.object({
-    config: z.object({
-      userPath: z.string()
-    })
+    userPath: z.string()
   });
 
-  private readonly deleteUserSchema = z.object({
-    user: z.object({
-      userName: z.string()
-    })
-  });
+  private readonly createProblemsSchema = z.array(problemSchema);
 
-  private readonly createSiteSchema = z.object({
-    site: siteModelSchema
-  });
+  private readonly createLanguagesSchema = z.array(languageSchema);
 
-  private readonly createProblemSchema = z.object({
-    problems: z.array(problemSchema)
-  });
-
-  private readonly createLanguagesSchema = z.object({
-    languages: z.array(languageSchema)
-  });
-
-  private readonly deleteLanguagesSchema = z.object({
-    languages: z.array(
-      z.object({
-        name: z.string()
-      })
-    )
-  });
+  private readonly deleteLanguagesSchema = z.array(deleteLanguageSchema);
 
   private readonly generateReportSchema = z.object({
-    config: z.object({
-      outDir: z.string()
-    })
+    outDir: z.string()
   });
 
-  constructor(public setup: SetupModel) {}
+  constructor(public setup: Setup) {}
 
-  createContest(): z.infer<typeof opType> {
-    this.loginSchema.parse(this.setup);
-    this.createContestSchema.parse(this.setup);
-    const opType = this.loginSchema.merge(this.createContestSchema);
-    return this.setup as z.infer<typeof opType>;
+  createContest(): z.infer<typeof setupType> {
+    const setupType = z.object({
+      login: loginSchema,
+      contest: createContestSchema
+    });
+    setupType.parse(this.setup);
+    return this.setup as z.infer<typeof setupType>;
   }
 
-  updateContest(): z.infer<typeof opType> {
-    this.loginSchema.parse(this.setup);
-    this.updateContestSchema.parse(this.setup);
-    const opType = this.loginSchema.merge(this.updateContestSchema);
-    return this.setup as z.infer<typeof opType>;
+  updateContest(): z.infer<typeof setupType> {
+    const setupType = z.object({
+      login: loginSchema,
+      contest: contestSchema
+    });
+    setupType.parse(this.setup);
+    return this.setup as z.infer<typeof setupType>;
   }
 
-  clearContest(): z.infer<typeof opType> {
-    this.loginSchema.parse(this.setup);
-    this.clearContestSchema.parse(this.setup);
-    const opType = this.loginSchema.merge(this.clearContestSchema);
-    return this.setup as z.infer<typeof opType>;
+  createUser(): z.infer<typeof setupType> {
+    const setupType = z.object({
+      login: loginSchema,
+      user: userSchema
+    });
+    setupType.parse(this.setup);
+    return this.setup as z.infer<typeof setupType>;
   }
 
-  createUser(): z.infer<typeof opType> {
-    this.loginSchema.parse(this.setup);
-    this.createUsersSchema.parse(this.setup);
-    const opType = this.loginSchema.merge(this.createUsersSchema);
-    return this.setup as z.infer<typeof opType>;
+  insertUsers(): z.infer<typeof setupType> {
+    const setupType = z.object({
+      config: this.insertUsersSchema,
+      login: loginSchema
+    });
+    setupType.parse(this.setup);
+    return this.setup as z.infer<typeof setupType>;
   }
 
-  insertUsers(): z.infer<typeof opType> {
-    this.loginSchema.parse(this.setup);
-    this.insertUsersSchema.parse(this.setup);
-    const opType = this.loginSchema.merge(this.insertUsersSchema);
-    return this.setup as z.infer<typeof opType>;
+  deleteUser(): z.infer<typeof setupType> {
+    const setupType = z.object({
+      login: loginSchema,
+      user: deleteUserSchema
+    });
+    setupType.parse(this.setup);
+    return this.setup as z.infer<typeof setupType>;
   }
 
-  deleteUser(): z.infer<typeof opType> {
-    this.loginSchema.parse(this.setup);
-    this.deleteUserSchema.parse(this.setup);
-    const opType = this.loginSchema.merge(this.deleteUserSchema);
-    return this.setup as z.infer<typeof opType>;
+  createSite(): z.infer<typeof setupType> {
+    const setupType = z.object({
+      login: loginSchema,
+      site: siteSchema // TODO - Review if it should be optional
+    });
+    setupType.parse(this.setup);
+    return this.setup as z.infer<typeof setupType>;
   }
 
-  createSite(): z.infer<typeof opType> {
-    this.loginSchema.parse(this.setup);
-    this.createSiteSchema.parse(this.setup);
-    const opType = this.loginSchema.merge(this.createSiteSchema);
-    return this.setup as z.infer<typeof opType>;
+  createProblems(): z.infer<typeof setupType> {
+    const setupType = z.object({
+      login: loginSchema,
+      problems: this.createProblemsSchema
+    });
+    setupType.parse(this.setup);
+    return this.setup as z.infer<typeof setupType>;
   }
 
-  createProblem(): z.infer<typeof opType> {
-    this.loginSchema.parse(this.setup);
-    this.createProblemSchema.parse(this.setup);
-    const opType = this.loginSchema.merge(this.createProblemSchema);
-    return this.setup as z.infer<typeof opType>;
+  createLanguages(): z.infer<typeof setupType> {
+    const setupType = z.object({
+      login: loginSchema,
+      languages: this.createLanguagesSchema
+    });
+    setupType.parse(this.setup);
+    return this.setup as z.infer<typeof setupType>;
   }
 
-  createLanguages(): z.infer<typeof opType> {
-    this.loginSchema.parse(this.setup);
-    this.createLanguagesSchema.parse(this.setup);
-    const opType = this.loginSchema.merge(this.createLanguagesSchema);
-    return this.setup as z.infer<typeof opType>;
+  deleteLanguages(): z.infer<typeof setupType> {
+    const setupType = z.object({
+      login: loginSchema,
+      languages: this.deleteLanguagesSchema
+    });
+    return this.setup as z.infer<typeof setupType>;
   }
 
-  deleteLanguages(): z.infer<typeof opType> {
-    this.loginSchema.parse(this.setup);
-    this.deleteLanguagesSchema.parse(this.setup);
-    const opType = this.loginSchema.merge(this.deleteLanguagesSchema);
-    return this.setup as z.infer<typeof opType>;
-  }
-
-  generateReport(): z.infer<typeof opType> {
-    this.loginSchema.parse(this.setup);
-    this.generateReportSchema.parse(this.setup);
-    const opType = this.loginSchema.merge(this.generateReportSchema);
-    return this.setup as z.infer<typeof opType>;
+  generateReport(): z.infer<typeof setupType> {
+    const setupType = z.object({
+      login: loginSchema,
+      config: this.generateReportSchema
+    });
+    setupType.parse(this.setup);
+    return this.setup as z.infer<typeof setupType>;
   }
 }

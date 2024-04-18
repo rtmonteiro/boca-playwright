@@ -21,109 +21,111 @@
 import { type Dialog, type Page } from 'playwright';
 import { DateTime } from 'luxon';
 import { BASE_URL } from '../index';
-import { defineDurationInMinutes } from '../utils/time';
-import { type ContestModel } from '../data/contest';
+import { defineDuration, fillDateField } from '../utils/time';
+import { type CreateContest, type Contest } from '../data/contest';
 
-async function fillContest(page: Page, contest: ContestModel): Promise<void> {
-  await page.goto(BASE_URL + '/system/');
-  await page.getByRole('link', { name: 'Contest' }).click();
-  if (contest.config.id != null) {
-    await page
-      .locator('select[name="contest"]')
-      .selectOption(contest.config.id.toString());
-  } else {
-    await page.locator('select[name="contest"]').selectOption('new');
-  }
-  await page.locator('input[name="name"]').fill(contest.config.name);
-
-  const startDate = DateTime.fromFormat(
-    contest.config.startDate,
-    'yyyy-MM-dd HH:mm'
-  );
-  await page
-    .locator('input[name="startdateh"]')
-    .fill(startDate.hour.toString());
-  await page
-    .locator('input[name="startdatemin"]')
-    .fill(startDate.minute.toString());
-  await page.locator('input[name="startdated"]').fill(startDate.day.toString());
-  await page
-    .locator('input[name="startdatem"]')
-    .fill(startDate.month.toString());
-  await page
-    .locator('input[name="startdatey"]')
-    .fill(startDate.year.toString());
-  const endDate = DateTime.fromFormat(
-    contest.config.endDate,
-    'yyyy-MM-dd HH:mm'
-  );
-  const duration = defineDurationInMinutes(startDate, endDate);
-  await page.locator('input[name="duration"]').fill(duration.toString());
-
-  if (contest.config.stopAnswering != null) {
-    await page
-      .locator('input[name="lastmileanswer"]')
-      .fill(contest.config.stopAnswering.toString());
-  } else {
-    await page
-      .locator('input[name="lastmileanswer"]')
-      .fill(duration.toString());
+async function fillContest(page: Page, contest: Contest): Promise<void> {
+  if (contest.name !== undefined) {
+    await page.locator('input[name="name"]').fill(contest.name);
   }
 
-  if (contest.config.stopScoreboard != null) {
+  if (contest.startDate !== undefined) {
+    const startDate = DateTime.fromFormat(
+      contest.startDate,
+      'yyyy-MM-dd HH:mm'
+    );
     await page
-      .locator('input[name="lastmilescore"]')
-      .fill(contest.config.stopScoreboard.toString());
-  } else {
-    await page.locator('input[name="lastmilescore"]').fill(duration.toString());
+      .locator('input[name="startdateh"]')
+      .fill(startDate.hour.toString());
+    await page
+      .locator('input[name="startdatemin"]')
+      .fill(startDate.minute.toString());
+    await page
+      .locator('input[name="startdated"]')
+      .fill(startDate.day.toString());
+    await page
+      .locator('input[name="startdatem"]')
+      .fill(startDate.month.toString());
+    await page
+      .locator('input[name="startdatey"]')
+      .fill(startDate.year.toString());
+
+    if (contest.endDate !== undefined) {
+      const endDate = DateTime.fromFormat(contest.endDate, 'yyyy-MM-dd HH:mm');
+      const duration = defineDuration(startDate, endDate);
+      await page
+        .locator('input[name="duration"]')
+        .fill(duration.minutes.toString());
+
+      await fillDateField(
+        startDate,
+        page,
+        duration,
+        15,
+        'input[name="lastmileanswer"]',
+        contest.stopAnsweringDate
+      );
+
+      await fillDateField(
+        startDate,
+        page,
+        duration,
+        60,
+        'input[name="lastmilescore"]',
+        contest.stopScoreboardDate
+      );
+
+      await fillDateField(
+        startDate,
+        page,
+        duration,
+        90,
+        'input[name="penalty"]',
+        contest.penaltyDate
+      );
+    }
   }
 
-  if (contest.config.penalty != null) {
-    await page
-      .locator('input[name="penalty"]')
-      .fill(contest.config.penalty.toString());
-  } else {
-    await page.locator('input[name="penalty"]').fill(duration.toString());
-  }
-
-  if (contest.config.maxFileSize != null) {
+  if (contest.maxFileSize !== undefined) {
     await page
       .locator('input[name="maxfilesize"]')
-      .fill(contest.config.maxFileSize.toString());
+      .fill(contest.maxFileSize.toString());
   }
 
-  if (contest.config.mainSiteUrl != null) {
-    await page
-      .locator('input[name="mainsiteurl"]')
-      .fill(contest.config.mainSiteUrl);
+  if (contest.mainSiteUrl !== undefined) {
+    await page.locator('input[name="mainsiteurl"]').fill(contest.mainSiteUrl);
   }
 
-  await page
-    .locator('input[name="mainsite"]')
-    .fill(contest.config.mainSiteNumber.toString());
+  if (contest.mainSiteNumber !== undefined) {
+    await page
+      .locator('input[name="mainsite"]')
+      .fill(contest.mainSiteNumber.toString());
+  }
 
-  if (contest.config.localSiteNumber !== undefined) {
+  if (contest.localSiteNumber !== undefined) {
     await page
       .locator('input[name="localsite"]')
-      .fill(contest.config.localSiteNumber.toString());
-  } else {
-    await page
-      .locator('input[name="localsite"]')
-      .fill(contest.config.mainSiteNumber.toString());
+      .fill(contest.localSiteNumber.toString());
   }
 }
 
 export async function createContest(
   page: Page,
-  contest: ContestModel
+  contest: CreateContest | undefined
 ): Promise<void> {
-  await fillContest(page, contest);
+  await page.goto(BASE_URL + '/system/');
+  await page.getByRole('link', { name: 'Contest' }).click();
+  await selectContest(page, contest);
+
+  if (contest !== undefined) {
+    await fillContest(page, contest);
+  }
   page.once('dialog', (dialog: Dialog) => {
     dialog.accept().catch(() => {
       console.error('Dialog was already closed when accepted');
     });
   });
-  if (contest.config.active) {
+  if (contest?.active) {
     await page.getByRole('button', { name: 'Activate' }).click();
   } else {
     await page.getByRole('button', { name: 'Send' }).click();
@@ -132,7 +134,7 @@ export async function createContest(
 
 export async function updateContest(
   page: Page,
-  contest: ContestModel
+  contest: Contest
 ): Promise<void> {
   await fillContest(page, contest);
   page.once('dialog', (dialog: Dialog) => {
@@ -145,13 +147,13 @@ export async function updateContest(
 
 export async function clearContest(
   page: Page,
-  contest: ContestModel
+  contest: Contest
 ): Promise<void> {
   await page.goto(BASE_URL + '/system/');
   await page.getByRole('link', { name: 'Contest' }).click();
   await page
     .locator('select[name="contest"]')
-    .selectOption(contest.config.id?.toString() ?? 'new');
+    .selectOption(contest.id?.toString() ?? 'new');
   await page.getByRole('button', { name: 'Clear' }).click();
 
   page.once('dialog', (dialog: Dialog) => {
@@ -159,4 +161,17 @@ export async function clearContest(
       console.error('Dialog was already closed when accepted');
     });
   });
+}
+
+async function selectContest(
+  page: Page,
+  contest: Contest | undefined
+): Promise<void> {
+  if (contest?.id !== undefined) {
+    await page
+      .locator('select[name="contest"]')
+      .selectOption(contest.id.toString());
+  } else {
+    await page.locator('select[name="contest"]').selectOption('new');
+  }
 }

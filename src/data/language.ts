@@ -27,3 +27,5 @@ export const languageSchema = z.object({
   name: z.string(),
   extension: z.string()
 });
+
+export const deleteLanguageSchema = languageSchema.pick({ name: true });

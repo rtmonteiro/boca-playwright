@@ -20,9 +20,9 @@
 
 import { z } from 'zod';
 
-export type UserModel = z.infer<typeof userModelSchema>;
+export type User = z.infer<typeof userSchema>;
 
-export const userModelSchema = z.object({
+export const userSchema = z.object({
   userSiteNumber: z.number().optional(),
   userNumber: z.string(),
   userName: z.string(),
@@ -44,13 +44,4 @@ export const userModelSchema = z.object({
   userChangePass: z.union([z.literal('Yes'), z.literal('No')]).optional()
 });
 
-export const user: UserModel = {
-  userSiteNumber: 1,
-  userNumber: '2019202359',
-  userName: 'ryanmonteiro',
-  userType: 'Team',
-  userFullName: 'Ryan Tavares Farias da Silva Monteiro',
-  userDesc: 'Ryan Tavares Farias da Silva Monteiro',
-  userPassword: 'boca',
-  userChangePass: 'Yes'
-};
+export const deleteUserSchema = userSchema.pick({ userName: true });

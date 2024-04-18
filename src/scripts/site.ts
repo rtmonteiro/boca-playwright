@@ -21,10 +21,10 @@
 import { type Page } from 'playwright';
 import { DateTime } from 'luxon';
 import { BASE_URL } from '../index';
-import { type SiteModel } from '../data/site';
-import { defineDurationInMinutes } from '../utils/time';
+import { type Site } from '../data/site';
+import { defineDuration, fillDateField } from '../utils/time';
 
-export async function fillSite(page: Page, site: SiteModel): Promise<void> {
+export async function fillSite(page: Page, site: Site): Promise<void> {
   await page.goto(BASE_URL + '/admin/');
   await page.getByRole('link', { name: 'Site' }).click();
 
@@ -58,10 +58,29 @@ export async function fillSite(page: Page, site: SiteModel): Promise<void> {
   await page
     .locator('input[name="startdatey"]')
     .fill(startDate.year.toString());
-  const duration = defineDurationInMinutes(startDate, endDate);
-  await page.locator('input[name="duration"]').fill(duration.toString());
-  await page.locator('input[name="lastmileanswer"]').fill(duration.toString());
-  await page.locator('input[name="lastmilescore"]').fill(duration.toString());
+  const duration = defineDuration(startDate, endDate);
+  await page
+    .locator('input[name="duration"]')
+    .fill(duration.minutes.toString()!);
+
+  await fillDateField(
+    startDate,
+    page,
+    duration,
+    15,
+    'input[name="lastmileanswer"]',
+    site.stopAnsweringDate
+  );
+
+  await fillDateField(
+    startDate,
+    page,
+    duration,
+    60,
+    'input[name="lastmilescore"]',
+    site.stopScoreboardDate
+  );
+
   await page.locator('input[name="judging"]').fill(site.runs.toString());
   await page.locator('input[name="tasking"]').fill(site.tasks.toString());
   await page.locator('input[name="chiefname"]').fill(site.chiefUsername);
@@ -100,7 +119,7 @@ export async function fillSite(page: Page, site: SiteModel): Promise<void> {
   }
 }
 
-export async function createSite(page: Page, site: SiteModel): Promise<void> {
+export async function createSite(page: Page, site: Site): Promise<void> {
   await fillSite(page, site);
   page.once('dialog', (dialog) => {
     dialog.dismiss().catch(() => {});

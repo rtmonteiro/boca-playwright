@@ -18,11 +18,35 @@
 //
 // ========================================================================
 
-import { type DateTime } from 'luxon';
+import { DateTime, Duration } from 'luxon';
+import { Page } from 'playwright';
 
-export function defineDurationInMinutes(
+export function defineDuration(
   startDate: DateTime,
   endDate: DateTime
-): number {
-  return endDate.diff(startDate, 'minutes').minutes;
+): Duration {
+  return endDate.diff(startDate, 'minutes');
+}
+
+export async function fillDateField(
+  startDate: DateTime,
+  page: Page,
+  duration: Duration,
+  tolerance: number,
+  inputField: string,
+  field?: string
+): Promise<void> {
+  if (field !== undefined) {
+    const stopAnsweringDate = DateTime.fromFormat(field, 'yyyy-MM-dd HH:mm');
+    const stopAnsweringDuration = defineDuration(startDate, stopAnsweringDate);
+    await page.locator(inputField).fill(stopAnsweringDuration.toString()!);
+  } else {
+    const stopAnsweringDuration =
+      duration.minutes > tolerance
+        ? duration.minus(Duration.fromObject({ minutes: tolerance }))
+        : duration;
+    await page
+      .locator(inputField)
+      .fill(stopAnsweringDuration.minutes.toString()!);
+  }
 }
