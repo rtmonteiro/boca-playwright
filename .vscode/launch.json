@@ -19,7 +19,8 @@
             "args": [
                 "resources/mocks/create_contest_all_dates.json",
                 "shouldCreateContest"
-            ]
+            ],
+            "outputCapture": "std"
         }
     ]
 }
