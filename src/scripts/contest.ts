@@ -22,9 +22,14 @@ import { type Dialog, type Page } from 'playwright';
 import { DateTime } from 'luxon';
 import { BASE_URL } from '../index';
 import { defineDuration, fillDateField } from '../utils/time';
-import { type CreateContest, type Contest } from '../data/contest';
+import {
+  type TCreateContest,
+  type TContest,
+  type TContestForm,
+  ContestForm
+} from '../data/contest';
 
-async function fillContest(page: Page, contest: Contest): Promise<void> {
+async function fillContest(page: Page, contest: TContest): Promise<void> {
   if (contest.name !== undefined) {
     await page.locator('input[name="name"]').fill(contest.name);
   }
@@ -111,8 +116,8 @@ async function fillContest(page: Page, contest: Contest): Promise<void> {
 
 export async function createContest(
   page: Page,
-  contest: CreateContest | undefined
-): Promise<string | null> {
+  contest: TCreateContest | undefined
+): Promise<TContestForm> {
   await page.goto(BASE_URL + '/system/');
   await page.getByRole('link', { name: 'Contest' }).click();
   await selectContest(page, contest);
@@ -130,15 +135,12 @@ export async function createContest(
   } else {
     await page.getByRole('button', { name: 'Send' }).click();
   }
-  return await page.$eval(
-    'form > center:nth-child(5) > table > tbody > tr:nth-child(1) > td:nth-child(2) > select',
-    (element) => element.value
-  );
+  return await getContest(page);
 }
 
 export async function updateContest(
   page: Page,
-  contest: Contest
+  contest: TContest
 ): Promise<void> {
   await fillContest(page, contest);
   page.once('dialog', (dialog: Dialog) => {
@@ -151,7 +153,7 @@ export async function updateContest(
 
 async function selectContest(
   page: Page,
-  contest: Contest | undefined
+  contest: TContest | undefined
 ): Promise<void> {
   if (contest?.id !== undefined) {
     await page
@@ -160,4 +162,63 @@ async function selectContest(
   } else {
     await page.locator('select[name="contest"]').selectOption('new');
   }
+}
+
+export async function getContest(page: Page): Promise<TContestForm> {
+  const contest: TContestForm = new ContestForm();
+  if (await page.locator('select[name="contest"]').isVisible()) {
+    contest.id = await page.locator('select[name="contest"]').inputValue();
+  }
+  if (await page.locator('input[name="name"]').isVisible()) {
+    contest.name = await page.locator('input[name="name"]').inputValue();
+  }
+  if (await page.locator('input[name="startdateh"]').isVisible()) {
+    const hour = await page.locator('input[name="startdateh"]').inputValue();
+    const minute = await page
+      .locator('input[name="startdatemin"]')
+      .inputValue();
+    const day = await page.locator('input[name="startdated"]').inputValue();
+    const month = await page.locator('input[name="startdatem"]').inputValue();
+    const year = await page.locator('input[name="startdatey"]').inputValue();
+    contest.startDate = `${year}-${month}-${day} ${hour}:${minute}`;
+  }
+  if (await page.locator('input[name="duration"]').isVisible()) {
+    contest.duration = await page
+      .locator('input[name="duration"]')
+      .inputValue();
+  }
+  if (await page.locator('input[name="lastmileanswer"]').isVisible()) {
+    contest.stopAnswering = await page
+      .locator('input[name="lastmileanswer"]')
+      .inputValue();
+  }
+  if (await page.locator('input[name="lastmilescore"]').isVisible()) {
+    contest.stopScoreboard = await page
+      .locator('input[name="lastmilescore"]')
+      .inputValue();
+  }
+  if (await page.locator('input[name="penalty"]').isVisible()) {
+    contest.penalty = await page.locator('input[name="penalty"]').inputValue();
+  }
+  if (await page.locator('input[name="maxfilesize"]').isVisible()) {
+    contest.maxFileSize = await page
+      .locator('input[name="maxfilesize"]')
+      .inputValue();
+  }
+  if (await page.locator('input[name="mainsiteurl"]').isVisible()) {
+    contest.mainSiteUrl = await page
+      .locator('input[name="mainsiteurl"]')
+      .inputValue();
+  }
+  if (await page.locator('input[name="mainsite"]').isVisible()) {
+    contest.mainSiteNumber = await page
+      .locator('input[name="mainsite"]')
+      .inputValue();
+  }
+  if (await page.locator('input[name="localsite"]').isVisible()) {
+    contest.localSiteNumber = await page
+      .locator('input[name="localsite"]')
+      .inputValue();
+  }
+  return contest;
 }

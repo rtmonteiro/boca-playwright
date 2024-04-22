@@ -47,7 +47,7 @@ export class Validate {
   createContest(): z.infer<typeof setupType> {
     const setupType = z.object({
       login: loginSchema,
-      contest: createContestSchema
+      contest: createContestSchema.optional()
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;

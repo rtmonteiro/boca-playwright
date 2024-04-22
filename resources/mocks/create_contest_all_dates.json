@@ -7,13 +7,10 @@
     "password": "boca"
   },
   "contest": {
-    "name": "Contest 2",
     "startDate": "2023-10-20 10:00",
     "endDate": "2023-10-30 22:00",
     "stopAnsweringDate": "2023-10-30 21:00",
     "stopScoreboardDate": "2023-10-30 20:00",
-    "penaltyDate": "2023-10-30 19:00",
-    "mainSiteNumber": 1,
-    "active": true
+    "penaltyDate": "2023-10-30 19:00"
   }
 }

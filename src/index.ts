@@ -20,7 +20,7 @@
 
 import * as fs from 'fs';
 import { chromium } from 'playwright';
-import { type CreateContest, type Contest } from './data/contest';
+import { type TCreateContest, type TContest } from './data/contest';
 import { type Login } from './data/login';
 import { type Setup, setupSchema } from './data/setup';
 import { type Site } from './data/site';
@@ -117,7 +117,7 @@ async function shouldCreateContest(setup: Setup): Promise<void> {
   // validate setup file with zod
   const setupValidated = new Validate(setup).createContest();
   const system: Login = setupValidated.login;
-  const contest: CreateContest = setupValidated.contest;
+  const contest: TCreateContest | undefined = setupValidated.contest;
 
   // create contest
   const browser = await chromium.launch({
@@ -128,9 +128,10 @@ async function shouldCreateContest(setup: Setup): Promise<void> {
   logger.logInfo('Logging in with system user: %s', system.username);
   await login(page, system);
   logger.logInfo('Creating contest');
-  const id = await createContest(page, contest);
+  const form = await createContest(page, contest);
   await browser.close();
-  logger.logInfo('Contest created with id: %s', id ?? 'undefined');
+  logger.logInfo('Contest created with id: %s', form.id);
+  console.log(JSON.stringify(form));
 }
 
 async function shouldUpdateContest(setup: Setup): Promise<void> {
@@ -141,7 +142,7 @@ async function shouldUpdateContest(setup: Setup): Promise<void> {
   // validate setup file with zod
   const setupValidated = new Validate(setup).updateContest();
   const system: Login = setupValidated.login;
-  const contest: Contest = setupValidated.contest;
+  const contest: TContest = setupValidated.contest;
 
   // create contest
   const browser = await chromium.launch({

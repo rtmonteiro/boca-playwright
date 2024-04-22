@@ -20,9 +20,11 @@
 
 import { z } from 'zod';
 
-export type Contest = z.infer<typeof contestSchema>;
+export type TContest = z.infer<typeof contestSchema>;
 
-export type CreateContest = z.infer<typeof createContestSchema>;
+export type TCreateContest = z.infer<typeof createContestSchema>;
+
+export type TContestForm = z.infer<typeof contestFormSchema>;
 
 export const contestSchema = z
   .object({
@@ -41,4 +43,46 @@ export const contestSchema = z
   })
   .partial();
 
-export const createContestSchema = contestSchema.omit({ id: true }).optional();
+export const createContestSchema = contestSchema.omit({ id: true });
+
+export const contestFormSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  startDate: z.string(),
+  duration: z.string(),
+  stopAnswering: z.string(),
+  stopScoreboard: z.string(),
+  penalty: z.string(),
+  maxFileSize: z.string(),
+  mainSiteUrl: z.string().optional(),
+  mainSiteNumber: z.string(),
+  localSiteNumber: z.string()
+});
+
+export class ContestForm implements TContestForm {
+  id: string;
+  name: string;
+  startDate: string;
+  duration: string;
+  stopAnswering: string;
+  stopScoreboard: string;
+  penalty: string;
+  maxFileSize: string;
+  mainSiteUrl?: string;
+  mainSiteNumber: string;
+  localSiteNumber: string;
+
+  constructor(contest?: TContestForm) {
+    this.id = contest?.id ?? '';
+    this.name = contest?.name ?? '';
+    this.startDate = contest?.startDate ?? '';
+    this.duration = contest?.duration ?? '';
+    this.stopAnswering = contest?.stopAnswering ?? '';
+    this.stopScoreboard = contest?.stopScoreboard ?? '';
+    this.penalty = contest?.penalty ?? '';
+    this.maxFileSize = contest?.maxFileSize ?? '';
+    this.mainSiteUrl = contest?.mainSiteUrl ?? '';
+    this.mainSiteNumber = contest?.mainSiteNumber ?? '';
+    this.localSiteNumber = contest?.localSiteNumber ?? '';
+  }
+}
