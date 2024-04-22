@@ -141,14 +141,20 @@ export async function createContest(
 export async function updateContest(
   page: Page,
   contest: TContest
-): Promise<void> {
+): Promise<TContestForm> {
+  await page.goto(BASE_URL + '/system/');
+  await page.getByRole('link', { name: 'Contest' }).click();
+  await selectContest(page, contest);
+
   await fillContest(page, contest);
+
   page.once('dialog', (dialog: Dialog) => {
     dialog.accept().catch(() => {
       console.error('Dialog was already closed when accepted');
     });
   });
   await page.getByRole('button', { name: 'Send' }).click();
+  return await getContest(page);
 }
 
 async function selectContest(

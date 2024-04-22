@@ -153,8 +153,10 @@ async function shouldUpdateContest(setup: Setup): Promise<void> {
   logger.logInfo('Logging in with system user: %s', system.username);
   await login(page, system);
   logger.logInfo('Editing contest: %s', contest.name);
-  await updateContest(page, contest);
+  const form = await updateContest(page, contest);
   await browser.close();
+  logger.logInfo('Contest updated with id: %s', form.id);
+  console.log(JSON.stringify(form));
 }
 // endregion
 

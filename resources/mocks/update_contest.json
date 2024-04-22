@@ -7,13 +7,9 @@
     "password": "boca"
   },
   "contest": {
-    "setup": {
-      "id": 2,
-      "name": "Contest 2",
-      "startDate": "2023-10-20 10:00",
-      "endDate": "2023-10-30 22:00",
-      "mainSiteNumber": 1,
-      "active": true
-    }
+    "id": 20,
+    "name": "Contest 20",
+    "startDate": "2024-04-20 10:00",
+    "endDate": "2024-05-22 23:59"
   }
 }
