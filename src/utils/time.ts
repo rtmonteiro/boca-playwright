@@ -39,7 +39,9 @@ export async function fillDateField(
   if (field !== undefined) {
     const stopAnsweringDate = DateTime.fromFormat(field, 'yyyy-MM-dd HH:mm');
     const stopAnsweringDuration = defineDuration(startDate, stopAnsweringDate);
-    await page.locator(inputField).fill(stopAnsweringDuration.toString()!);
+    await page
+      .locator(inputField)
+      .fill(stopAnsweringDuration.minutes.toString());
   } else {
     const stopAnsweringDuration =
       duration.minutes > tolerance
@@ -47,6 +49,6 @@ export async function fillDateField(
         : duration;
     await page
       .locator(inputField)
-      .fill(stopAnsweringDuration.minutes.toString()!);
+      .fill(stopAnsweringDuration.minutes.toString());
   }
 }
