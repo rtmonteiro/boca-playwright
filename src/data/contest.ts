@@ -20,42 +20,40 @@
 
 import { z } from 'zod';
 
-export type TContest = z.infer<typeof contestSchema>;
+export type TUpdateContest = z.infer<typeof updateContestSchema>;
 
 export type TCreateContest = z.infer<typeof createContestSchema>;
 
 export type TContestForm = z.infer<typeof contestFormSchema>;
 
-export const contestSchema = z
-  .object({
-    id: z.number(),
-    name: z.string(),
-    startDate: z.string(),
-    endDate: z.string(),
-    stopAnsweringDate: z.string(),
-    stopScoreboardDate: z.string(),
-    penaltyDate: z.string(),
-    maxFileSize: z.number(),
-    mainSiteUrl: z.string(),
-    mainSiteNumber: z.number(),
-    localSiteNumber: z.number()
-  })
-  .partial();
-
-export const createContestSchema = contestSchema.omit({ id: true });
-
-export const contestFormSchema = z.object({
-  id: z.string(),
+export const contestSchema = z.object({
+  id: z.string().refine((value) => parseInt(value) > 0, {
+    message: 'Must be an positive integer number'
+  }),
   name: z.string(),
   startDate: z.string(),
   endDate: z.string(),
-  stopAnswering: z.string(),
-  stopScoreboard: z.string(),
+  stopAnsweringDate: z.string(),
+  stopScoreboardDate: z.string(),
   penalty: z.string(),
-  maxFileSize: z.string(),
-  mainSiteUrl: z.string().optional(),
-  mainSiteNumber: z.string(),
-  localSiteNumber: z.string()
+  maxFileSize: z.string().refine((value) => parseInt(value), {
+    message: 'Must be an positive integer number'
+  }),
+  mainSiteUrl: z.string(),
+  mainSiteNumber: z.string().refine((value) => parseInt(value), {
+    message: 'Must be an positive integer number'
+  }),
+  localSiteNumber: z.string().refine((value) => parseInt(value), {
+    message: 'Must be an positive integer number'
+  })
+});
+
+export const updateContestSchema = contestSchema.partial();
+
+export const createContestSchema = contestSchema.partial().omit({ id: true });
+
+export const contestFormSchema = contestSchema.partial({
+  mainSiteUrl: true
 });
 
 export class ContestForm implements TContestForm {
@@ -63,8 +61,8 @@ export class ContestForm implements TContestForm {
   name: string;
   startDate: string;
   endDate: string;
-  stopAnswering: string;
-  stopScoreboard: string;
+  stopAnsweringDate: string;
+  stopScoreboardDate: string;
   penalty: string;
   maxFileSize: string;
   mainSiteUrl?: string;
@@ -76,8 +74,8 @@ export class ContestForm implements TContestForm {
     this.name = contest?.name ?? '';
     this.startDate = contest?.startDate ?? '';
     this.endDate = contest?.endDate ?? '';
-    this.stopAnswering = contest?.stopAnswering ?? '';
-    this.stopScoreboard = contest?.stopScoreboard ?? '';
+    this.stopAnsweringDate = contest?.stopAnsweringDate ?? '';
+    this.stopScoreboardDate = contest?.stopScoreboardDate ?? '';
     this.penalty = contest?.penalty ?? '';
     this.maxFileSize = contest?.maxFileSize ?? '';
     this.mainSiteUrl = contest?.mainSiteUrl ?? '';

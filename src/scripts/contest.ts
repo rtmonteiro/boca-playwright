@@ -24,7 +24,7 @@ import { BASE_URL } from '../index';
 import { defineDuration, fillDateField } from '../utils/time';
 import {
   type TCreateContest,
-  type TContest,
+  type TUpdateContest,
   type TContestForm,
   ContestForm
 } from '../data/contest';
@@ -51,7 +51,7 @@ export async function createContest(
 
 export async function updateContest(
   page: Page,
-  contest: TContest
+  contest: TUpdateContest
 ): Promise<TContestForm> {
   await page.goto(BASE_URL + '/system/');
   await page.getByRole('link', { name: 'Contest' }).click();
@@ -68,7 +68,7 @@ export async function updateContest(
   return await getContest(page);
 }
 
-async function fillContest(page: Page, contest: TContest): Promise<void> {
+async function fillContest(page: Page, contest: TUpdateContest): Promise<void> {
   if (contest.name !== undefined) {
     await page.locator('input[name="name"]').fill(contest.name);
   }
@@ -118,22 +118,15 @@ async function fillContest(page: Page, contest: TContest): Promise<void> {
         'input[name="lastmilescore"]',
         contest.stopScoreboardDate
       );
-
-      await fillDateField(
-        startDate,
-        page,
-        duration,
-        90,
-        'input[name="penalty"]',
-        contest.penaltyDate
-      );
     }
   }
 
+  if (contest.penalty !== undefined) {
+    await page.locator('input[name="penalty"]').fill(contest.penalty);
+  }
+
   if (contest.maxFileSize !== undefined) {
-    await page
-      .locator('input[name="maxfilesize"]')
-      .fill(contest.maxFileSize.toString());
+    await page.locator('input[name="maxfilesize"]').fill(contest.maxFileSize);
   }
 
   if (contest.mainSiteUrl !== undefined) {
@@ -141,21 +134,17 @@ async function fillContest(page: Page, contest: TContest): Promise<void> {
   }
 
   if (contest.mainSiteNumber !== undefined) {
-    await page
-      .locator('input[name="mainsite"]')
-      .fill(contest.mainSiteNumber.toString());
+    await page.locator('input[name="mainsite"]').fill(contest.mainSiteNumber);
   }
 
   if (contest.localSiteNumber !== undefined) {
-    await page
-      .locator('input[name="localsite"]')
-      .fill(contest.localSiteNumber.toString());
+    await page.locator('input[name="localsite"]').fill(contest.localSiteNumber);
   }
 }
 
 async function selectContest(
   page: Page,
-  contest: TContest | undefined
+  contest: TUpdateContest | undefined
 ): Promise<void> {
   if (contest?.id !== undefined) {
     await page
@@ -196,7 +185,7 @@ async function getContest(page: Page): Promise<TContestForm> {
       const stopAnswering = await page
         .locator('input[name="lastmileanswer"]')
         .inputValue();
-      contest.stopAnswering = DateTime.fromFormat(
+      contest.stopAnsweringDate = DateTime.fromFormat(
         contest.startDate,
         'yyyy-MM-dd HH:mm'
       )
@@ -207,22 +196,16 @@ async function getContest(page: Page): Promise<TContestForm> {
       const stopScoreboard = await page
         .locator('input[name="lastmilescore"]')
         .inputValue();
-      contest.stopScoreboard = DateTime.fromFormat(
+      contest.stopScoreboardDate = DateTime.fromFormat(
         contest.startDate,
         'yyyy-MM-dd HH:mm'
       )
         .plus({ minutes: parseInt(stopScoreboard) })
         .toFormat('yyyy-MM-dd HH:mm');
     }
-    if (await page.locator('input[name="penalty"]').isVisible()) {
-      const penalty = await page.locator('input[name="penalty"]').inputValue();
-      contest.penalty = DateTime.fromFormat(
-        contest.startDate,
-        'yyyy-MM-dd HH:mm'
-      )
-        .plus({ minutes: parseInt(penalty) })
-        .toFormat('yyyy-MM-dd HH:mm');
-    }
+  }
+  if (await page.locator('input[name="penalty"]').isVisible()) {
+    contest.penalty = await page.locator('input[name="penalty"]').inputValue();
   }
   if (await page.locator('input[name="maxfilesize"]').isVisible()) {
     contest.maxFileSize = await page

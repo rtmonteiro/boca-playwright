@@ -35,9 +35,9 @@ export const setupSchema = z.object({
     outDir: z.string().optional()
   }),
   login: loginSchema,
-  user: userSchema.optional(),
-  contest: contestSchema.optional(),
-  site: siteSchema.optional(),
+  user: userSchema.partial().optional(),
+  contest: contestSchema.partial().optional(),
+  site: siteSchema.partial().optional(),
   languages: z.array(languageSchema).optional(),
   problems: z.array(problemSchema).optional()
 });

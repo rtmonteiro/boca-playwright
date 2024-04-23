@@ -20,7 +20,7 @@
 
 import * as fs from 'fs';
 import { chromium } from 'playwright';
-import { type TCreateContest, type TContest } from './data/contest';
+import { type TCreateContest, type TUpdateContest } from './data/contest';
 import { type Login } from './data/login';
 import { type Setup, setupSchema } from './data/setup';
 import { type Site } from './data/site';
@@ -142,7 +142,7 @@ async function shouldUpdateContest(setup: Setup): Promise<void> {
   // validate setup file with zod
   const setupValidated = new Validate(setup).updateContest();
   const system: Login = setupValidated.login;
-  const contest: TContest = setupValidated.contest;
+  const contest: TUpdateContest = setupValidated.contest;
 
   // create contest
   const browser = await chromium.launch({
