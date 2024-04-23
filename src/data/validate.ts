@@ -26,6 +26,7 @@ import { siteSchema } from './site';
 import { problemSchema } from './problem';
 import { deleteLanguageSchema, languageSchema } from './language';
 import { contestSchema, createContestSchema } from './contest';
+import { ContestErrors } from '../errors/read_errors';
 
 export class Validate {
   private readonly insertUsersSchema = z.object({
@@ -57,6 +58,18 @@ export class Validate {
     const setupType = z.object({
       login: loginSchema,
       contest: contestSchema
+        .refine((contest) => contest.id !== undefined, {
+          message: ContestErrors.CONTEST_ID_REQUIRED
+        })
+        .refine(
+          (contest) =>
+            !Object.entries(contest)
+              .filter(([k, _]) => k !== 'id')
+              .every(([, v]) => v === undefined),
+          {
+            message: ContestErrors.ONE_FIELD_REQUIRED
+          }
+        )
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;
