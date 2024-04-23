@@ -49,7 +49,7 @@ export const contestFormSchema = z.object({
   id: z.string(),
   name: z.string(),
   startDate: z.string(),
-  duration: z.string(),
+  endDate: z.string(),
   stopAnswering: z.string(),
   stopScoreboard: z.string(),
   penalty: z.string(),
@@ -63,7 +63,7 @@ export class ContestForm implements TContestForm {
   id: string;
   name: string;
   startDate: string;
-  duration: string;
+  endDate: string;
   stopAnswering: string;
   stopScoreboard: string;
   penalty: string;
@@ -76,7 +76,7 @@ export class ContestForm implements TContestForm {
     this.id = contest?.id ?? '';
     this.name = contest?.name ?? '';
     this.startDate = contest?.startDate ?? '';
-    this.duration = contest?.duration ?? '';
+    this.endDate = contest?.endDate ?? '';
     this.stopAnswering = contest?.stopAnswering ?? '';
     this.stopScoreboard = contest?.stopScoreboard ?? '';
     this.penalty = contest?.penalty ?? '';

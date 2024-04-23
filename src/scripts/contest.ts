@@ -188,14 +188,12 @@ async function getContest(page: Page): Promise<TContestForm> {
     const year = await page.locator('input[name="startdatey"]').inputValue();
     contest.startDate = `${year}-${month}-${day} ${hour}:${minute}`;
     if (await page.locator('input[name="duration"]').isVisible()) {
-      const duration = await page
-        .locator('input[name="duration"]')
-        .inputValue();
-      contest.duration = DateTime.fromFormat(
+      const endDate = await page.locator('input[name="duration"]').inputValue();
+      contest.endDate = DateTime.fromFormat(
         contest.startDate,
         'yyyy-MM-dd HH:mm'
       )
-        .plus({ minutes: parseInt(duration) })
+        .plus({ minutes: parseInt(endDate) })
         .toFormat('yyyy-MM-dd HH:mm');
     }
     if (await page.locator('input[name="lastmileanswer"]').isVisible()) {
