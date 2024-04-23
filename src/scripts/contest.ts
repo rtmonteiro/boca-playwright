@@ -45,11 +45,7 @@ export async function createContest(
       console.error('Dialog was already closed when accepted');
     });
   });
-  if (contest?.active) {
-    await page.getByRole('button', { name: 'Activate' }).click();
-  } else {
-    await page.getByRole('button', { name: 'Send' }).click();
-  }
+  await page.getByRole('button', { name: 'Send' }).click();
   return await getContest(page);
 }
 

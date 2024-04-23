@@ -38,8 +38,7 @@ export const contestSchema = z
     maxFileSize: z.number(),
     mainSiteUrl: z.string(),
     mainSiteNumber: z.number(),
-    localSiteNumber: z.number(),
-    active: z.boolean()
+    localSiteNumber: z.number()
   })
   .partial();
 
