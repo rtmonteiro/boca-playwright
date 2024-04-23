@@ -147,11 +147,23 @@ async function selectContest(
   contest: TUpdateContest | undefined
 ): Promise<void> {
   if (contest?.id !== undefined) {
-    await page
-      .locator('select[name="contest"]')
-      .selectOption(contest.id.toString());
+    await checkContestExist(page, contest.id);
+    await page.locator('select[name="contest"]').selectOption(contest.id);
   } else {
     await page.locator('select[name="contest"]').selectOption('new');
+  }
+}
+
+async function checkContestExist(page: Page, id: string) {
+  const optionEls = await page.locator('select[name="contest"] option').all();
+  const options = await Promise.all(
+    optionEls.map(async (el) => el.textContent())
+  );
+
+  const hasIdInOption = options.some((option) => option?.match(`^${id}\\*?$`));
+
+  if (!hasIdInOption) {
+    throw new Error('Contest not found');
   }
 }
 
