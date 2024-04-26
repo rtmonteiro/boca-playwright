@@ -20,27 +20,16 @@
 
 import { z } from 'zod';
 
-export interface SiteModel {
-  id?: number;
-  name: string;
-  startDate: string;
-  endDate: string;
-  runs: number;
-  tasks: number;
-  chiefUsername: string;
-  active: boolean;
-  autoEnd: boolean;
-  globalScore?: number;
-  autoJudge?: boolean;
-  scoreLevel?: number;
-  globalScoreboard?: number;
-}
+export type Site = z.infer<typeof siteSchema>;
 
-export const siteModelSchema = z.object({
+// TODO - Test which fields are required, if any
+export const siteSchema = z.object({
   id: z.number().optional(),
   name: z.string(),
   startDate: z.string(),
   endDate: z.string(),
+  stopAnsweringDate: z.string(),
+  stopScoreboardDate: z.string(),
   runs: z.number(),
   tasks: z.number(),
   chiefUsername: z.string(),

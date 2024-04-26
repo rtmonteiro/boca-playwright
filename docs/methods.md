@@ -9,26 +9,22 @@ horário de término da turma, Número da turma principal, e o id da sala princi
 
 ```json
 {
-  "setup": {
+  "config": {
     "url": "localhost:8000/boca"
   },
-  "logins": {
-    "system": {
-      "username": "system",
-      "password": "boca"
-    }
+  "login": {
+    "username": "system",
+    "password": "boca"
   },
-  "contests": [
-    {
-      "setup": {
-        "name": "Contest 1",
-        "startDate": "2023-10-10 10:00",
-        "endDate": "2023-10-18 10:00",
-        "mainSiteNumber": 1,
-        "active": true
-      }
+  "contest": {
+    "setup": {
+      "name": "Contest 2",
+      "startDate": "2023-10-20 10:00",
+      "endDate": "2023-10-30 22:00",
+      "mainSiteNumber": 1,
+      "active": true
     }
-  ]
+  }
 }
 ```
 
@@ -39,52 +35,23 @@ início, Data e horário de término da turma, Número da turma principal, e o i
 
 ```json
 {
-  "setup": {
+  "config": {
     "url": "localhost:8000/boca"
   },
-  "logins": {
-    "system": {
-      "username": "system",
-      "password": "boca"
-    }
+  "login": {
+    "username": "system",
+    "password": "boca"
   },
-  "contests": [
-    {
-      "setup": {
-        "id": 1,
-        "name": "Contest 1",
-        "startDate": "2023-10-10 10:00",
-        "endDate": "2023-10-18 10:00",
-        "mainSiteNumber": 1,
-        "active": true
-      }
+  "contest": {
+    "setup": {
+      "id": 2,
+      "name": "Contest 2",
+      "startDate": "2023-10-20 10:00",
+      "endDate": "2023-10-30 22:00",
+      "mainSiteNumber": 1,
+      "active": true
     }
-  ]
-}
-```
-
-### Limpar um Contest
-
-Será necessário um login de nível system e o id de um contest já criado
-
-```json
-{
-  "setup": {
-    "url": "localhost:8000/boca"
-  },
-  "logins": {
-    "system": {
-      "username": "system",
-      "password": "boca"
-    }
-  },
-  "contests": [
-    {
-      "setup": {
-        "id": 1
-      }
-    }
-  ]
+  }
 }
 ```
 
@@ -97,22 +64,20 @@ encontra, Número identificador do Usuário, Tipo de Usuário, Nome do Usuário,
 
 ```json
 {
-  "setup": {
+  "config": {
     "url": "localhost:8000/boca"
   },
-  "logins": {
-    "admin": {
-      "username": "admin",
-      "password": "boca"
-    }
+  "login": {
+    "username": "admin",
+    "password": "boca"
   },
   "user": {
     "userSiteNumber": 1,
-    "userNumber": "2023101500",
-    "userName": "brucewayne",
+    "userNumber": "2019202359",
+    "userName": "ryanmonteiro",
     "userType": "Team",
-    "userFullName": "BRUCE WAYNE",
-    "userDesc": "Major: 11 / Registration: 2023101500 / E-mail: bruce.wayne@edu.ufes.br",
+    "userFullName": "Ryan Tavares Farias da Silva Monteiro",
+    "userDesc": "ryan.monteiro@aluno.ufes.br",
     "userPassword": "boca",
     "userChangePass": "Yes"
   }
@@ -127,15 +92,13 @@ Usuário e Senha do Usuário)
 
 ```json
 {
-  "setup": {
+  "config": {
     "url": "localhost:8000/boca",
     "userPath": "/resources/BOCA_USERS.txt"
   },
-  "logins": {
-    "admin": {
-      "username": "admin",
-      "password": "boca"
-    }
+  "login": {
+    "username": "admin",
+    "password": "boca"
   }
 }
 ```
@@ -146,17 +109,15 @@ Será necessário um login de nível admin e o número identificador do usuário
 
 ```json
 {
-  "setup": {
+  "config": {
     "url": "localhost:8000/boca"
   },
-  "logins": {
-    "admin": {
-      "username": "admin",
-      "password": "boca"
-    }
+  "login": {
+    "username": "admin",
+    "password": "boca"
   },
   "user": {
-    "userName": "tonystark"
+    "userName": "brucewayne"
   }
 }
 ```

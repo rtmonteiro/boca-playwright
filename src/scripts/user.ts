@@ -19,11 +19,11 @@
 // ========================================================================
 
 import { type Dialog, type Page } from 'playwright';
-import { type LoginModel } from '../data/login';
-import { type UserModel } from '../data/user';
+import { type Login } from '../data/login';
+import { type User } from '../data/user';
 import { BASE_URL } from '../index';
 
-export async function login(page: Page, login: LoginModel): Promise<void> {
+export async function login(page: Page, login: Login): Promise<void> {
   await page.goto(BASE_URL + '/');
   await page.locator('input[name="name"]').click();
   await page.locator('input[name="name"]').fill(login.username);
@@ -44,11 +44,7 @@ export async function insertUsers(page: Page, path: string): Promise<void> {
   await page.getByRole('button', { name: 'Import' }).click();
 }
 
-async function fillUser(
-  page: Page,
-  user: UserModel,
-  admin: LoginModel
-): Promise<void> {
+async function fillUser(page: Page, user: User, admin: Login): Promise<void> {
   await page.goto(`${BASE_URL}/admin/user.php`);
   await page
     .locator('input[name="usersitenumber"]')
@@ -90,8 +86,8 @@ async function fillUser(
 
 export async function createUser(
   page: Page,
-  user: UserModel,
-  admin: LoginModel
+  user: User,
+  admin: Login
 ): Promise<void> {
   await fillUser(page, user, admin);
   page.once('dialog', (dialog: Dialog) => {
@@ -104,14 +100,14 @@ export async function createUser(
 
 export async function deleteUser(
   page: Page,
-  user: UserModel,
-  admin: LoginModel
+  userName: string,
+  admin: Login
 ): Promise<void> {
   await page.goto(BASE_URL + '/admin/user.php');
 
   await page
     .locator('tr', {
-      has: page.locator('td', { hasText: user.userName })
+      has: page.locator('td', { hasText: userName })
     })
     .locator('td')
     .nth(0)

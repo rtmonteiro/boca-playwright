@@ -18,27 +18,26 @@
 //
 // ========================================================================
 
-import { type UserModel } from './user';
-import { type LoginModel } from './login';
-import { type ContestModel } from './contest';
 import { z } from 'zod';
+import { userSchema } from './user';
+import { loginSchema } from './login';
+import { contestSchema } from './contest';
+import { siteSchema } from './site';
+import { languageSchema } from './language';
+import { problemSchema } from './problem';
 
-export interface SetupModel {
-  setup: {
-    url: string;
-    userPath: string;
-    outDir: string;
-  };
-  logins: {
-    system: LoginModel;
-    admin: LoginModel;
-  };
-  user: UserModel;
-  contests: ContestModel[];
-}
+export type Setup = z.infer<typeof setupSchema>;
 
-export const setupModelSchema = z.object({
-  setup: z.object({
-    url: z.string().url()
-  })
+export const setupSchema = z.object({
+  config: z.object({
+    url: z.string().url(),
+    userPath: z.string().optional(),
+    outDir: z.string().optional()
+  }),
+  login: loginSchema,
+  user: userSchema.partial().optional(),
+  contest: contestSchema.partial().optional(),
+  site: siteSchema.partial().optional(),
+  languages: z.array(languageSchema).optional(),
+  problems: z.array(problemSchema).optional()
 });

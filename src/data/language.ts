@@ -20,14 +20,12 @@
 
 import { z } from 'zod';
 
-export interface Language {
-  id: number;
-  name: string;
-  extension: string;
-}
+export type Language = z.infer<typeof languageSchema>;
 
 export const languageSchema = z.object({
   id: z.number(),
   name: z.string(),
   extension: z.string()
 });
+
+export const deleteLanguageSchema = languageSchema.pick({ name: true });

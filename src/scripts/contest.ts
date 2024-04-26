@@ -21,129 +21,223 @@
 import { type Dialog, type Page } from 'playwright';
 import { DateTime } from 'luxon';
 import { BASE_URL } from '../index';
-import { defineDurationInMinutes } from '../utils/time';
-import { type ContestModel } from '../data/contest';
-
-async function fillContest(page: Page, contest: ContestModel): Promise<void> {
-  await page.goto(BASE_URL + '/system/');
-  await page.getByRole('link', { name: 'Contest' }).click();
-  if (contest.setup.id != null) {
-    await page
-      .locator('select[name="contest"]')
-      .selectOption(contest.setup.id.toString());
-  } else {
-    await page.locator('select[name="contest"]').selectOption('new');
-  }
-  await page.locator('input[name="name"]').fill(contest.setup.name);
-
-  const startDate = DateTime.fromFormat(
-    contest.setup.startDate,
-    'yyyy-MM-dd HH:mm'
-  );
-  await page
-    .locator('input[name="startdateh"]')
-    .fill(startDate.hour.toString());
-  await page
-    .locator('input[name="startdatemin"]')
-    .fill(startDate.minute.toString());
-  await page.locator('input[name="startdated"]').fill(startDate.day.toString());
-  await page
-    .locator('input[name="startdatem"]')
-    .fill(startDate.month.toString());
-  await page
-    .locator('input[name="startdatey"]')
-    .fill(startDate.year.toString());
-  const endDate = DateTime.fromFormat(
-    contest.setup.endDate,
-    'yyyy-MM-dd HH:mm'
-  );
-  const duration = defineDurationInMinutes(startDate, endDate);
-  await page.locator('input[name="duration"]').fill(duration.toString());
-
-  if (contest.setup.stopAnswering != null) {
-    await page
-      .locator('input[name="lastmileanswer"]')
-      .fill(contest.setup.stopAnswering.toString());
-  } else {
-    await page
-      .locator('input[name="lastmileanswer"]')
-      .fill(duration.toString());
-  }
-
-  if (contest.setup.stopScoreboard != null) {
-    await page
-      .locator('input[name="lastmilescore"]')
-      .fill(contest.setup.stopScoreboard.toString());
-  } else {
-    await page.locator('input[name="lastmilescore"]').fill(duration.toString());
-  }
-
-  if (contest.setup.penalty != null) {
-    await page
-      .locator('input[name="penalty"]')
-      .fill(contest.setup.penalty.toString());
-  } else {
-    await page.locator('input[name="penalty"]').fill(duration.toString());
-  }
-
-  if (contest.setup.maxFileSize != null) {
-    await page
-      .locator('input[name="maxfilesize"]')
-      .fill(contest.setup.maxFileSize.toString());
-  }
-
-  if (contest.setup.mainSiteUrl != null) {
-    await page
-      .locator('input[name="mainsiteurl"]')
-      .fill(contest.setup.mainSiteUrl);
-  }
-
-  await page
-    .locator('input[name="mainsite"]')
-    .fill(contest.setup.mainSiteNumber.toString());
-
-  if (contest.setup.localSiteNumber !== undefined) {
-    await page
-      .locator('input[name="localsite"]')
-      .fill(contest.setup.localSiteNumber.toString());
-  } else {
-    await page
-      .locator('input[name="localsite"]')
-      .fill(contest.setup.mainSiteNumber.toString());
-  }
-}
+import { defineDuration, fillDateField } from '../utils/time';
+import {
+  type TCreateContest,
+  type TUpdateContest,
+  type TContestForm,
+  ContestForm
+} from '../data/contest';
 
 export async function createContest(
   page: Page,
-  contest: ContestModel
-): Promise<void> {
-  await fillContest(page, contest);
+  contest: TCreateContest | undefined
+): Promise<TContestForm> {
+  await page.goto(BASE_URL + '/system/');
+  await page.getByRole('link', { name: 'Contest' }).click();
+  await selectContest(page, contest);
+
+  if (contest !== undefined) {
+    await fillContest(page, contest);
+  }
   page.once('dialog', (dialog: Dialog) => {
     dialog.accept().catch(() => {
       console.error('Dialog was already closed when accepted');
     });
   });
-  if (contest.setup.active) {
-    await page.getByRole('button', { name: 'Activate' }).click();
-  } else {
-    await page.getByRole('button', { name: 'Send' }).click();
+  await page.getByRole('button', { name: 'Send' }).click();
+  return await getContest(page);
+}
+
+export async function updateContest(
+  page: Page,
+  contest: TUpdateContest
+): Promise<TContestForm> {
+  await page.goto(BASE_URL + '/system/');
+  await page.getByRole('link', { name: 'Contest' }).click();
+  await selectContest(page, contest);
+
+  await fillContest(page, contest);
+
+  page.once('dialog', (dialog: Dialog) => {
+    dialog.accept().catch(() => {
+      console.error('Dialog was already closed when accepted');
+    });
+  });
+  await page.getByRole('button', { name: 'Send' }).click();
+  return await getContest(page);
+}
+
+async function fillContest(page: Page, contest: TUpdateContest): Promise<void> {
+  if (contest.name !== undefined) {
+    await page.locator('input[name="name"]').fill(contest.name);
+  }
+
+  if (contest.startDate !== undefined) {
+    const startDate = DateTime.fromFormat(
+      contest.startDate,
+      'yyyy-MM-dd HH:mm'
+    );
+    await page
+      .locator('input[name="startdateh"]')
+      .fill(startDate.hour.toString());
+    await page
+      .locator('input[name="startdatemin"]')
+      .fill(startDate.minute.toString());
+    await page
+      .locator('input[name="startdated"]')
+      .fill(startDate.day.toString());
+    await page
+      .locator('input[name="startdatem"]')
+      .fill(startDate.month.toString());
+    await page
+      .locator('input[name="startdatey"]')
+      .fill(startDate.year.toString());
+
+    if (contest.endDate !== undefined) {
+      const endDate = DateTime.fromFormat(contest.endDate, 'yyyy-MM-dd HH:mm');
+      const duration = defineDuration(startDate, endDate);
+      await page
+        .locator('input[name="duration"]')
+        .fill(duration.minutes.toString());
+
+      await fillDateField(
+        startDate,
+        page,
+        duration,
+        15,
+        'input[name="lastmileanswer"]',
+        contest.stopAnsweringDate
+      );
+
+      await fillDateField(
+        startDate,
+        page,
+        duration,
+        60,
+        'input[name="lastmilescore"]',
+        contest.stopScoreboardDate
+      );
+    }
+  }
+
+  if (contest.penalty !== undefined) {
+    await page.locator('input[name="penalty"]').fill(contest.penalty);
+  }
+
+  if (contest.maxFileSize !== undefined) {
+    await page.locator('input[name="maxfilesize"]').fill(contest.maxFileSize);
+  }
+
+  if (contest.mainSiteUrl !== undefined) {
+    await page.locator('input[name="mainsiteurl"]').fill(contest.mainSiteUrl);
+  }
+
+  if (contest.mainSiteNumber !== undefined) {
+    await page.locator('input[name="mainsite"]').fill(contest.mainSiteNumber);
+  }
+
+  if (contest.localSiteNumber !== undefined) {
+    await page.locator('input[name="localsite"]').fill(contest.localSiteNumber);
   }
 }
 
-export async function clearContest(
+async function selectContest(
   page: Page,
-  contest: ContestModel
+  contest: TUpdateContest | undefined
 ): Promise<void> {
-  await page.goto(BASE_URL + '/system/');
-  await page.getByRole('link', { name: 'Contest' }).click();
-  await page
-    .locator('select[name="contest"]')
-    .selectOption(contest.setup.id?.toString() ?? 'new');
-  await page.getByRole('button', { name: 'Clear' }).click();
+  if (contest?.id !== undefined) {
+    await checkContestExist(page, contest.id);
+    await page.locator('select[name="contest"]').selectOption(contest.id);
+  } else {
+    await page.locator('select[name="contest"]').selectOption('new');
+  }
+}
 
-  page.once('dialog', (dialog: Dialog) => {
-    dialog.accept().catch(() => {
-      console.error('Dialog was already closed when accepted');
-    });
-  });
+async function checkContestExist(page: Page, id: string) {
+  const optionEls = await page.locator('select[name="contest"] option').all();
+  const options = await Promise.all(
+    optionEls.map(async (el) => el.textContent())
+  );
+
+  const hasIdInOption = options.some((option) => option?.match(`^${id}\\*?$`));
+
+  if (!hasIdInOption) {
+    throw new Error('Contest not found');
+  }
+}
+
+async function getContest(page: Page): Promise<TContestForm> {
+  const contest: TContestForm = new ContestForm();
+  if (await page.locator('select[name="contest"]').isVisible()) {
+    contest.id = await page.locator('select[name="contest"]').inputValue();
+  }
+  if (await page.locator('input[name="name"]').isVisible()) {
+    contest.name = await page.locator('input[name="name"]').inputValue();
+  }
+  if (await page.locator('input[name="startdateh"]').isVisible()) {
+    const hour = await page.locator('input[name="startdateh"]').inputValue();
+    const minute = await page
+      .locator('input[name="startdatemin"]')
+      .inputValue();
+    const day = await page.locator('input[name="startdated"]').inputValue();
+    const month = await page.locator('input[name="startdatem"]').inputValue();
+    const year = await page.locator('input[name="startdatey"]').inputValue();
+    contest.startDate = `${year}-${month}-${day} ${hour}:${minute}`;
+    if (await page.locator('input[name="duration"]').isVisible()) {
+      const endDate = await page.locator('input[name="duration"]').inputValue();
+      contest.endDate = DateTime.fromFormat(
+        contest.startDate,
+        'yyyy-MM-dd HH:mm'
+      )
+        .plus({ minutes: parseInt(endDate) })
+        .toFormat('yyyy-MM-dd HH:mm');
+    }
+    if (await page.locator('input[name="lastmileanswer"]').isVisible()) {
+      const stopAnswering = await page
+        .locator('input[name="lastmileanswer"]')
+        .inputValue();
+      contest.stopAnsweringDate = DateTime.fromFormat(
+        contest.startDate,
+        'yyyy-MM-dd HH:mm'
+      )
+        .plus({ minutes: parseInt(stopAnswering) })
+        .toFormat('yyyy-MM-dd HH:mm');
+    }
+    if (await page.locator('input[name="lastmilescore"]').isVisible()) {
+      const stopScoreboard = await page
+        .locator('input[name="lastmilescore"]')
+        .inputValue();
+      contest.stopScoreboardDate = DateTime.fromFormat(
+        contest.startDate,
+        'yyyy-MM-dd HH:mm'
+      )
+        .plus({ minutes: parseInt(stopScoreboard) })
+        .toFormat('yyyy-MM-dd HH:mm');
+    }
+  }
+  if (await page.locator('input[name="penalty"]').isVisible()) {
+    contest.penalty = await page.locator('input[name="penalty"]').inputValue();
+  }
+  if (await page.locator('input[name="maxfilesize"]').isVisible()) {
+    contest.maxFileSize = await page
+      .locator('input[name="maxfilesize"]')
+      .inputValue();
+  }
+  if (await page.locator('input[name="mainsiteurl"]').isVisible()) {
+    contest.mainSiteUrl = await page
+      .locator('input[name="mainsiteurl"]')
+      .inputValue();
+  }
+  if (await page.locator('input[name="mainsite"]').isVisible()) {
+    contest.mainSiteNumber = await page
+      .locator('input[name="mainsite"]')
+      .inputValue();
+  }
+  if (await page.locator('input[name="localsite"]').isVisible()) {
+    contest.localSiteNumber = await page
+      .locator('input[name="localsite"]')
+      .inputValue();
+  }
+  return contest;
 }

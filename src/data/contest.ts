@@ -18,47 +18,68 @@
 //
 // ========================================================================
 
-import { type SiteModel, siteModelSchema } from './site';
-import { type Language, languageSchema } from './language';
-import { type Problem, problemSchema } from './problem';
 import { z } from 'zod';
 
-export interface ContestModel {
-  sites: SiteModel[];
-  setup: {
-    id?: number;
-    name: string;
-    startDate: string;
-    endDate: string;
-    stopAnswering?: number;
-    stopScoreboard?: number;
-    penalty?: number;
-    maxFileSize?: number;
-    mainSiteUrl?: string;
-    mainSiteNumber: number;
-    localSiteNumber?: number;
-    active: boolean;
-  };
-  languages: Language[];
-  problems: Problem[];
-}
+export type TUpdateContest = z.infer<typeof updateContestSchema>;
 
-export const contestModelSchema = z.object({
-  sites: z.array(siteModelSchema).optional(),
-  setup: z.object({
-    id: z.number().optional(),
-    name: z.string(),
-    startDate: z.string(),
-    endDate: z.string(),
-    stopAnswering: z.number().optional(),
-    stopScoreboard: z.number().optional(),
-    penalty: z.number().optional(),
-    maxFileSize: z.number().optional(),
-    mainSiteUrl: z.string().optional(),
-    mainSiteNumber: z.number(),
-    localSiteNumber: z.number().optional(),
-    active: z.boolean()
+export type TCreateContest = z.infer<typeof createContestSchema>;
+
+export type TContestForm = z.infer<typeof contestFormSchema>;
+
+export const contestSchema = z.object({
+  id: z.string().refine((value) => parseInt(value) > 0, {
+    message: 'Must be an positive integer number'
   }),
-  languages: z.array(languageSchema).optional(),
-  problems: z.array(problemSchema).optional()
+  name: z.string(),
+  startDate: z.string(),
+  endDate: z.string(),
+  stopAnsweringDate: z.string(),
+  stopScoreboardDate: z.string(),
+  penalty: z.string(),
+  maxFileSize: z.string().refine((value) => parseInt(value), {
+    message: 'Must be an positive integer number'
+  }),
+  mainSiteUrl: z.string(),
+  mainSiteNumber: z.string().refine((value) => parseInt(value), {
+    message: 'Must be an positive integer number'
+  }),
+  localSiteNumber: z.string().refine((value) => parseInt(value), {
+    message: 'Must be an positive integer number'
+  })
 });
+
+export const updateContestSchema = contestSchema.partial();
+
+export const createContestSchema = contestSchema.partial().omit({ id: true });
+
+export const contestFormSchema = contestSchema.partial({
+  mainSiteUrl: true
+});
+
+export class ContestForm implements TContestForm {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  stopAnsweringDate: string;
+  stopScoreboardDate: string;
+  penalty: string;
+  maxFileSize: string;
+  mainSiteUrl?: string;
+  mainSiteNumber: string;
+  localSiteNumber: string;
+
+  constructor(contest?: TContestForm) {
+    this.id = contest?.id ?? '';
+    this.name = contest?.name ?? '';
+    this.startDate = contest?.startDate ?? '';
+    this.endDate = contest?.endDate ?? '';
+    this.stopAnsweringDate = contest?.stopAnsweringDate ?? '';
+    this.stopScoreboardDate = contest?.stopScoreboardDate ?? '';
+    this.penalty = contest?.penalty ?? '';
+    this.maxFileSize = contest?.maxFileSize ?? '';
+    this.mainSiteUrl = contest?.mainSiteUrl ?? '';
+    this.mainSiteNumber = contest?.mainSiteNumber ?? '';
+    this.localSiteNumber = contest?.localSiteNumber ?? '';
+  }
+}

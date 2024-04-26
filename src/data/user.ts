@@ -20,24 +20,11 @@
 
 import { z } from 'zod';
 
-export interface UserModel {
-  userSiteNumber?: number;
-  userNumber: string;
-  userName: string;
-  userIcpcId?: string;
-  userType: 'Team' | 'Judge' | 'Admin' | 'Staff' | 'Score' | 'Site';
-  userEnabled?: 'Yes' | 'No';
-  userMultiLogin?: 'Yes' | 'No';
-  userFullName: string;
-  userDesc: string;
-  userIp?: string;
-  userPassword?: string;
-  userChangePass?: 'Yes' | 'No';
-}
+export type User = z.infer<typeof userSchema>;
 
-export const userModelSchema = z.object({
-  userSiteNumber: z.string().optional(),
-  userNumber: z.number(),
+export const userSchema = z.object({
+  userSiteNumber: z.number().optional(),
+  userNumber: z.string(),
   userName: z.string(),
   userIcpcId: z.string().optional(),
   userType: z.union([
@@ -57,13 +44,4 @@ export const userModelSchema = z.object({
   userChangePass: z.union([z.literal('Yes'), z.literal('No')]).optional()
 });
 
-export const user: UserModel = {
-  userSiteNumber: 1,
-  userNumber: '2019202359',
-  userName: 'ryanmonteiro',
-  userType: 'Team',
-  userFullName: 'Ryan Tavares Farias da Silva Monteiro',
-  userDesc: 'Ryan Tavares Farias da Silva Monteiro',
-  userPassword: 'boca',
-  userChangePass: 'Yes'
-};
+export const deleteUserSchema = userSchema.pick({ userName: true });

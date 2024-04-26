@@ -20,12 +20,12 @@
 
 import * as fs from 'fs';
 import { chromium } from 'playwright';
-import { type ContestModel } from './data/contest';
-import { type LoginModel } from './data/login';
-import { type SetupModel, setupModelSchema } from './data/setup';
-import { type SiteModel } from './data/site';
-import { type UserModel } from './data/user';
-import { createContest, clearContest } from './scripts/contest';
+import { type TCreateContest, type TUpdateContest } from './data/contest';
+import { type Login } from './data/login';
+import { type Setup, setupSchema } from './data/setup';
+import { type Site } from './data/site';
+import { type User } from './data/user';
+import { createContest, updateContest } from './scripts/contest';
 import { createProblem } from './scripts/problem';
 import { createSite } from './scripts/site';
 import { createUser, deleteUser, insertUsers, login } from './scripts/user';
@@ -37,32 +37,22 @@ import { ReadErrors } from './errors/read_errors';
 import { ZodError } from 'zod';
 import { type Problem } from './data/problem';
 import { Validate } from './data/validate';
+import { exit } from 'process';
 
 const STEP_DURATION = 200;
 const HEADLESS = true;
 export let BASE_URL = 'http://localhost:8000/boca';
 
-if (process.argv.length === 2) {
-  console.error(
-    'Missing command-line argument(s). ' +
-      'To see the options available visit: ' +
-      'https://github.com/rtmonteiro/boca-playwright\n'
-  );
-  process.exit(1);
-}
-
 // region Users
-async function shouldCreateUser(setup: SetupModel): Promise<void> {
+async function shouldCreateUser(setup: Setup): Promise<void> {
   // instantiate logger
   const logger = Logger.getInstance();
   logger.logInfo('Creating users');
 
   // validate setup file with zod
-  const validate = new Validate(setup);
-  validate.loginAdmin();
-  const admin: LoginModel = setup.logins.admin;
-  validate.createUser();
-  const user: UserModel = setup.user;
+  const setupValidated = new Validate(setup).createUser();
+  const admin: Login = setupValidated.login;
+  const user: User = setupValidated.user;
 
   const browser = await chromium.launch({
     headless: HEADLESS,
@@ -76,16 +66,14 @@ async function shouldCreateUser(setup: SetupModel): Promise<void> {
   await browser.close();
 }
 
-async function shouldInsertUsers(setup: SetupModel): Promise<void> {
+async function shouldInsertUsers(setup: Setup): Promise<void> {
   // instantiate logger
   const logger = Logger.getInstance();
   logger.logInfo('Creating users');
 
-  const validate = new Validate(setup);
-  validate.loginAdmin();
-  const userPath = setup.setup.userPath;
-  validate.insertUsers();
-  const admin: LoginModel = setup.logins.admin;
+  const setupValidated = new Validate(setup).insertUsers();
+  const userPath = setupValidated.config.userPath;
+  const admin: Login = setupValidated.login;
 
   const browser = await chromium.launch({
     headless: HEADLESS,
@@ -99,16 +87,14 @@ async function shouldInsertUsers(setup: SetupModel): Promise<void> {
   await browser.close();
 }
 
-async function shouldDeleteUser(setup: SetupModel): Promise<void> {
+async function shouldDeleteUser(setup: Setup): Promise<void> {
   // instantiate logger
   const logger = Logger.getInstance();
   logger.logInfo('Deleting users');
 
-  const validate = new Validate(setup);
-  validate.loginAdmin();
-  const admin: LoginModel = setup.logins.admin;
-  validate.deleteUser();
-  const user: UserModel = setup.user;
+  const setupValidated = new Validate(setup).deleteUser();
+  const admin: Login = setupValidated.login;
+  const userName: string = setupValidated.user.userName;
 
   const browser = await chromium.launch({
     headless: HEADLESS,
@@ -116,24 +102,22 @@ async function shouldDeleteUser(setup: SetupModel): Promise<void> {
   });
   const page = await browser.newPage();
   await login(page, admin);
-  logger.logInfo('Deleting user: %s', user.userName);
-  await deleteUser(page, user, admin);
+  logger.logInfo('Deleting user: %s', userName);
+  await deleteUser(page, userName, admin);
   await browser.close();
 }
 // endregion
 
 // region Contests
-async function shouldCreateContest(setup: SetupModel): Promise<void> {
+async function shouldCreateContest(setup: Setup): Promise<void> {
   // instantiate logger
   const logger = Logger.getInstance();
   logger.logInfo('Creating contest');
 
   // validate setup file with zod
-  const validate = new Validate(setup);
-  validate.loginSystem();
-  const system: LoginModel = setup.logins.system;
-  validate.createContest();
-  const contest: ContestModel = setup.contests[0];
+  const setupValidated = new Validate(setup).createContest();
+  const system: Login = setupValidated.login;
+  const contest: TCreateContest | undefined = setupValidated.contest;
 
   // create contest
   const browser = await chromium.launch({
@@ -143,22 +127,22 @@ async function shouldCreateContest(setup: SetupModel): Promise<void> {
   const page = await browser.newPage();
   logger.logInfo('Logging in with system user: %s', system.username);
   await login(page, system);
-  logger.logInfo('Creating contest: %s', contest.setup.name);
-  await createContest(page, contest);
+  logger.logInfo('Creating contest');
+  const form = await createContest(page, contest);
   await browser.close();
+  logger.logInfo('Contest created with id: %s', form.id);
+  console.log(JSON.stringify(form));
 }
 
-async function shouldUpdateContest(setup: SetupModel): Promise<void> {
+async function shouldUpdateContest(setup: Setup): Promise<void> {
   // instantiate logger
   const logger = Logger.getInstance();
   logger.logInfo('Edit contest');
 
   // validate setup file with zod
-  const validate = new Validate(setup);
-  validate.loginSystem();
-  const system: LoginModel = setup.logins.system;
-  validate.updateContest();
-  const contest: ContestModel = setup.contests[0];
+  const setupValidated = new Validate(setup).updateContest();
+  const system: Login = setupValidated.login;
+  const contest: TUpdateContest = setupValidated.contest;
 
   // create contest
   const browser = await chromium.launch({
@@ -168,40 +152,23 @@ async function shouldUpdateContest(setup: SetupModel): Promise<void> {
   const page = await browser.newPage();
   logger.logInfo('Logging in with system user: %s', system.username);
   await login(page, system);
-  logger.logInfo('Editing contest: %s', contest.setup.name);
-  await createContest(page, contest);
+  const form = await updateContest(page, contest);
   await browser.close();
-}
-
-async function shouldClearContest(setup: SetupModel): Promise<void> {
-  // instantiate logger
-  const logger = Logger.getInstance();
-  logger.logInfo('Clear contest');
-
-  // validate setup file with zod
-  const validate = new Validate(setup);
-  validate.loginSystem();
-  const system: LoginModel = setup.logins.system;
-  validate.clearContest();
-  const contest: ContestModel = setup.contests[0];
-
-  const browser = await chromium.launch({
-    headless: HEADLESS,
-    slowMo: STEP_DURATION
-  });
-  const page = await browser.newPage();
-  logger.logInfo('Logging in with system user: %s', system.username);
-  await login(page, system);
-  logger.logInfo('Clearing contest id: %s', contest.setup.id);
-  await clearContest(page, contest);
-  await browser.close();
+  logger.logInfo('Contest updated with id: %s', form.id);
+  console.log(JSON.stringify(form));
 }
 // endregion
 
 // region Sites
-async function shouldCreateSite(setup: SetupModel): Promise<void> {
-  const admin: LoginModel = setup.logins.admin;
-  const site: SiteModel = setup.contests[0].sites[0];
+async function shouldCreateSite(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Creating site');
+
+  // validate setup file with zod
+  const setupValidated = new Validate(setup).createSite();
+  const admin: Login = setupValidated.login;
+  const site: Site = setupValidated.site;
 
   const browser = await chromium.launch({
     headless: HEADLESS,
@@ -215,9 +182,15 @@ async function shouldCreateSite(setup: SetupModel): Promise<void> {
 // endregion
 
 // region Problems
-async function shouldCreateProblem(setup: SetupModel): Promise<void> {
-  const admin: LoginModel = setup.logins.admin;
-  const problems: Problem[] = setup.contests[0].problems;
+async function shouldCreateProblem(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Creating problems');
+
+  // validate setup file with zod
+  const setupValidated = new Validate(setup).createProblems();
+  const admin: Login = setupValidated.login;
+  const problems: Problem[] = setupValidated.problems;
 
   for (const problem of problems) {
     const browser = await chromium.launch({
@@ -234,9 +207,15 @@ async function shouldCreateProblem(setup: SetupModel): Promise<void> {
 
 // region Languages
 
-async function shouldCreateLanguage(setup: SetupModel): Promise<void> {
-  const admin: LoginModel = setup.logins.admin;
-  const languages: Language[] = setup.contests[0].languages;
+async function shouldCreateLanguage(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Creating languages');
+
+  // validate setup file with zod
+  const setupValidated = new Validate(setup).createLanguages();
+  const admin: Login = setupValidated.login;
+  const languages: Language[] = setupValidated.languages;
 
   for (const language of languages) {
     const browser = await chromium.launch({
@@ -250,9 +229,15 @@ async function shouldCreateLanguage(setup: SetupModel): Promise<void> {
   }
 }
 
-async function shouldDeleteLanguage(setup: SetupModel): Promise<void> {
-  const admin: LoginModel = setup.logins.admin;
-  const languages: Language[] = setup.contests[0].languages;
+async function shouldDeleteLanguage(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Deleting languages');
+
+  // validate setup file with zod
+  const setupValidated = new Validate(setup).deleteLanguages();
+  const admin: Login = setupValidated.login;
+  const languages = setupValidated.languages;
 
   for (const language of languages) {
     const browser = await chromium.launch({
@@ -261,7 +246,7 @@ async function shouldDeleteLanguage(setup: SetupModel): Promise<void> {
     });
     const page = await browser.newPage();
     await login(page, admin);
-    await deleteLanguage(page, language);
+    await deleteLanguage(page, language.name);
     await browser.close();
   }
 }
@@ -270,9 +255,15 @@ async function shouldDeleteLanguage(setup: SetupModel): Promise<void> {
 
 // region Reports
 
-async function shouldGenerateReport(setup: SetupModel): Promise<void> {
-  const admin: LoginModel = setup.logins.admin;
-  const outDir = setup.setup.outDir;
+async function shouldGenerateReport(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Generating reports');
+
+  // validate setup file with zod
+  const setupValidated = new Validate(setup).generateReport();
+  const admin: Login = setupValidated.login;
+  const outDir = setupValidated.config.outDir;
 
   const browser = await chromium.launch({
     headless: HEADLESS,
@@ -287,7 +278,16 @@ async function shouldGenerateReport(setup: SetupModel): Promise<void> {
 // endregion
 
 function main(): number {
-  const methods: Record<string, (setup: SetupModel) => Promise<void>> = {
+  if (process.argv.length === 2) {
+    console.error(
+      'Missing command-line argument(s). ' +
+        'To see the options available visit: ' +
+        'https://github.com/rtmonteiro/boca-playwright\n'
+    );
+    process.exit(1);
+  }
+
+  const methods: Record<string, (setup: Setup) => Promise<void>> = {
     // Users
     shouldCreateUser,
     shouldInsertUsers,
@@ -295,7 +295,6 @@ function main(): number {
     // Contests
     shouldCreateContest,
     shouldUpdateContest,
-    shouldClearContest,
     // Sites
     shouldCreateSite,
     // Problems
@@ -318,18 +317,19 @@ function main(): number {
     logger.logError(ReadErrors.SETUP_NOT_FOUND);
     return 1;
   }
-  const setup = JSON.parse(fs.readFileSync(path, 'utf8')) as SetupModel;
+  const setup = JSON.parse(fs.readFileSync(path, 'utf8')) as Setup;
   try {
-    setupModelSchema.parse(setup);
+    setupSchema.parse(setup);
   } catch (e) {
     if (e instanceof ZodError) {
       logger.logZodError(e);
+      exit(1);
     }
     return 1;
   } finally {
     logger.logInfo('Using setup file: %s', path);
   }
-  BASE_URL = setup.setup.url;
+  BASE_URL = setup.config.url;
 
   const func = methods[method];
   func(setup)
@@ -339,7 +339,7 @@ function main(): number {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     .catch((e) => {
       logger.logError(e);
-      return 1;
+      exit(1);
     });
 
   return 0;

@@ -3,10 +3,7 @@
     "url": "localhost:8000/boca"
   },
   "login": {
-    "username": "admin",
+    "username": "system",
     "password": "boca"
-  },
-  "user": {
-    "userName": "brucewayne"
   }
 }

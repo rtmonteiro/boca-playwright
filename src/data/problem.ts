@@ -21,13 +21,7 @@
 import { z } from 'zod';
 import { ProblemErrors } from '../errors/read_errors';
 
-export interface Problem {
-  id: number;
-  name: string;
-  filePath: string;
-  colorName?: string;
-  colorCode?: string;
-}
+export type Problem = z.infer<typeof problemSchema>;
 
 export const problemSchema = z.object({
   id: z.number(),

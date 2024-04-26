@@ -26,3 +26,8 @@ export enum ReadErrors {
 export enum ProblemErrors {
   INVALID_COLOR_CODE = 'Invalid color code'
 }
+
+export enum ContestErrors {
+  CONTEST_ID_REQUIRED = 'Contest id is required',
+  ONE_FIELD_REQUIRED = 'At least one field is required'
+}

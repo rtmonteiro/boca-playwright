@@ -3,10 +3,11 @@
     "url": "localhost:8000/boca"
   },
   "login": {
-    "username": "admin",
+    "username": "system",
     "password": "boca"
   },
-  "user": {
-    "userName": "brucewayne"
+  "contest": {
+    "mainSiteNumber": "1",
+    "localSiteNumber": "2"
   }
 }
