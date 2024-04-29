@@ -43,7 +43,7 @@ const STEP_DURATION = 200;
 const HEADLESS = true;
 export let BASE_URL = 'http://localhost:8000/boca';
 
-// region Users
+//#region Users
 async function shouldCreateUser(setup: Setup): Promise<void> {
   // instantiate logger
   const logger = Logger.getInstance();
@@ -106,9 +106,9 @@ async function shouldDeleteUser(setup: Setup): Promise<void> {
   await deleteUser(page, userName, admin);
   await browser.close();
 }
-// endregion
+//#endregion
 
-// region Contests
+//#region Contests
 async function shouldCreateContest(setup: Setup): Promise<void> {
   // instantiate logger
   const logger = Logger.getInstance();
@@ -157,9 +157,9 @@ async function shouldUpdateContest(setup: Setup): Promise<void> {
   logger.logInfo('Contest updated with id: %s', form.id);
   console.log(JSON.stringify(form));
 }
-// endregion
+//#endregion
 
-// region Sites
+//#region Sites
 async function shouldCreateSite(setup: Setup): Promise<void> {
   // instantiate logger
   const logger = Logger.getInstance();
@@ -179,9 +179,9 @@ async function shouldCreateSite(setup: Setup): Promise<void> {
   await createSite(page, site);
   await browser.close();
 }
-// endregion
+//#endregion
 
-// region Problems
+//#region Problems
 async function shouldCreateProblem(setup: Setup): Promise<void> {
   // instantiate logger
   const logger = Logger.getInstance();
@@ -203,10 +203,9 @@ async function shouldCreateProblem(setup: Setup): Promise<void> {
     await browser.close();
   }
 }
-// endregion
+//#endregion
 
-// region Languages
-
+//#region Languages
 async function shouldCreateLanguage(setup: Setup): Promise<void> {
   // instantiate logger
   const logger = Logger.getInstance();
@@ -251,10 +250,9 @@ async function shouldDeleteLanguage(setup: Setup): Promise<void> {
   }
 }
 
-// endregion
+//#endregion
 
-// region Reports
-
+//#region Reports
 async function shouldGenerateReport(setup: Setup): Promise<void> {
   // instantiate logger
   const logger = Logger.getInstance();
@@ -275,7 +273,7 @@ async function shouldGenerateReport(setup: Setup): Promise<void> {
   await browser.close();
 }
 
-// endregion
+//#endregion
 
 function main(): number {
   if (process.argv.length === 2) {
