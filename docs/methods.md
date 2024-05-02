@@ -33,7 +33,6 @@ Exemplo de criação de um contest sem informações adicionais:
 }
 ```
 
-
 Exemplo de criação de um contest com informações adicionais:
 
 ```json
@@ -81,8 +80,18 @@ Será necessário um login de nível system, o id do contest e pelo menos um dos
 
 ### Adicionar um Usuário
 
-Será necessário um login de nível admin e as informações base de um usuário (Identificador do Site em que o Usuário se
-encontra, Número identificador do Usuário, Tipo de Usuário, Nome do Usuário, Descrição do Usuário e Senha do Usuário).
+Será necessário um login de nível admin e as informações base de um usuário listadas na tabela abaixo.
+
+| Parâmetro      | Tipo                                   | Descrição                       |
+| -------------- | -------------------------------------- | ------------------------------- |
+| userSiteNumber | string                                 | Identificador do Site           |
+| userNumber     | string                                 | Número identificador do Usuário |
+| userName       | string                                 | Nome do Usuário                 |
+| userType       | Team, Judge, Admin, Staff, Score, Site | Tipo de Usuário                 |
+| userFullName   | string                                 | Nome completo do Usuário        |
+| userDesc       | string                                 | Descrição do Usuário            |
+| userPassword   | string                                 | Senha do Usuário                |
+| userChangePass | Yes, No                                | Necessidade de troca de senha   |
 
 ```json
 {
@@ -108,9 +117,7 @@ encontra, Número identificador do Usuário, Tipo de Usuário, Nome do Usuário,
 
 ### Inserir Usuários através de um arquivo txt
 
-Será necessário um login de nível admin e um arquivo txt padronizado com as informações base de usuários (Identificador
-do Site em que o Usuário se encontra, Número identificador do Usuário, Tipo de Usuário, Nome do Usuário, Descrição do
-Usuário e Senha do Usuário)
+Será necessário um login de nível admin e um arquivo txt padronizado com as informações base de usuários
 
 ```json
 {
@@ -127,7 +134,7 @@ Usuário e Senha do Usuário)
 
 ### Deletar um Usuário
 
-Será necessário um login de nível admin e o número identificador do usuário
+Será necessário um login de nível admin e o nome do usuário a ser deletado.
 
 ```json
 {
