@@ -33,7 +33,7 @@ import { retrieveFiles } from './scripts/report';
 import { createLanguage, deleteLanguage } from './scripts/language';
 import { type Language } from './data/language';
 import { Logger } from './logger';
-import { ReadErrors } from './errors/read_errors';
+import { ExitErrors, ReadErrors } from './errors/read_errors';
 import { ZodError } from 'zod';
 import { type Problem } from './data/problem';
 import { Validate } from './data/validate';
@@ -282,7 +282,7 @@ function main(): number {
         'To see the options available visit: ' +
         'https://github.com/rtmonteiro/boca-playwright\n'
     );
-    process.exit(1);
+    process.exit(ExitErrors.NOT_ENOUGH_ARGUMENTS);
   }
 
   const methods: Record<string, (setup: Setup) => Promise<void>> = {
@@ -337,10 +337,10 @@ function main(): number {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     .catch((e) => {
       logger.logError(e);
-      exit(1);
+      process.exit(ExitErrors.CONFIG_VALIDATION);
     });
 
-  return 0;
+  return ExitErrors.OK;
 }
 
 main();

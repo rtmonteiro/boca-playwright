@@ -18,6 +18,13 @@
 //
 // ========================================================================
 
+export enum ExitErrors {
+  OK = 0,
+  NOT_ENOUGH_ARGUMENTS = 1,
+  CONFIG_VALIDATION = 2,
+  CONTEST_NOT_EXIST = 101,
+}
+
 export enum ReadErrors {
   SETUP_NOT_FOUND = 'Setup file not found',
   SETUP_INVALID = 'Setup file is invalid'
