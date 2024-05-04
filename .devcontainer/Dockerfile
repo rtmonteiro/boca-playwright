@@ -13,16 +13,18 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-# 
+#
 # This program is released under license GNU GPL v3+ license.
 #
 #========================================================================
 
 FROM mcr.microsoft.com/devcontainers/typescript-node:1-20
 
-LABEL authors="Rodrigo Laiola Guimaraes"
+LABEL authors="Ryan Tavares Farias da Silva Monteiro, Rodrigo Laiola Guimaraes"
 ENV CREATED_AT 2024-03-11
-ENV UPDATED_AT 2024-03-15
+ENV UPDATED_AT 2024-05-04
 
 # No interactive frontend during docker build
 ENV DEBIAN_FRONTEND noninteractive
+
+RUN npx playwright install-deps chromium
