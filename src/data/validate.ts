@@ -128,6 +128,7 @@ export class Validate {
       login: loginSchema,
       language: deleteLanguageSchema
     });
+    setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;
   }
 
