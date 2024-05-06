@@ -27,9 +27,16 @@ export async function createLanguage(
   language: Language
 ): Promise<void> {
   await page.goto(BASE_URL + '/admin/language.php');
-  await page.locator("input[name='langnumber']").fill(language.id.toString());
+  await page.locator("input[name='langnumber']").fill(language.id);
   await page.locator("input[name='langname']").fill(language.name);
   await page.locator("input[name='langextension']").fill(language.extension);
+
+  page.on('dialog', (dialog: Dialog) => {
+    dialog.accept().catch(() => {
+      console.error('Dialog was already closed when dismissed');
+    });
+  });
+
   await page.locator("input[name='Submit3']").click();
 }
 

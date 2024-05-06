@@ -38,6 +38,6 @@ export const setupSchema = z.object({
   user: userSchema.partial().optional(),
   contest: contestSchema.partial().optional(),
   site: siteSchema.partial().optional(),
-  languages: z.array(languageSchema).optional(),
+  language: languageSchema.optional(),
   problem: problemSchema.optional()
 });

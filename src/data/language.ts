@@ -23,7 +23,7 @@ import { z } from 'zod';
 export type Language = z.infer<typeof languageSchema>;
 
 export const languageSchema = z.object({
-  id: z.number(),
+  id: z.string(),
   name: z.string(),
   extension: z.string()
 });

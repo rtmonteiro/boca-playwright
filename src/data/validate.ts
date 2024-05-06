@@ -33,10 +33,6 @@ export class Validate {
     userPath: z.string()
   });
 
-  private readonly createLanguagesSchema = z.array(languageSchema);
-
-  private readonly deleteLanguagesSchema = z.array(deleteLanguageSchema);
-
   private readonly generateReportSchema = z.object({
     outDir: z.string()
   });
@@ -118,19 +114,19 @@ export class Validate {
     return this.setup as z.infer<typeof setupType>;
   }
 
-  createLanguages(): z.infer<typeof setupType> {
+  createLanguage(): z.infer<typeof setupType> {
     const setupType = z.object({
       login: loginSchema,
-      languages: this.createLanguagesSchema
+      language: languageSchema
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;
   }
 
-  deleteLanguages(): z.infer<typeof setupType> {
+  deleteLanguage(): z.infer<typeof setupType> {
     const setupType = z.object({
       login: loginSchema,
-      languages: this.deleteLanguagesSchema
+      language: deleteLanguageSchema
     });
     return this.setup as z.infer<typeof setupType>;
   }

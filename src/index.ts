@@ -39,7 +39,7 @@ import { type Problem } from './data/problem';
 import { Validate } from './data/validate';
 import { exit } from 'process';
 
-const STEP_DURATION = 200;
+const STEP_DURATION = 50;
 const HEADLESS = true;
 export let BASE_URL = 'http://localhost:8000/boca';
 
@@ -207,45 +207,41 @@ async function shouldCreateProblem(setup: Setup): Promise<void> {
 async function shouldCreateLanguage(setup: Setup): Promise<void> {
   // instantiate logger
   const logger = Logger.getInstance();
-  logger.logInfo('Creating languages');
+  logger.logInfo('Creating language');
 
   // validate setup file with zod
-  const setupValidated = new Validate(setup).createLanguages();
+  const setupValidated = new Validate(setup).createLanguage();
   const admin: Login = setupValidated.login;
-  const languages: Language[] = setupValidated.languages;
+  const language: Language = setupValidated.language;
 
-  for (const language of languages) {
-    const browser = await chromium.launch({
-      headless: HEADLESS,
-      slowMo: STEP_DURATION
-    });
-    const page = await browser.newPage();
-    await login(page, admin);
-    await createLanguage(page, language);
-    await browser.close();
-  }
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
+  const page = await browser.newPage();
+  await login(page, admin);
+  await createLanguage(page, language);
+  await browser.close();
 }
 
 async function shouldDeleteLanguage(setup: Setup): Promise<void> {
   // instantiate logger
   const logger = Logger.getInstance();
-  logger.logInfo('Deleting languages');
+  logger.logInfo('Deleting language');
 
   // validate setup file with zod
-  const setupValidated = new Validate(setup).deleteLanguages();
+  const setupValidated = new Validate(setup).deleteLanguage();
   const admin: Login = setupValidated.login;
-  const languages = setupValidated.languages;
+  const language = setupValidated.language;
 
-  for (const language of languages) {
-    const browser = await chromium.launch({
-      headless: HEADLESS,
-      slowMo: STEP_DURATION
-    });
-    const page = await browser.newPage();
-    await login(page, admin);
-    await deleteLanguage(page, language.name);
-    await browser.close();
-  }
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
+  const page = await browser.newPage();
+  await login(page, admin);
+  await deleteLanguage(page, language.name);
+  await browser.close();
 }
 
 //#endregion
