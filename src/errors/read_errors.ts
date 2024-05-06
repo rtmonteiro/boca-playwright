@@ -22,7 +22,7 @@ export enum ExitErrors {
   OK = 0,
   NOT_ENOUGH_ARGUMENTS = 1,
   CONFIG_VALIDATION = 2,
-  CONTEST_NOT_EXIST = 101,
+  CONTEST_NOT_EXIST = 101
 }
 
 export enum ReadErrors {
@@ -31,7 +31,9 @@ export enum ReadErrors {
 }
 
 export enum ProblemErrors {
-  INVALID_COLOR_CODE = 'Invalid color code'
+  INVALID_COLOR_CODE = 'Invalid color code',
+  INVALID_FILE_EXTENSION = 'Invalid file extension',
+  FILE_NOT_FOUND = 'File not found'
 }
 
 export enum ContestErrors {

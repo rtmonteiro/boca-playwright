@@ -18,6 +18,7 @@
 //
 // ========================================================================
 
+import * as fs from 'fs';
 import { z } from 'zod';
 import { ProblemErrors } from '../errors/read_errors';
 
@@ -26,7 +27,21 @@ export type Problem = z.infer<typeof problemSchema>;
 export const problemSchema = z.object({
   id: z.number(),
   name: z.string(),
-  filePath: z.string(),
+  filePath: z
+    .string()
+    .refine(
+      (path) => path.endsWith('.zip'),
+      ProblemErrors.INVALID_FILE_EXTENSION
+    )
+    .refine((path) => {
+      // Check if the file exists with fs.accessSync
+      try {
+        fs.accessSync(path, fs.constants.R_OK);
+        return true;
+      } catch {
+        return false;
+      }
+    }, ProblemErrors.FILE_NOT_FOUND),
   colorName: z.string().optional(),
   colorCode: z
     .string()

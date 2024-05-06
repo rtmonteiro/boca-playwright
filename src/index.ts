@@ -43,7 +43,7 @@ const STEP_DURATION = 200;
 const HEADLESS = true;
 export let BASE_URL = 'http://localhost:8000/boca';
 
-//#region Users
+//#region User
 async function shouldCreateUser(setup: Setup): Promise<void> {
   // instantiate logger
   const logger = Logger.getInstance();
@@ -108,7 +108,7 @@ async function shouldDeleteUser(setup: Setup): Promise<void> {
 }
 //#endregion
 
-//#region Contests
+//#region Contest
 async function shouldCreateContest(setup: Setup): Promise<void> {
   // instantiate logger
   const logger = Logger.getInstance();
@@ -159,7 +159,7 @@ async function shouldUpdateContest(setup: Setup): Promise<void> {
 }
 //#endregion
 
-//#region Sites
+//#region Site
 async function shouldCreateSite(setup: Setup): Promise<void> {
   // instantiate logger
   const logger = Logger.getInstance();
@@ -181,27 +181,25 @@ async function shouldCreateSite(setup: Setup): Promise<void> {
 }
 //#endregion
 
-//#region Problems
+//#region Problem
 async function shouldCreateProblem(setup: Setup): Promise<void> {
   // instantiate logger
   const logger = Logger.getInstance();
-  logger.logInfo('Creating problems');
+  logger.logInfo('Creating problem');
 
   // validate setup file with zod
-  const setupValidated = new Validate(setup).createProblems();
+  const setupValidated = new Validate(setup).createProblem();
   const admin: Login = setupValidated.login;
-  const problems: Problem[] = setupValidated.problems;
+  const problem: Problem = setupValidated.problem;
 
-  for (const problem of problems) {
-    const browser = await chromium.launch({
-      headless: HEADLESS,
-      slowMo: STEP_DURATION
-    });
-    const page = await browser.newPage();
-    await login(page, admin);
-    await createProblem(page, problem);
-    await browser.close();
-  }
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
+  const page = await browser.newPage();
+  await login(page, admin);
+  await createProblem(page, problem);
+  await browser.close();
 }
 //#endregion
 
@@ -276,7 +274,7 @@ async function shouldGenerateReport(setup: Setup): Promise<void> {
 //#endregion
 
 function main(): number {
-  if (process.argv.length === 2) {
+  if (process.argv.length <= 3) {
     console.error(
       'Missing command-line argument(s). ' +
         'To see the options available visit: ' +
