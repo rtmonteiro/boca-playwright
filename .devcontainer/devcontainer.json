@@ -13,7 +13,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+//
 // This program is released under license GNU GPL v3+ license.
 //
 //========================================================================
@@ -46,8 +46,7 @@
     // ],
 
     // Use 'postCreateCommand' to run commands after the container is created.
-    "postCreateCommand": 
-        "npx playwright install-deps && npm install && npx playwright install",
+    "postCreateCommand": "bash .devcontainer/install_dependencies.sh && npm install",
 
     // Indicates whether devcontainer.json supporting tools should stop the
     // containers when the related tool window is closed / shut down.
@@ -81,5 +80,8 @@
     },
 
     // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-    "remoteUser": "node"
+    "remoteUser": "node",
+    "features": {
+        "ghcr.io/akhildevelops/devcontainer-features/apt:0": {}
+    }
 }
