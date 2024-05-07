@@ -21,6 +21,7 @@
 import { type Locator, type Page } from 'playwright';
 import * as fs from 'fs';
 import { BASE_URL } from '../index';
+import * as path from 'path';
 
 // const statusArr = ['NA', 'YES', 'NO_Compilation', 'NO_Runtime', 'NO_Timelimit', 'NO_Presentation', 'NO_Wrong', 'NO_Contact', 'NO_Name']
 
@@ -58,26 +59,26 @@ async function saveFiles(
     .textContent();
   run = run?.trim() ?? '';
 
-  const path = `${outDir}/${username}/${problem}/${run}_${label}`;
+  const dirPath = path.join(outDir, username, problem, `${run}_${label}`);
 
   // Verify if the folder exist and create it if not
-  if (!fs.existsSync(path)) fs.mkdirSync(path, { recursive: true });
+  if (!fs.existsSync(dirPath)) fs.mkdirSync(dirPath, { recursive: true });
 
   const code = page.locator(
     'table > tbody > tr:nth-of-type(6) > td:nth-of-type(2) > a:nth-of-type(1)'
   );
-  await downloadFile(page, path, code);
+  await downloadFile(page, dirPath, code);
 
   if (statusInt !== 0) {
     const stdout = page.locator(
       'form > center:nth-of-type(3) > table > tbody > tr:nth-of-type(3) > td:nth-of-type(2)'
     );
-    await downloadFile(page, path, stdout, 'stdout.txt');
+    await downloadFile(page, dirPath, stdout, 'stdout.txt');
 
     const stderr = page.locator(
       'form > center:nth-of-type(3) > table > tbody > tr:nth-of-type(4) > td:nth-of-type(2)'
     );
-    await downloadFile(page, path, stderr, 'stderr.txt');
+    await downloadFile(page, dirPath, stderr, 'stderr.txt');
   }
 
   await page.goBack();
