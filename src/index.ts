@@ -338,6 +338,11 @@ function main(): number {
   }
   BASE_URL = setup.config.url;
 
+  if (log && !setup.config.resultFilePath) {
+    logger.logError(ReadErrors.RESULT_FILE_NOT_FOUND);
+    return process.exit(ExitErrors.CONFIG_VALIDATION);
+  }
+
   const func = methods[method];
   func(setup)
     .then(() => {
