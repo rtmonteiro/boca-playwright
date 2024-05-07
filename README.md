@@ -77,14 +77,14 @@ TODO
 
 ## Lista de comandos
 
-- shouldCreateUser
-- shouldInsertUsers
-- shouldDeleteUser
-- shouldCreateContest
-- shouldClearContest
-- shouldCreateSite
-- shouldCreateProblem
-- shouldGenerateReport
+- createUser
+- insertUsers
+- deleteUser
+- createContest
+- updateContest
+- createSite
+- createProblem
+- generateReport
 
 ### Exemplos
 
@@ -92,62 +92,56 @@ TODO
 docker run -it \
            --rm \
            -v "$PWD"/resources/mocks:/tmp/resources \
-           boca-playwright /tmp/resources/create_contest.json shouldCreateContest
+           boca-playwright /tmp/resources/create_contest.json createContest
 
 ```
 
 - Cria usuário a partir dos valores dentro do arquivo JSON na propriedade `user`
 
     ```bash
-    npm start -- resources/setup.json shouldCreateUser
+    npm start -- -p resources/setup.json -m createUser
     ```
 
 - Cria usuário a partir do arquivo localizado na url da propriedade `setup.userPath`
 
     ```bash
-    npm start -- resources/setup.json shouldInsertUsers
+    npm start -- -p resources/setup.json -m insertUsers
     ```
 
 - Deleta um usuário a partir do primeiro valor dentro do arquivo JSON na propriedade `user`
 
     ```bash
-    npm start -- resources/setup.json shouldDeleteUser
+    npm start -- -p resources/setup.json -m deleteUser
     ```
 
 - Cria um contest a partir do primeiro valor dentro do arquivo JSON na propriedade `contests`
 
     ```bash
-    npm start -- resources/setup.json shouldCreateContest
+    npm start -- -p resources/setup.json -m createContest
     ```
 
 - Atualiza um contest a partir do primeiro valor dentro do arquivo JSON na propriedade `contests`
 
     ```bash
-    npm start -- resources/setup.json shouldUpdateContest
-    ```
-
-- Limpa valores de um contest a partir do primeiro valor dentro do arquivo JSON na propriedade `contests`
-
-    ```bash
-    npm start -- resources/setup.json shouldClearContest
+    npm start -- -p resources/setup.json -m updateContest
     ```
 
 - Cria um site a partir do primeiro valor dentro do arquivo JSON na propriedade `sites`
 
     ```bash
-    npm start -- resources/setup.json shouldCreateSite
+    npm start -- -p resources/setup.json -m createSite
     ```
 
 - Cria um problema a partir do primeiro valor dentro do arquivo JSON na propriedade `problems`
 
     ```bash
-    npm start -- resources/setup.json shouldCreateProblem
+    npm start -- -p resources/setup.json -m createProblem
     ```
 
 - Gera um relatório de runs do site e deposita os arquivos na pasta definida na propriedade `outReportDir`
 
     ```bash
-    npm start -- resources/setup.json shouldGenerateReport
+    npm start -- -p resources/setup.json -m generateReport
     ```
 
 ## How To Run On Different Node Release Images
@@ -163,7 +157,7 @@ TODO
   cd boca-playwright
   ```
 
--Then, use the commands below to build the image:
+- Then, use the commands below to build the image:
 
   ```sh
   # List images
@@ -218,7 +212,7 @@ To get started, follow these steps:
 - When VS Code restarts, you'll be within a container. You can open a terminal window and test the program:
 
   ```sh
-  npm start -- tests/new_contest.json shouldCreateContest
+  npm start -- -p tests/new_contest.json -m createContest
   ```
 
 - Close the window to stop the container;
