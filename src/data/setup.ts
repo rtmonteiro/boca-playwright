@@ -34,7 +34,7 @@ export const setupSchema = z.object({
     .object({
       url: z.string().url(),
       userPath: z.string().optional(),
-      outFilePath: z.string().optional()
+      resultFilePath: z.string().optional()
     })
     .merge(reportSchema.partial())
     .merge(insertUsersSchema.partial()),

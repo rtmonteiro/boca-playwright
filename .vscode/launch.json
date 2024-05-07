@@ -17,8 +17,10 @@
                 "${workspaceFolder}/build/**/*.js"
             ],
             "args": [
-                "resources/mocks/delete_language.json",
-                "shouldDeleteLanguage"
+                "-v",
+                "-l",
+                "-p", "resources/mocks/create_contest.json",
+                "-m", "createContest"
             ],
             "outputCapture": "std"
         }

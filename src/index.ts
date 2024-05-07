@@ -132,7 +132,8 @@ async function shouldCreateContest(setup: Setup): Promise<void> {
   const form = await createContest(page, contest);
   await browser.close();
   logger.logInfo('Contest created with id: %s', form.id);
-  console.log(JSON.stringify(form));
+  const output = Output.getInstance();
+  output.setResult(JSON.stringify(form));
 }
 
 async function shouldUpdateContest(setup: Setup): Promise<void> {
@@ -156,7 +157,8 @@ async function shouldUpdateContest(setup: Setup): Promise<void> {
   const form = await updateContest(page, contest);
   await browser.close();
   logger.logInfo('Contest updated with id: %s', form.id);
-  console.log(JSON.stringify(form));
+  const output = Output.getInstance();
+  output.setResult(JSON.stringify(form));
 }
 //#endregion
 
@@ -340,9 +342,9 @@ function main(): number {
   func(setup)
     .then(() => {
       logger.logInfo('Done!');
-      if (log && setup.config.outFilePath) {
-        logger.logInfo('Output file: %s', setup.config.outFilePath);
-        output.writeFile(setup.config.outFilePath);
+      if (log && setup.config.resultFilePath) {
+        logger.logInfo('Output file: %s', setup.config.resultFilePath);
+        output.writeFile(setup.config.resultFilePath);
       }
     })
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument

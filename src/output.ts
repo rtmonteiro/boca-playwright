@@ -46,6 +46,6 @@ export class Output {
 
   writeFile(path: string) {
     // Write the output to a file
-    fs.writeFileSync(path, this.result);
+    fs.writeFileSync(path, this.result, { encoding: 'utf-8' });
   }
 }
