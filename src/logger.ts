@@ -53,9 +53,10 @@ export class Logger {
     });
   }
 
-  public static getInstance(): Logger {
+  public static getInstance(enable?: boolean): Logger {
     if (Logger.instance === null) {
       Logger.instance = new Logger();
+      Logger.instance.log.level = enable ? 'info' : 'error';
     }
 
     return Logger.instance;

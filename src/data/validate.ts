@@ -20,23 +20,16 @@
 
 import { z } from 'zod';
 import { type Setup } from './setup';
-import { deleteUserSchema, userSchema } from './user';
+import { deleteUserSchema, insertUsersSchema, userSchema } from './user';
 import { loginSchema } from './login';
 import { siteSchema } from './site';
 import { problemSchema } from './problem';
 import { deleteLanguageSchema, languageSchema } from './language';
 import { createContestSchema, updateContestSchema } from './contest';
+import { reportSchema } from './report';
 import { ContestErrors } from '../errors/read_errors';
 
 export class Validate {
-  private readonly insertUsersSchema = z.object({
-    userPath: z.string()
-  });
-
-  private readonly generateReportSchema = z.object({
-    outDir: z.string()
-  });
-
   constructor(public setup: Setup) {}
 
   createContest(): z.infer<typeof setupType> {
@@ -81,7 +74,7 @@ export class Validate {
   insertUsers(): z.infer<typeof setupType> {
     const setupType = z.object({
       login: loginSchema,
-      config: this.insertUsersSchema
+      config: insertUsersSchema
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;
@@ -135,7 +128,7 @@ export class Validate {
   generateReport(): z.infer<typeof setupType> {
     const setupType = z.object({
       login: loginSchema,
-      config: this.generateReportSchema
+      config: reportSchema
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;

@@ -20,24 +20,25 @@
 
 import * as fs from 'fs';
 import { chromium } from 'playwright';
+import { Option, program } from 'commander';
+import { ZodError } from 'zod';
+import { Output } from './output';
+import { Logger } from './logger';
 import { type TCreateContest, type TUpdateContest } from './data/contest';
 import { type Login } from './data/login';
 import { type Setup, setupSchema } from './data/setup';
 import { type Site } from './data/site';
 import { type User } from './data/user';
+import { type Language } from './data/language';
+import { type Problem } from './data/problem';
+import { Validate } from './data/validate';
 import { createContest, updateContest } from './scripts/contest';
 import { createProblem } from './scripts/problem';
 import { createSite } from './scripts/site';
 import { createUser, deleteUser, insertUsers, login } from './scripts/user';
 import { retrieveFiles } from './scripts/report';
 import { createLanguage, deleteLanguage } from './scripts/language';
-import { type Language } from './data/language';
-import { Logger } from './logger';
 import { ExitErrors, ReadErrors } from './errors/read_errors';
-import { ZodError } from 'zod';
-import { type Problem } from './data/problem';
-import { Validate } from './data/validate';
-import { exit } from 'process';
 
 const STEP_DURATION = 50;
 const HEADLESS = true;
@@ -255,7 +256,7 @@ async function shouldGenerateReport(setup: Setup): Promise<void> {
   // validate setup file with zod
   const setupValidated = new Validate(setup).generateReport();
   const admin: Login = setupValidated.login;
-  const outDir = setupValidated.config.outDir;
+  const outDir = setupValidated.config.outReportDir;
 
   const browser = await chromium.launch({
     headless: HEADLESS,
@@ -270,7 +271,41 @@ async function shouldGenerateReport(setup: Setup): Promise<void> {
 //#endregion
 
 function main(): number {
-  if (process.argv.length <= 3) {
+  const methods: Record<string, (setup: Setup) => Promise<void>> = {
+    // Users
+    createUser: shouldCreateUser,
+    insertUsers: shouldInsertUsers,
+    deleteUser: shouldDeleteUser,
+    // Contests
+    createContest: shouldCreateContest,
+    updateContest: shouldUpdateContest,
+    // Sites
+    createSite: shouldCreateSite,
+    // Problems
+    createProblem: shouldCreateProblem,
+    // Languages
+    createLanguage: shouldCreateLanguage,
+    deleteLanguage: shouldDeleteLanguage,
+    // Reports
+    generateReport: shouldGenerateReport
+  };
+
+  program
+    .name('boca-cli')
+    .description('CLI for Boca')
+    .version('0.1.0')
+    .requiredOption('-p, --path <path>', 'path to setup file')
+    .addOption(
+      new Option('-m, --method <method>', 'method to execute')
+        .choices(Object.keys(methods))
+        .makeOptionMandatory()
+    )
+    .option('-v, --verbose', 'verbose mode')
+    .option('-l, --log', 'log output to file')
+    .parse();
+
+  const { path, method, verbose, log } = program.opts();
+  if (!path || !method) {
     console.error(
       'Missing command-line argument(s). ' +
         'To see the options available visit: ' +
@@ -278,30 +313,8 @@ function main(): number {
     );
     process.exit(ExitErrors.NOT_ENOUGH_ARGUMENTS);
   }
-
-  const methods: Record<string, (setup: Setup) => Promise<void>> = {
-    // Users
-    shouldCreateUser,
-    shouldInsertUsers,
-    shouldDeleteUser,
-    // Contests
-    shouldCreateContest,
-    shouldUpdateContest,
-    // Sites
-    shouldCreateSite,
-    // Problems
-    shouldCreateProblem,
-    // Languages
-    shouldCreateLanguage,
-    shouldDeleteLanguage,
-    // Reports
-    shouldGenerateReport
-  };
-
-  const args = process.argv.splice(2);
-  const path = args[0];
-  const method = args[1];
-  const logger = Logger.getInstance();
+  const logger = Logger.getInstance(verbose);
+  const output = Output.getInstance();
 
   try {
     fs.accessSync(path, fs.constants.R_OK);
@@ -315,7 +328,7 @@ function main(): number {
   } catch (e) {
     if (e instanceof ZodError) {
       logger.logZodError(e);
-      exit(1);
+      process.exit(ExitErrors.CONFIG_VALIDATION);
     }
     return 1;
   } finally {
@@ -327,6 +340,10 @@ function main(): number {
   func(setup)
     .then(() => {
       logger.logInfo('Done!');
+      if (log && setup.config.outFilePath) {
+        logger.logInfo('Output file: %s', setup.config.outFilePath);
+        output.writeFile(setup.config.outFilePath);
+      }
     })
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     .catch((e) => {

@@ -18,34 +18,34 @@
 //
 // ========================================================================
 
-import { z } from 'zod';
+import * as fs from 'fs';
 
-export type User = z.infer<typeof userSchema>;
+export class Output {
+  private static instance: Output | null = null;
+  result: string;
 
-export const insertUsersSchema = z.object({
-  userPath: z.string()
-});
+  constructor() {
+    this.result = '';
+  }
 
-export const userSchema = z.object({
-  userSiteNumber: z.number().optional(),
-  userNumber: z.string(),
-  userName: z.string(),
-  userIcpcId: z.string().optional(),
-  userType: z.union([
-    z.literal('Team'),
-    z.literal('Judge'),
-    z.literal('Admin'),
-    z.literal('Staff'),
-    z.literal('Score'),
-    z.literal('Site')
-  ]),
-  userEnabled: z.union([z.literal('Yes'), z.literal('No')]).optional(),
-  userMultiLogin: z.union([z.literal('Yes'), z.literal('No')]).optional(),
-  userFullName: z.string(),
-  userDesc: z.string(),
-  userIp: z.string().ip().optional(),
-  userPassword: z.string().optional(),
-  userChangePass: z.union([z.literal('Yes'), z.literal('No')]).optional()
-});
+  public static getInstance() {
+    if (Output.instance === null) {
+      Output.instance = new Output();
+    }
 
-export const deleteUserSchema = userSchema.pick({ userName: true });
+    return Output.instance;
+  }
+
+  setResult(result: string) {
+    this.result = result;
+  }
+
+  getResult() {
+    return this.result;
+  }
+
+  writeFile(path: string) {
+    // Write the output to a file
+    fs.writeFileSync(path, this.result);
+  }
+}

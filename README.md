@@ -144,7 +144,7 @@ docker run -it \
     npm start -- resources/setup.json shouldCreateProblem
     ```
 
-- Gera um relatório de runs do site e deposita os arquivos na pasta definida na propriedade `outDir`
+- Gera um relatório de runs do site e deposita os arquivos na pasta definida na propriedade `outReportDir`
 
     ```bash
     npm start -- resources/setup.json shouldGenerateReport

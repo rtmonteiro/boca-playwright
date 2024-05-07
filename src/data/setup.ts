@@ -19,21 +19,25 @@
 // ========================================================================
 
 import { z } from 'zod';
-import { userSchema } from './user';
+import { insertUsersSchema, userSchema } from './user';
 import { loginSchema } from './login';
 import { contestSchema } from './contest';
 import { siteSchema } from './site';
 import { languageSchema } from './language';
 import { problemSchema } from './problem';
+import { reportSchema } from './report';
 
 export type Setup = z.infer<typeof setupSchema>;
 
 export const setupSchema = z.object({
-  config: z.object({
-    url: z.string().url(),
-    userPath: z.string().optional(),
-    outDir: z.string().optional()
-  }),
+  config: z
+    .object({
+      url: z.string().url(),
+      userPath: z.string().optional(),
+      outFilePath: z.string().optional()
+    })
+    .merge(reportSchema.partial())
+    .merge(insertUsersSchema.partial()),
   login: loginSchema,
   user: userSchema.partial().optional(),
   contest: contestSchema.partial().optional(),
