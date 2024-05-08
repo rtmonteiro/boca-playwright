@@ -51,7 +51,8 @@ async function shouldCreateUser(setup: Setup): Promise<void> {
   logger.logInfo('Creating users');
 
   // validate setup file with zod
-  const setupValidated = new Validate(setup).createUser();
+  const validate = new Validate(setup);
+  const setupValidated = validate.createUser();
   const admin: Login = setupValidated.login;
   const user: User = setupValidated.user;
 
@@ -62,6 +63,7 @@ async function shouldCreateUser(setup: Setup): Promise<void> {
   const page = await browser.newPage();
   logger.logInfo('Logging in with admin user: %s', admin.username);
   await login(page, admin);
+  await validate.checkLoginType(page, 'Admin');
   logger.logInfo('Creating user: %s', user.userName);
   await createUser(page, user, admin);
   await browser.close();

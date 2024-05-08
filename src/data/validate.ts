@@ -20,7 +20,12 @@
 
 import { z } from 'zod';
 import { type Setup } from './setup';
-import { deleteUserSchema, insertUsersSchema, userSchema } from './user';
+import {
+  type User,
+  deleteUserSchema,
+  insertUsersSchema,
+  userSchema
+} from './user';
 import { loginSchema } from './login';
 import { siteSchema } from './site';
 import { problemSchema } from './problem';
@@ -28,6 +33,7 @@ import { deleteLanguageSchema, languageSchema } from './language';
 import { createContestSchema, updateContestSchema } from './contest';
 import { reportSchema } from './report';
 import { ContestErrors } from '../errors/read_errors';
+import { type Page } from 'playwright';
 
 export class Validate {
   constructor(public setup: Setup) {}
@@ -132,5 +138,18 @@ export class Validate {
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;
+  }
+
+  async checkLoginType(page: Page, type: User['userType']): Promise<void> {
+    // Get url from page
+    const url = await page.url();
+    // Get the type from the url
+    const typeUrl = url.split('/').at(-2) as unknown as User['userType'];
+    // Compare the types
+    if (type.toLocaleLowerCase() !== typeUrl) {
+      throw new Error(
+        `Expected type ${type} but got ${typeUrl}. Are you logged in?`
+      );
+    }
   }
 }
