@@ -18,10 +18,11 @@
 //
 // ========================================================================
 
-import { type Dialog, type Page } from 'playwright';
+import { type Page } from 'playwright';
 import { type Login } from '../data/login';
 import { type User } from '../data/user';
 import { BASE_URL } from '../index';
+import { dialogHandler } from '../utils/handlers';
 
 export async function login(page: Page, login: Login): Promise<void> {
   await page.goto(BASE_URL + '/');
@@ -36,11 +37,7 @@ export async function insertUsers(page: Page, path: string): Promise<void> {
   await page.goto(`${BASE_URL}/admin/user.php`);
   await page.locator('input[name="importfile"]').click();
   await page.locator('input[name="importfile"]').setInputFiles(path);
-  page.once('dialog', (dialog: Dialog) => {
-    dialog.accept().catch(() => {
-      console.error('Dialog was already closed when accepted');
-    });
-  });
+  page.once('dialog', dialogHandler);
   await page.getByRole('button', { name: 'Import' }).click();
 }
 
@@ -90,11 +87,7 @@ export async function createUser(
   admin: Login
 ): Promise<void> {
   await fillUser(page, user, admin);
-  page.once('dialog', (dialog: Dialog) => {
-    dialog.accept().catch(() => {
-      console.error('Dialog was already closed when accepted');
-    });
-  });
+  page.once('dialog', dialogHandler);
   await page.getByRole('button', { name: 'Send' }).click();
 }
 
@@ -115,10 +108,6 @@ export async function deleteUser(
 
   await page.locator('input[name="passwordo"]').fill(admin.password);
 
-  page.once('dialog', (dialog: Dialog) => {
-    dialog.accept().catch(() => {
-      console.error('Dialog was already closed when accepted');
-    });
-  });
+  page.once('dialog', dialogHandler);
   await page.getByRole('button', { name: 'Delete' }).click();
 }

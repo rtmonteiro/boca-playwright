@@ -18,7 +18,7 @@
 //
 // ========================================================================
 
-import { type Dialog, type Page } from 'playwright';
+import { type Page } from 'playwright';
 import { DateTime } from 'luxon';
 import { BASE_URL } from '../index';
 import { defineDuration, fillDateField } from '../utils/time';
@@ -28,6 +28,7 @@ import {
   type TContestForm,
   ContestForm
 } from '../data/contest';
+import { dialogHandler } from '../utils/handlers';
 
 export async function createContest(
   page: Page,
@@ -40,11 +41,7 @@ export async function createContest(
   if (contest !== undefined) {
     await fillContest(page, contest);
   }
-  page.once('dialog', (dialog: Dialog) => {
-    dialog.accept().catch(() => {
-      console.error('Dialog was already closed when accepted');
-    });
-  });
+  page.once('dialog', dialogHandler);
   await page.getByRole('button', { name: 'Send' }).click();
   return await getContest(page);
 }
@@ -59,11 +56,7 @@ export async function updateContest(
 
   await fillContest(page, contest);
 
-  page.once('dialog', (dialog: Dialog) => {
-    dialog.accept().catch(() => {
-      console.error('Dialog was already closed when accepted');
-    });
-  });
+  page.once('dialog', dialogHandler);
   await page.getByRole('button', { name: 'Send' }).click();
   return await getContest(page);
 }

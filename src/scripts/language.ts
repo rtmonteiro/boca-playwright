@@ -20,7 +20,8 @@
 
 import { BASE_URL } from '../index';
 import { type Language } from '../data/language';
-import { type Dialog, type Page } from 'playwright';
+import { type Page } from 'playwright';
+import { dialogHandler } from '../utils/handlers';
 
 export async function createLanguage(
   page: Page,
@@ -31,13 +32,11 @@ export async function createLanguage(
   await page.locator("input[name='langname']").fill(language.name);
   await page.locator("input[name='langextension']").fill(language.extension);
 
-  page.on('dialog', (dialog: Dialog) => {
-    dialog.accept().catch(() => {
-      console.error('Dialog was already closed when dismissed');
-    });
-  });
+  page.on('dialog', dialogHandler);
 
   await page.locator("input[name='Submit3']").click();
+
+  page.removeListener('dialog', dialogHandler);
 }
 
 export async function deleteLanguage(
@@ -46,11 +45,7 @@ export async function deleteLanguage(
 ): Promise<void> {
   await page.goto(BASE_URL + '/admin/language.php');
 
-  page.on('dialog', (dialog: Dialog) => {
-    dialog.accept().catch(() => {
-      console.error('Dialog was already closed when dismissed');
-    });
-  });
+  page.on('dialog', dialogHandler);
 
   const el = page.locator('td:nth-of-type(2)', { hasText: languageName });
 
@@ -58,4 +53,6 @@ export async function deleteLanguage(
     .locator('table:nth-of-type(3) > tbody > tr', { has: el })
     .locator('td:nth-of-type(1) a')
     .click();
+
+  page.removeListener('dialog', dialogHandler);
 }

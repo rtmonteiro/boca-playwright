@@ -18,9 +18,10 @@
 //
 // ========================================================================
 
-import { type Dialog, type Page } from 'playwright';
+import { type Page } from 'playwright';
 import { BASE_URL } from '../index';
 import { type Problem } from '../data/problem';
+import { dialogHandler } from '../utils/handlers';
 
 async function fillProblems(page: Page, problem: Problem): Promise<void> {
   await page.goto(BASE_URL + '/admin/');
@@ -45,10 +46,6 @@ export async function createProblem(
   problem: Problem
 ): Promise<void> {
   await fillProblems(page, problem);
-  page.once('dialog', (dialog: Dialog) => {
-    dialog.accept().catch(() => {
-      console.error('Dialog was already closed when dismissed');
-    });
-  });
+  page.once('dialog', dialogHandler);
   await page.getByRole('button', { name: 'Send' }).click();
 }

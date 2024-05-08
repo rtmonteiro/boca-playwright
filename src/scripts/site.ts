@@ -23,6 +23,7 @@ import { DateTime } from 'luxon';
 import { BASE_URL } from '../index';
 import { type Site } from '../data/site';
 import { defineDuration, fillDateField } from '../utils/time';
+import { dialogHandler } from '../utils/handlers';
 
 export async function fillSite(page: Page, site: Site): Promise<void> {
   await page.goto(BASE_URL + '/admin/');
@@ -121,8 +122,6 @@ export async function fillSite(page: Page, site: Site): Promise<void> {
 
 export async function createSite(page: Page, site: Site): Promise<void> {
   await fillSite(page, site);
-  page.once('dialog', (dialog) => {
-    dialog.dismiss().catch(() => {});
-  });
+  page.once('dialog', dialogHandler);
   await page.getByRole('button', { name: 'Send' }).click();
 }
