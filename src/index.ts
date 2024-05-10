@@ -74,7 +74,9 @@ async function shouldInsertUsers(setup: Setup): Promise<void> {
   const logger = Logger.getInstance();
   logger.logInfo('Creating users');
 
-  const setupValidated = new Validate(setup).insertUsers();
+  // validate setup file with zod
+  const validate = new Validate(setup);
+  const setupValidated = validate.insertUsers();
   const userPath = setupValidated.config.userPath;
   const admin: Login = setupValidated.login;
 
@@ -85,6 +87,7 @@ async function shouldInsertUsers(setup: Setup): Promise<void> {
   const page = await browser.newPage();
   logger.logInfo('Logging in with admin user: %s', admin.username);
   await login(page, admin);
+  await validate.checkLoginType(page, 'Admin');
   logger.logInfo('Inserting users from file: %s', userPath);
   await insertUsers(page, userPath);
   await browser.close();
@@ -95,7 +98,9 @@ async function shouldDeleteUser(setup: Setup): Promise<void> {
   const logger = Logger.getInstance();
   logger.logInfo('Deleting users');
 
-  const setupValidated = new Validate(setup).deleteUser();
+  // validate setup file with zod
+  const validate = new Validate(setup);
+  const setupValidated = validate.deleteUser();
   const admin: Login = setupValidated.login;
   const userName: string = setupValidated.user.userName;
 
@@ -105,6 +110,7 @@ async function shouldDeleteUser(setup: Setup): Promise<void> {
   });
   const page = await browser.newPage();
   await login(page, admin);
+  await validate.checkLoginType(page, 'Admin');
   logger.logInfo('Deleting user: %s', userName);
   await deleteUser(page, userName, admin);
   await browser.close();
@@ -118,7 +124,8 @@ async function shouldCreateContest(setup: Setup): Promise<void> {
   logger.logInfo('Creating contest');
 
   // validate setup file with zod
-  const setupValidated = new Validate(setup).createContest();
+  const validate = new Validate(setup);
+  const setupValidated = validate.createContest();
   const system: Login = setupValidated.login;
   const contest: TCreateContest | undefined = setupValidated.contest;
 
@@ -130,6 +137,7 @@ async function shouldCreateContest(setup: Setup): Promise<void> {
   const page = await browser.newPage();
   logger.logInfo('Logging in with system user: %s', system.username);
   await login(page, system);
+  await validate.checkLoginType(page, 'Site');
   logger.logInfo('Creating contest');
   const form = await createContest(page, contest);
   await browser.close();
@@ -144,7 +152,8 @@ async function shouldUpdateContest(setup: Setup): Promise<void> {
   logger.logInfo('Edit contest');
 
   // validate setup file with zod
-  const setupValidated = new Validate(setup).updateContest();
+  const validate = new Validate(setup);
+  const setupValidated = validate.updateContest();
   const system: Login = setupValidated.login;
   const contest: TUpdateContest = setupValidated.contest;
 
@@ -156,6 +165,7 @@ async function shouldUpdateContest(setup: Setup): Promise<void> {
   const page = await browser.newPage();
   logger.logInfo('Logging in with system user: %s', system.username);
   await login(page, system);
+  await validate.checkLoginType(page, 'Site');
   const form = await updateContest(page, contest);
   await browser.close();
   logger.logInfo('Contest updated with id: %s', form.id);
@@ -171,7 +181,8 @@ async function shouldCreateSite(setup: Setup): Promise<void> {
   logger.logInfo('Creating site');
 
   // validate setup file with zod
-  const setupValidated = new Validate(setup).createSite();
+  const validate = new Validate(setup);
+  const setupValidated = validate.createSite();
   const admin: Login = setupValidated.login;
   const site: Site = setupValidated.site;
 
@@ -181,6 +192,7 @@ async function shouldCreateSite(setup: Setup): Promise<void> {
   });
   const page = await browser.newPage();
   await login(page, admin);
+  await validate.checkLoginType(page, 'Admin');
   await createSite(page, site);
   await browser.close();
 }
@@ -193,7 +205,8 @@ async function shouldCreateProblem(setup: Setup): Promise<void> {
   logger.logInfo('Creating problem');
 
   // validate setup file with zod
-  const setupValidated = new Validate(setup).createProblem();
+  const validate = new Validate(setup);
+  const setupValidated = validate.createProblem();
   const admin: Login = setupValidated.login;
   const problem: Problem = setupValidated.problem;
 
@@ -203,6 +216,7 @@ async function shouldCreateProblem(setup: Setup): Promise<void> {
   });
   const page = await browser.newPage();
   await login(page, admin);
+  await validate.checkLoginType(page, 'Admin');
   const form = await createProblem(page, problem);
   await browser.close();
   logger.logInfo('Problem created with id: %s', form.id);
@@ -216,7 +230,8 @@ async function shouldGetProblem(setup: Setup): Promise<void> {
   logger.logInfo('Getting problem');
 
   // validate setup file with zod
-  const setupValidated = new Validate(setup).getProblem();
+  const validate = new Validate(setup);
+  const setupValidated = validate.getProblem();
   const admin: Login = setupValidated.login;
   const problemName: string = setupValidated.problem.name;
 
@@ -226,6 +241,7 @@ async function shouldGetProblem(setup: Setup): Promise<void> {
   });
   const page = await browser.newPage();
   await login(page, admin);
+  await validate.checkLoginType(page, 'Admin');
   const form = await getProblem(page, problemName);
   await browser.close();
   logger.logInfo('Problem found with name: %s', form.name);
@@ -241,7 +257,8 @@ async function shouldCreateLanguage(setup: Setup): Promise<void> {
   logger.logInfo('Creating language');
 
   // validate setup file with zod
-  const setupValidated = new Validate(setup).createLanguage();
+  const validate = new Validate(setup);
+  const setupValidated = validate.createLanguage();
   const admin: Login = setupValidated.login;
   const language: Language = setupValidated.language;
 
@@ -251,6 +268,7 @@ async function shouldCreateLanguage(setup: Setup): Promise<void> {
   });
   const page = await browser.newPage();
   await login(page, admin);
+  await validate.checkLoginType(page, 'Admin');
   await createLanguage(page, language);
   await browser.close();
 }
@@ -261,7 +279,8 @@ async function shouldDeleteLanguage(setup: Setup): Promise<void> {
   logger.logInfo('Deleting language');
 
   // validate setup file with zod
-  const setupValidated = new Validate(setup).deleteLanguage();
+  const validate = new Validate(setup);
+  const setupValidated = validate.deleteLanguage();
   const admin: Login = setupValidated.login;
   const language = setupValidated.language;
 
@@ -271,6 +290,7 @@ async function shouldDeleteLanguage(setup: Setup): Promise<void> {
   });
   const page = await browser.newPage();
   await login(page, admin);
+  await validate.checkLoginType(page, 'Admin');
   await deleteLanguage(page, language.name);
   await browser.close();
 }
@@ -284,7 +304,8 @@ async function shouldGenerateReport(setup: Setup): Promise<void> {
   logger.logInfo('Generating reports');
 
   // validate setup file with zod
-  const setupValidated = new Validate(setup).generateReport();
+  const validate = new Validate(setup);
+  const setupValidated = validate.generateReport();
   const admin: Login = setupValidated.login;
   const outDir = setupValidated.config.outReportDir;
 
@@ -294,6 +315,7 @@ async function shouldGenerateReport(setup: Setup): Promise<void> {
   });
   const page = await browser.newPage();
   await login(page, admin);
+  await validate.checkLoginType(page, 'Admin');
   await retrieveFiles(page, outDir);
   await browser.close();
 }
