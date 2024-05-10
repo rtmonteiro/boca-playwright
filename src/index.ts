@@ -367,10 +367,9 @@ function main(): number {
     )
     .option('-t, --timeout <timeout>', 'timeout for playwright', '30000')
     .option('-v, --verbose', 'verbose mode')
-    .option('-l, --log', 'log output to file')
     .parse();
 
-  const { path, method, verbose, log, timeout } = program.opts();
+  const { path, method, verbose, timeout } = program.opts();
   const logger = Logger.getInstance(verbose);
   const output = Output.getInstance();
 
@@ -392,19 +391,11 @@ function main(): number {
   BASE_URL = setup.config.url;
   TIMEOUT = parseInt(timeout);
 
-  if (
-    (log && !setup.config.resultFilePath) ||
-    (!log && setup.config.resultFilePath)
-  ) {
-    logger.logError(ReadErrors.RESULT_FILE_NOT_FOUND);
-    return process.exit(ExitErrors.CONFIG_VALIDATION);
-  }
-
   const func = methods[method];
   func(setup)
     .then(() => {
       logger.logInfo('Done!');
-      if (log && setup.config.resultFilePath) {
+      if (setup.config.resultFilePath) {
         logger.logInfo('Output file: %s', setup.config.resultFilePath);
         output.writeFile(setup.config.resultFilePath);
       }
