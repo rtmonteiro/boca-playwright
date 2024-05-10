@@ -18,27 +18,27 @@
 //
 // ========================================================================
 
+import { Option, program } from 'commander';
 import * as fs from 'fs';
 import { chromium } from 'playwright';
-import { Option, program } from 'commander';
 import { ZodError } from 'zod';
-import { Output } from './output';
-import { Logger } from './logger';
 import { type TCreateContest, type TUpdateContest } from './data/contest';
+import { type Language } from './data/language';
 import { type Login } from './data/login';
-import { type Setup, setupSchema } from './data/setup';
+import { type Problem } from './data/problem';
+import { setupSchema, type Setup } from './data/setup';
 import { type Site } from './data/site';
 import { type User } from './data/user';
-import { type Language } from './data/language';
-import { type Problem } from './data/problem';
 import { Validate } from './data/validate';
+import { ExitErrors, ReadErrors } from './errors/read_errors';
+import { Logger } from './logger';
+import { Output } from './output';
 import { createContest, updateContest } from './scripts/contest';
+import { createLanguage, deleteLanguage } from './scripts/language';
 import { createProblem, getProblem } from './scripts/problem';
+import { retrieveFiles } from './scripts/report';
 import { createSite } from './scripts/site';
 import { createUser, deleteUser, insertUsers, login } from './scripts/user';
-import { retrieveFiles } from './scripts/report';
-import { createLanguage, deleteLanguage } from './scripts/language';
-import { ExitErrors, ReadErrors } from './errors/read_errors';
 
 const STEP_DURATION = 50;
 const HEADLESS = true;
@@ -300,27 +300,27 @@ async function shouldGenerateReport(setup: Setup): Promise<void> {
 
 //#endregion
 
-function main(): number {
-  const methods: Record<string, (setup: Setup) => Promise<void>> = {
-    // Users
-    createUser: shouldCreateUser,
-    insertUsers: shouldInsertUsers,
-    deleteUser: shouldDeleteUser,
-    // Contests
-    createContest: shouldCreateContest,
-    updateContest: shouldUpdateContest,
-    // Sites
-    createSite: shouldCreateSite,
-    // Problems
-    createProblem: shouldCreateProblem,
-    getProblem: shouldGetProblem,
-    // Languages
-    createLanguage: shouldCreateLanguage,
-    deleteLanguage: shouldDeleteLanguage,
-    // Reports
-    generateReport: shouldGenerateReport
-  };
+const methods: Record<string, (setup: Setup) => Promise<void>> = {
+  // Users
+  createUser: shouldCreateUser,
+  insertUsers: shouldInsertUsers,
+  deleteUser: shouldDeleteUser,
+  // Contests
+  createContest: shouldCreateContest,
+  updateContest: shouldUpdateContest,
+  // Sites
+  createSite: shouldCreateSite,
+  // Problems
+  createProblem: shouldCreateProblem,
+  getProblem: shouldGetProblem,
+  // Languages
+  createLanguage: shouldCreateLanguage,
+  deleteLanguage: shouldDeleteLanguage,
+  // Reports
+  generateReport: shouldGenerateReport
+};
 
+function main(): number {
   program
     .name('boca-cli')
     .description('CLI for Boca')
@@ -336,14 +336,6 @@ function main(): number {
     .parse();
 
   const { path, method, verbose, log } = program.opts();
-  if (!path || !method) {
-    console.error(
-      'Missing command-line argument(s). ' +
-        'To see the options available visit: ' +
-        'https://github.com/rtmonteiro/boca-playwright\n'
-    );
-    process.exit(ExitErrors.NOT_ENOUGH_ARGUMENTS);
-  }
   const logger = Logger.getInstance(verbose);
   const output = Output.getInstance();
 
@@ -357,17 +349,17 @@ function main(): number {
   try {
     setupSchema.parse(setup);
   } catch (e) {
-    if (e instanceof ZodError) {
-      logger.logZodError(e);
-      process.exit(ExitErrors.CONFIG_VALIDATION);
-    }
-    return 1;
+    if (e instanceof ZodError) logger.logZodError(e);
+    process.exit(ExitErrors.CONFIG_VALIDATION);
   } finally {
     logger.logInfo('Using setup file: %s', path);
   }
   BASE_URL = setup.config.url;
 
-  if (log && !setup.config.resultFilePath) {
+  if (
+    (log && !setup.config.resultFilePath) ||
+    (!log && setup.config.resultFilePath)
+  ) {
     logger.logError(ReadErrors.RESULT_FILE_NOT_FOUND);
     return process.exit(ExitErrors.CONFIG_VALIDATION);
   }
