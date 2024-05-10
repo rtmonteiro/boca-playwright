@@ -42,6 +42,7 @@ import { createUser, deleteUser, insertUsers, login } from './scripts/user';
 
 const STEP_DURATION = 50;
 const HEADLESS = true;
+let TIMEOUT = 30000;
 export let BASE_URL = 'http://localhost:8000/boca';
 
 //#region User
@@ -61,6 +62,7 @@ async function shouldCreateUser(setup: Setup): Promise<void> {
     slowMo: STEP_DURATION
   });
   const page = await browser.newPage();
+  page.setDefaultTimeout(TIMEOUT);
   logger.logInfo('Logging in with admin user: %s', admin.username);
   await login(page, admin);
   await validate.checkLoginType(page, 'Admin');
@@ -85,6 +87,7 @@ async function shouldInsertUsers(setup: Setup): Promise<void> {
     slowMo: STEP_DURATION
   });
   const page = await browser.newPage();
+  page.setDefaultTimeout(TIMEOUT);
   logger.logInfo('Logging in with admin user: %s', admin.username);
   await login(page, admin);
   await validate.checkLoginType(page, 'Admin');
@@ -109,6 +112,7 @@ async function shouldDeleteUser(setup: Setup): Promise<void> {
     slowMo: STEP_DURATION
   });
   const page = await browser.newPage();
+  page.setDefaultTimeout(TIMEOUT);
   await login(page, admin);
   await validate.checkLoginType(page, 'Admin');
   logger.logInfo('Deleting user: %s', userName);
@@ -135,6 +139,7 @@ async function shouldCreateContest(setup: Setup): Promise<void> {
     slowMo: STEP_DURATION
   });
   const page = await browser.newPage();
+  page.setDefaultTimeout(TIMEOUT);
   logger.logInfo('Logging in with system user: %s', system.username);
   await login(page, system);
   await validate.checkLoginType(page, 'Site');
@@ -163,6 +168,7 @@ async function shouldUpdateContest(setup: Setup): Promise<void> {
     slowMo: STEP_DURATION
   });
   const page = await browser.newPage();
+  page.setDefaultTimeout(TIMEOUT);
   logger.logInfo('Logging in with system user: %s', system.username);
   await login(page, system);
   await validate.checkLoginType(page, 'Site');
@@ -191,6 +197,7 @@ async function shouldCreateSite(setup: Setup): Promise<void> {
     slowMo: STEP_DURATION
   });
   const page = await browser.newPage();
+  page.setDefaultTimeout(TIMEOUT);
   await login(page, admin);
   await validate.checkLoginType(page, 'Admin');
   await createSite(page, site);
@@ -215,6 +222,7 @@ async function shouldCreateProblem(setup: Setup): Promise<void> {
     slowMo: STEP_DURATION
   });
   const page = await browser.newPage();
+  page.setDefaultTimeout(TIMEOUT);
   await login(page, admin);
   await validate.checkLoginType(page, 'Admin');
   const form = await createProblem(page, problem);
@@ -240,6 +248,7 @@ async function shouldGetProblem(setup: Setup): Promise<void> {
     slowMo: STEP_DURATION
   });
   const page = await browser.newPage();
+  page.setDefaultTimeout(TIMEOUT);
   await login(page, admin);
   await validate.checkLoginType(page, 'Admin');
   const form = await getProblem(page, problemName);
@@ -267,6 +276,7 @@ async function shouldCreateLanguage(setup: Setup): Promise<void> {
     slowMo: STEP_DURATION
   });
   const page = await browser.newPage();
+  page.setDefaultTimeout(TIMEOUT);
   await login(page, admin);
   await validate.checkLoginType(page, 'Admin');
   await createLanguage(page, language);
@@ -289,6 +299,7 @@ async function shouldDeleteLanguage(setup: Setup): Promise<void> {
     slowMo: STEP_DURATION
   });
   const page = await browser.newPage();
+  page.setDefaultTimeout(TIMEOUT);
   await login(page, admin);
   await validate.checkLoginType(page, 'Admin');
   await deleteLanguage(page, language.name);
@@ -314,6 +325,7 @@ async function shouldGenerateReport(setup: Setup): Promise<void> {
     slowMo: STEP_DURATION
   });
   const page = await browser.newPage();
+  page.setDefaultTimeout(TIMEOUT);
   await login(page, admin);
   await validate.checkLoginType(page, 'Admin');
   await retrieveFiles(page, outDir);
@@ -353,11 +365,12 @@ function main(): number {
         .choices(Object.keys(methods))
         .makeOptionMandatory()
     )
+    .option('-t, --timeout <timeout>', 'timeout for playwright', '30000')
     .option('-v, --verbose', 'verbose mode')
     .option('-l, --log', 'log output to file')
     .parse();
 
-  const { path, method, verbose, log } = program.opts();
+  const { path, method, verbose, log, timeout } = program.opts();
   const logger = Logger.getInstance(verbose);
   const output = Output.getInstance();
 
@@ -377,6 +390,7 @@ function main(): number {
     logger.logInfo('Using setup file: %s', path);
   }
   BASE_URL = setup.config.url;
+  TIMEOUT = parseInt(timeout);
 
   if (
     (log && !setup.config.resultFilePath) ||
