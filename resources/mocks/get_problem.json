@@ -1,0 +1,12 @@
+{
+  "config": {
+    "url": "localhost:8000/boca"
+  },
+  "login": {
+    "username": "admin",
+    "password": "boca"
+  },
+  "problem": {
+      "name": "l5"
+  }
+}

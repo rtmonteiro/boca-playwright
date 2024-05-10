@@ -33,7 +33,7 @@ import { type Language } from './data/language';
 import { type Problem } from './data/problem';
 import { Validate } from './data/validate';
 import { createContest, updateContest } from './scripts/contest';
-import { createProblem } from './scripts/problem';
+import { createProblem, getProblem } from './scripts/problem';
 import { createSite } from './scripts/site';
 import { createUser, deleteUser, insertUsers, login } from './scripts/user';
 import { retrieveFiles } from './scripts/report';
@@ -203,8 +203,34 @@ async function shouldCreateProblem(setup: Setup): Promise<void> {
   });
   const page = await browser.newPage();
   await login(page, admin);
-  await createProblem(page, problem);
+  const form = await createProblem(page, problem);
   await browser.close();
+  logger.logInfo('Problem created with id: %s', form.id);
+  const output = Output.getInstance();
+  output.setResult(JSON.stringify(form));
+}
+
+async function shouldGetProblem(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Getting problem');
+
+  // validate setup file with zod
+  const setupValidated = new Validate(setup).getProblem();
+  const admin: Login = setupValidated.login;
+  const problemName: string = setupValidated.problem.name;
+
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
+  const page = await browser.newPage();
+  await login(page, admin);
+  const form = await getProblem(page, problemName);
+  await browser.close();
+  logger.logInfo('Problem found with name: %s', form.name);
+  const output = Output.getInstance();
+  output.setResult(JSON.stringify(form));
 }
 //#endregion
 
@@ -287,6 +313,7 @@ function main(): number {
     createSite: shouldCreateSite,
     // Problems
     createProblem: shouldCreateProblem,
+    getProblem: shouldGetProblem,
     // Languages
     createLanguage: shouldCreateLanguage,
     deleteLanguage: shouldDeleteLanguage,

@@ -150,3 +150,36 @@ Será necessário um login de nível admin e o nome do usuário a ser deletado.
   }
 }
 ```
+
+## Problemas
+
+### Adicionar um Problema
+
+Será necessário um login de nível admin e as informações base de um problema listadas na tabela abaixo.
+
+| Parâmetro  | Tipo    | Descrição                       |
+| ---------- | ------- | ------------------------------- |
+| id         | number  | Identificador do Problema       |
+| name       | string  | Nome do Problema                |
+| filePath   | string  | Caminho do arquivo do Problema  |
+| colorName  | string? | Nome da cor do Problema         |
+| colorCode  | string? | Código da cor do Problema       |
+
+```json
+{
+  "config": {
+    "url": "localhost:8000/boca"
+  },
+  "login": {
+    "username": "admin",
+    "password": "boca"
+  },
+  "problem": {
+    "id": 1,
+    "name": "A - Hello World",
+    "filePath": "/resources/A.zip",
+    "colorName": "basic",
+    "colorCode": "FF0000"
+  }
+}
+```

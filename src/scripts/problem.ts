@@ -44,8 +44,32 @@ async function fillProblems(page: Page, problem: Problem): Promise<void> {
 export async function createProblem(
   page: Page,
   problem: Problem
-): Promise<void> {
+): Promise<Problem> {
   await fillProblems(page, problem);
   page.once('dialog', dialogHandler);
   await page.getByRole('button', { name: 'Send' }).click();
+  return await getProblem(page, problem.name);
+}
+
+export async function getProblem(page: Page, name: string): Promise<Problem> {
+  await page.goto(BASE_URL + '/admin/problem.php');
+  const problem = {} as Required<Problem>;
+  const row = await page.locator('form[name=form0] > table > tbody > tr', {
+    hasText: name
+  });
+  if ((await row.count()) == 0) throw new Error('Problem not found');
+  const columns = await row
+    .locator('td')
+    .filter({ hasNot: page.locator('[for*="autojudge"], [id*="autojudge"]') }) // Filter out autojudge elements
+    .all();
+  problem.id = parseInt(await columns[0].innerText());
+  problem.name = await columns[1].innerText();
+  problem.filePath = (await columns[5].innerText()).trim();
+  problem.colorName = await columns[6]
+    .locator('input[type=text]:nth-child(2)')
+    .inputValue();
+  problem.colorCode = await columns[6]
+    .locator('input[type=text]:nth-child(3)')
+    .inputValue();
+  return problem;
 }

@@ -113,6 +113,15 @@ export class Validate {
     return this.setup as z.infer<typeof setupType>;
   }
 
+  getProblem() {
+    const setupType = z.object({
+      login: loginSchema,
+      problem: problemSchema.pick({ name: true })
+    });
+    setupType.parse(this.setup);
+    return this.setup as z.infer<typeof setupType>;
+  }
+
   createLanguage(): z.infer<typeof setupType> {
     const setupType = z.object({
       login: loginSchema,
