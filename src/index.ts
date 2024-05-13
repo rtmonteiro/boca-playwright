@@ -35,7 +35,7 @@ import { Logger } from './logger';
 import { Output } from './output';
 import { createContest, updateContest } from './scripts/contest';
 import { createLanguage, deleteLanguage } from './scripts/language';
-import { createProblem, getProblem } from './scripts/problem';
+import { createProblem, deleteProblem, getProblem } from './scripts/problem';
 import { retrieveFiles } from './scripts/report';
 import { createSite } from './scripts/site';
 import { createUser, deleteUser, insertUsers, login } from './scripts/user';
@@ -232,16 +232,16 @@ async function shouldCreateProblem(setup: Setup): Promise<void> {
   output.setResult(form);
 }
 
-async function shouldGetProblem(setup: Setup): Promise<void> {
+async function shouldDeleteProblem(setup: Setup): Promise<void> {
   // instantiate logger
   const logger = Logger.getInstance();
-  logger.logInfo('Getting problem');
+  logger.logInfo('Deleting problem');
 
   // validate setup file with zod
   const validate = new Validate(setup);
-  const setupValidated = validate.getProblem();
+  const setupValidated = validate.deleteProblem();
   const admin: Login = setupValidated.login;
-  const problemName: string = setupValidated.problem.name;
+  const problem = setupValidated.problem;
 
   const browser = await chromium.launch({
     headless: HEADLESS,
@@ -251,7 +251,33 @@ async function shouldGetProblem(setup: Setup): Promise<void> {
   page.setDefaultTimeout(TIMEOUT);
   await login(page, admin);
   await validate.checkLoginType(page, 'Admin');
-  const form = await getProblem(page, problemName);
+  const form = await deleteProblem(page, problem);
+  await browser.close();
+  logger.logInfo('Problem deleted with id: %s', form.id);
+  const output = Output.getInstance();
+  output.setResult(form);
+}
+
+async function shouldGetProblem(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Getting problem');
+
+  // validate setup file with zod
+  const validate = new Validate(setup);
+  const setupValidated = validate.getProblem();
+  const admin: Login = setupValidated.login;
+  const problem = setupValidated.problem;
+
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
+  const page = await browser.newPage();
+  page.setDefaultTimeout(TIMEOUT);
+  await login(page, admin);
+  await validate.checkLoginType(page, 'Admin');
+  const form = await getProblem(page, problem);
   await browser.close();
   logger.logInfo('Problem found with name: %s', form.name);
   const output = Output.getInstance();
@@ -346,6 +372,7 @@ const methods: Record<string, (setup: Setup) => Promise<void>> = {
   createSite: shouldCreateSite,
   // Problems
   createProblem: shouldCreateProblem,
+  deleteProblem: shouldDeleteProblem,
   getProblem: shouldGetProblem,
   // Languages
   createLanguage: shouldCreateLanguage,

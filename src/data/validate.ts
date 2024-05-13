@@ -28,7 +28,7 @@ import {
 } from './user';
 import { loginSchema } from './login';
 import { siteSchema } from './site';
-import { problemSchema } from './problem';
+import { problemIdSchema, problemSchema } from './problem';
 import { deleteLanguageSchema, languageSchema } from './language';
 import { createContestSchema, updateContestSchema } from './contest';
 import { reportSchema } from './report';
@@ -51,17 +51,16 @@ export class Validate {
     const setupType = z.object({
       login: loginSchema,
       contest: updateContestSchema
-        .refine((contest) => contest.id !== undefined, {
-          message: ContestErrors.CONTEST_ID_REQUIRED
-        })
+        .refine(
+          (contest) => contest.id !== undefined,
+          ContestErrors.CONTEST_ID_REQUIRED
+        )
         .refine(
           (contest) =>
             !Object.entries(contest)
               .filter(([k]) => k !== 'id')
               .every(([, v]) => v === undefined),
-          {
-            message: ContestErrors.ONE_FIELD_REQUIRED
-          }
+          ContestErrors.ONE_FIELD_REQUIRED
         )
     });
     setupType.parse(this.setup);
@@ -113,10 +112,19 @@ export class Validate {
     return this.setup as z.infer<typeof setupType>;
   }
 
+  deleteProblem() {
+    const setupType = z.object({
+      login: loginSchema,
+      problem: problemIdSchema
+    });
+    setupType.parse(this.setup);
+    return this.setup as z.infer<typeof setupType>;
+  }
+
   getProblem() {
     const setupType = z.object({
       login: loginSchema,
-      problem: problemSchema.pick({ name: true })
+      problem: problemIdSchema
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;

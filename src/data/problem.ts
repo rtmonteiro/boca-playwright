@@ -24,6 +24,8 @@ import { ProblemErrors } from '../errors/read_errors';
 
 export type Problem = z.infer<typeof problemSchema>;
 
+export type ProblemId = z.infer<typeof problemIdSchema>;
+
 export const problemSchema = z.object({
   id: z.number(),
   name: z.string(),
@@ -51,3 +53,11 @@ export const problemSchema = z.object({
     )
     .optional()
 });
+
+export const problemIdSchema = problemSchema
+  .pick({ id: true, name: true })
+  .partial()
+  .refine(
+    (problem) => problem.id === undefined || problem.name === undefined,
+    'Only one of id or name should be provided.'
+  );

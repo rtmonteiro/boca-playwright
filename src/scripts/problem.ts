@@ -20,7 +20,7 @@
 
 import { type Page } from 'playwright';
 import { BASE_URL } from '../index';
-import { type Problem } from '../data/problem';
+import { type ProblemId, type Problem } from '../data/problem';
 import { dialogHandler } from '../utils/handlers';
 
 async function fillProblems(page: Page, problem: Problem): Promise<void> {
@@ -48,14 +48,50 @@ export async function createProblem(
   await fillProblems(page, problem);
   page.once('dialog', dialogHandler);
   await page.getByRole('button', { name: 'Send' }).click();
-  return await getProblem(page, problem.name);
+  return await getProblem(page, problem);
 }
 
-export async function getProblem(page: Page, name: string): Promise<Problem> {
+export async function deleteProblem(
+  page: Page,
+  problem: ProblemId
+): Promise<Problem> {
+  await page.goto(BASE_URL + '/admin/problem.php');
+
+  const identifier =
+    problem.id !== undefined && problem.name == undefined
+      ? problem.id
+      : problem.name;
+  const re = new RegExp(`^${identifier}[\\(deleted\\)]*$`);
+
+  const row = await page.locator('form[name=form0] > table > tbody > tr', {
+    has: page.locator('td', { hasText: re })
+  });
+
+  if ((await row.count()) == 0) throw new Error('Problem not found');
+
+  page.on('dialog', dialogHandler);
+
+  // Click on the id link
+  await row.locator('td > a').first().click();
+  page.removeListener('dialog', dialogHandler);
+  return await getProblem(page, problem);
+}
+
+export async function getProblem(
+  page: Page,
+  problemId: ProblemId
+): Promise<Problem> {
   await page.goto(BASE_URL + '/admin/problem.php');
   const problem = {} as Required<Problem>;
+
+  const identifier =
+    problemId.id !== undefined && problemId.name == undefined
+      ? problemId.id
+      : problemId.name;
+  const re = new RegExp(`^${identifier}[\\(deleted\\)]*$`);
+
   const row = await page.locator('form[name=form0] > table > tbody > tr', {
-    hasText: name
+    has: page.locator('td', { hasText: re })
   });
   if ((await row.count()) == 0) throw new Error('Problem not found');
   const columns = await row
