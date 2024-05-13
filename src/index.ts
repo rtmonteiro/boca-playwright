@@ -142,13 +142,13 @@ async function shouldCreateContest(setup: Setup): Promise<void> {
   page.setDefaultTimeout(TIMEOUT);
   logger.logInfo('Logging in with system user: %s', system.username);
   await login(page, system);
-  await validate.checkLoginType(page, 'Site');
+  await validate.checkLoginType(page, 'System');
   logger.logInfo('Creating contest');
   const form = await createContest(page, contest);
   await browser.close();
   logger.logInfo('Contest created with id: %s', form.id);
   const output = Output.getInstance();
-  output.setResult(JSON.stringify(form));
+  output.setResult(form);
 }
 
 async function shouldUpdateContest(setup: Setup): Promise<void> {
@@ -171,12 +171,12 @@ async function shouldUpdateContest(setup: Setup): Promise<void> {
   page.setDefaultTimeout(TIMEOUT);
   logger.logInfo('Logging in with system user: %s', system.username);
   await login(page, system);
-  await validate.checkLoginType(page, 'Site');
+  await validate.checkLoginType(page, 'System');
   const form = await updateContest(page, contest);
   await browser.close();
   logger.logInfo('Contest updated with id: %s', form.id);
   const output = Output.getInstance();
-  output.setResult(JSON.stringify(form));
+  output.setResult(form);
 }
 //#endregion
 
@@ -229,7 +229,7 @@ async function shouldCreateProblem(setup: Setup): Promise<void> {
   await browser.close();
   logger.logInfo('Problem created with id: %s', form.id);
   const output = Output.getInstance();
-  output.setResult(JSON.stringify(form));
+  output.setResult(form);
 }
 
 async function shouldGetProblem(setup: Setup): Promise<void> {
@@ -255,7 +255,7 @@ async function shouldGetProblem(setup: Setup): Promise<void> {
   await browser.close();
   logger.logInfo('Problem found with name: %s', form.name);
   const output = Output.getInstance();
-  output.setResult(JSON.stringify(form));
+  output.setResult(form);
 }
 //#endregion
 

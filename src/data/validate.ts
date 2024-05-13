@@ -149,7 +149,10 @@ export class Validate {
     return this.setup as z.infer<typeof setupType>;
   }
 
-  async checkLoginType(page: Page, type: User['userType']): Promise<void> {
+  async checkLoginType(
+    page: Page,
+    type: User['userType'] | 'System'
+  ): Promise<void> {
     // Get url from page
     const url = await page.url();
     // Get the type from the url
