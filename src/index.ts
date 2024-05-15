@@ -37,7 +37,13 @@ import { createLanguage, deleteLanguage } from './scripts/language';
 import { createProblem, deleteProblem, getProblem } from './scripts/problem';
 import { retrieveFiles } from './scripts/report';
 import { createSite } from './scripts/site';
-import { createUser, deleteUser, insertUsers, login } from './scripts/user';
+import {
+  createUser,
+  deleteUser,
+  getUser,
+  insertUsers,
+  login
+} from './scripts/user';
 
 const STEP_DURATION = 50;
 const HEADLESS = true;
@@ -66,8 +72,11 @@ async function shouldCreateUser(setup: Setup): Promise<void> {
   await login(page, admin);
   await validate.checkLoginType(page, 'Admin');
   logger.logInfo('Creating user: %s', user.userName);
-  await createUser(page, user, admin);
+  const form = await createUser(page, user, admin);
   await browser.close();
+  logger.logInfo('User created with id: %s', form.userNumber);
+  const output = Output.getInstance();
+  output.setResult(form);
 }
 
 async function shouldInsertUsers(setup: Setup): Promise<void> {
@@ -102,9 +111,9 @@ async function shouldDeleteUser(setup: Setup): Promise<void> {
 
   // validate setup file with zod
   const validate = new Validate(setup);
-  const setupValidated = validate.deleteUser();
+  const setupValidated = validate.getUser();
   const admin: Login = setupValidated.login;
-  const userName: string = setupValidated.user.userName;
+  const userId = setupValidated.user;
 
   const browser = await chromium.launch({
     headless: HEADLESS,
@@ -114,9 +123,34 @@ async function shouldDeleteUser(setup: Setup): Promise<void> {
   page.setDefaultTimeout(TIMEOUT);
   await login(page, admin);
   await validate.checkLoginType(page, 'Admin');
-  logger.logInfo('Deleting user: %s', userName);
-  await deleteUser(page, userName, admin);
+  await deleteUser(page, userId, admin);
   await browser.close();
+}
+
+async function shouldGetUser(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Getting user');
+
+  // validate setup file with zod
+  const validate = new Validate(setup);
+  const setupValidated = validate.getUser();
+  const admin: Login = setupValidated.login;
+  const userId = setupValidated.user;
+
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
+  const page = await browser.newPage();
+  page.setDefaultTimeout(TIMEOUT);
+  await login(page, admin);
+  await validate.checkLoginType(page, 'Admin');
+  const form = await getUser(page, userId);
+  await browser.close();
+  logger.logInfo('User found with name: %s', form.userName);
+  const output = Output.getInstance();
+  output.setResult(form);
 }
 //#endregion
 
@@ -238,7 +272,7 @@ async function shouldDeleteProblem(setup: Setup): Promise<void> {
 
   // validate setup file with zod
   const validate = new Validate(setup);
-  const setupValidated = validate.deleteProblem();
+  const setupValidated = validate.getProblem();
   const admin: Login = setupValidated.login;
   const problem = setupValidated.problem;
 
@@ -367,6 +401,7 @@ const methods: Record<string, (setup: Setup) => Promise<void>> = {
   createUser: shouldCreateUser,
   insertUsers: shouldInsertUsers,
   deleteUser: shouldDeleteUser,
+  getUser: shouldGetUser,
   // Contests
   createContest: shouldCreateContest,
   updateContest: shouldUpdateContest,

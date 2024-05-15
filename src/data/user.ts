@@ -22,6 +22,8 @@ import { z } from 'zod';
 
 export type User = z.infer<typeof userSchema>;
 
+export type UserId = z.infer<typeof userIdSchema>;
+
 export const insertUsersSchema = z.object({
   userPath: z.string()
 });
@@ -48,4 +50,17 @@ export const userSchema = z.object({
   userChangePass: z.union([z.literal('Yes'), z.literal('No')]).optional()
 });
 
-export const deleteUserSchema = userSchema.pick({ userName: true });
+export const userIdSchema = userSchema
+  .pick({
+    userName: true,
+    userNumber: true
+  })
+  .partial()
+  .refine(
+    (user) => user.userName === undefined || user.userNumber === undefined,
+    'Only one of id or name should be provided.'
+  )
+  .refine(
+    (user) => user.userName !== undefined || user.userNumber !== undefined,
+    'At least one of id or name should be provided.'
+  );

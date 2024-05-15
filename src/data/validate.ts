@@ -20,12 +20,7 @@
 
 import { z } from 'zod';
 import { type Setup } from './setup';
-import {
-  type User,
-  deleteUserSchema,
-  insertUsersSchema,
-  userSchema
-} from './user';
+import { type User, userIdSchema, insertUsersSchema, userSchema } from './user';
 import { loginSchema } from './login';
 import { siteSchema } from './site';
 import { problemIdSchema, problemSchema } from './problem';
@@ -85,10 +80,10 @@ export class Validate {
     return this.setup as z.infer<typeof setupType>;
   }
 
-  deleteUser(): z.infer<typeof setupType> {
+  getUser(): z.infer<typeof setupType> {
     const setupType = z.object({
       login: loginSchema,
-      user: deleteUserSchema
+      user: userIdSchema
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;
@@ -107,15 +102,6 @@ export class Validate {
     const setupType = z.object({
       login: loginSchema,
       problem: problemSchema
-    });
-    setupType.parse(this.setup);
-    return this.setup as z.infer<typeof setupType>;
-  }
-
-  deleteProblem() {
-    const setupType = z.object({
-      login: loginSchema,
-      problem: problemIdSchema
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;

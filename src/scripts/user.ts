@@ -20,7 +20,7 @@
 
 import { type Page } from 'playwright';
 import { type Login } from '../data/login';
-import { type User } from '../data/user';
+import { type UserId, type User } from '../data/user';
 import { BASE_URL } from '../index';
 import { dialogHandler } from '../utils/handlers';
 
@@ -85,22 +85,26 @@ export async function createUser(
   page: Page,
   user: User,
   admin: Login
-): Promise<void> {
+): Promise<User> {
   await fillUser(page, user, admin);
   page.once('dialog', dialogHandler);
   await page.getByRole('button', { name: 'Send' }).click();
+  return await getUser(page, user);
 }
 
 export async function deleteUser(
   page: Page,
-  userName: string,
+  userId: UserId,
   admin: Login
 ): Promise<void> {
   await page.goto(BASE_URL + '/admin/user.php');
 
   await page
     .locator('tr', {
-      has: page.locator('td', { hasText: userName })
+      has: page.locator('td', {
+        hasText:
+          userId.userName !== undefined ? userId.userName : userId.userNumber
+      })
     })
     .locator('td')
     .nth(0)
@@ -110,4 +114,26 @@ export async function deleteUser(
 
   page.once('dialog', dialogHandler);
   await page.getByRole('button', { name: 'Delete' }).click();
+}
+export async function getUser(page: Page, userId: UserId): Promise<User> {
+  await page.goto(`${BASE_URL}/admin/user.php`);
+  const identifier =
+    userId.userName !== undefined ? userId.userName : userId.userNumber;
+  // eslint-disable-next-line no-useless-escape
+  const re = new RegExp(`^${identifier}[\(inactive\)]*$`);
+  const loc =
+    userId.userName !== undefined ? 'td:nth-of-type(3)' : 'td:nth-of-type(1)';
+  const row = await page.locator('tr', {
+    has: page.locator(loc, { hasText: re })
+  });
+
+  await row.locator('td:nth-of-type(1) a').click();
+
+  return {
+    userNumber: await page.locator('input[name="usernumber"]').inputValue(),
+    userName: await page.locator('input[name="username"]').inputValue(),
+    userType: await page.locator('select[name="usertype"]').inputValue(),
+    userFullName: await page.locator('input[name="userfullname"]').inputValue(),
+    userDesc: await page.locator('input[name="userdesc"]').inputValue()
+  } as User;
 }
