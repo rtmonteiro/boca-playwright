@@ -22,10 +22,25 @@ import { z } from 'zod';
 
 export type Language = z.infer<typeof languageSchema>;
 
+export type LanguageId = z.infer<typeof languageIdSchema>;
+
 export const languageSchema = z.object({
   id: z.string(),
   name: z.string(),
   extension: z.string()
 });
 
-export const deleteLanguageSchema = languageSchema.pick({ name: true });
+export const languageIdSchema = languageSchema
+  .pick({
+    id: true,
+    name: true
+  })
+  .partial()
+  .refine(
+    (language) => language.id === undefined || language.name === undefined,
+    'Only one of id or name should be provided.'
+  )
+  .refine(
+    (language) => language.id !== undefined || language.name !== undefined,
+    'At least one of id or name should be provided.'
+  );

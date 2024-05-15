@@ -23,7 +23,6 @@ import * as fs from 'fs';
 import { chromium } from 'playwright';
 import { ZodError } from 'zod';
 import { type TCreateContest, type TUpdateContest } from './data/contest';
-import { type Language } from './data/language';
 import { type Login } from './data/login';
 import { type Problem } from './data/problem';
 import { setupSchema, type Setup } from './data/setup';
@@ -295,7 +294,7 @@ async function shouldCreateLanguage(setup: Setup): Promise<void> {
   const validate = new Validate(setup);
   const setupValidated = validate.createLanguage();
   const admin: Login = setupValidated.login;
-  const language: Language = setupValidated.language;
+  const language = setupValidated.language;
 
   const browser = await chromium.launch({
     headless: HEADLESS,
@@ -305,8 +304,11 @@ async function shouldCreateLanguage(setup: Setup): Promise<void> {
   page.setDefaultTimeout(TIMEOUT);
   await login(page, admin);
   await validate.checkLoginType(page, 'Admin');
-  await createLanguage(page, language);
+  const form = await createLanguage(page, language);
   await browser.close();
+  logger.logInfo('Language created with id: %s', form.id);
+  const output = Output.getInstance();
+  output.setResult(form);
 }
 
 async function shouldDeleteLanguage(setup: Setup): Promise<void> {
@@ -328,7 +330,7 @@ async function shouldDeleteLanguage(setup: Setup): Promise<void> {
   page.setDefaultTimeout(TIMEOUT);
   await login(page, admin);
   await validate.checkLoginType(page, 'Admin');
-  await deleteLanguage(page, language.name);
+  await deleteLanguage(page, language);
   await browser.close();
 }
 

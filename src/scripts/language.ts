@@ -19,14 +19,14 @@
 // ========================================================================
 
 import { BASE_URL } from '../index';
-import { type Language } from '../data/language';
+import { type LanguageId, type Language } from '../data/language';
 import { type Page } from 'playwright';
 import { dialogHandler } from '../utils/handlers';
 
 export async function createLanguage(
   page: Page,
   language: Language
-): Promise<void> {
+): Promise<Language> {
   await page.goto(BASE_URL + '/admin/language.php');
   await page.locator("input[name='langnumber']").fill(language.id);
   await page.locator("input[name='langname']").fill(language.name);
@@ -37,22 +37,44 @@ export async function createLanguage(
   await page.locator("input[name='Submit3']").click();
 
   page.removeListener('dialog', dialogHandler);
+
+  return getLanguage(page, language);
 }
 
 export async function deleteLanguage(
   page: Page,
-  languageName: string
+  language: LanguageId
 ): Promise<void> {
   await page.goto(BASE_URL + '/admin/language.php');
 
+  const loc = language.id ? 'td:nth-of-type(1)' : 'td:nth-of-type(2)';
+
+  const row = await page.locator('table:nth-of-type(3) > tbody > tr', {
+    has: page.locator(loc, { hasText: language.id ?? language.name })
+  });
+
   page.on('dialog', dialogHandler);
 
-  const el = page.locator('td:nth-of-type(2)', { hasText: languageName });
-
-  await page
-    .locator('table:nth-of-type(3) > tbody > tr', { has: el })
-    .locator('td:nth-of-type(1) a')
-    .click();
+  await row.locator('td:nth-of-type(1) a').click();
 
   page.removeListener('dialog', dialogHandler);
+}
+
+export async function getLanguage(
+  page: Page,
+  language: LanguageId
+): Promise<Language> {
+  await page.goto(BASE_URL + '/admin/language.php');
+
+  const loc = language.id ? 'td:nth-of-type(1)' : 'td:nth-of-type(2)';
+
+  const row = await page.locator('table:nth-of-type(3) > tbody > tr', {
+    has: page.locator(loc, { hasText: language.id ?? language.name })
+  });
+
+  return {
+    id: await row.locator('td:nth-of-type(1)').innerText(),
+    name: await row.locator('td:nth-of-type(2)').innerText(),
+    extension: await row.locator('td:nth-of-type(3)').innerText()
+  };
 }

@@ -1,6 +1,7 @@
 {
     "config": {
-      "url": "localhost:8000/boca"
+      "url": "localhost:8000/boca",
+      "resultFilePath": "./resources/result.json"
     },
     "login": {
       "username": "admin",

@@ -29,7 +29,7 @@ import {
 import { loginSchema } from './login';
 import { siteSchema } from './site';
 import { problemIdSchema, problemSchema } from './problem';
-import { deleteLanguageSchema, languageSchema } from './language';
+import { languageIdSchema, languageSchema } from './language';
 import { createContestSchema, updateContestSchema } from './contest';
 import { reportSchema } from './report';
 import { ContestErrors } from '../errors/read_errors';
@@ -142,7 +142,7 @@ export class Validate {
   deleteLanguage(): z.infer<typeof setupType> {
     const setupType = z.object({
       login: loginSchema,
-      language: deleteLanguageSchema
+      language: languageIdSchema
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;
