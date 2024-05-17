@@ -27,6 +27,7 @@ import { type TContestForm } from './data/contest';
 export class Output {
   private static instance: Output | null = null;
   result: string;
+  isActive: boolean = false;
 
   constructor() {
     this.result = '';

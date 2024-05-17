@@ -72,7 +72,8 @@ async function shouldCreateUser(setup: Setup): Promise<void> {
   await login(page, admin);
   await validate.checkLoginType(page, 'Admin');
   logger.logInfo('Creating user: %s', user.userName);
-  const form = await createUser(page, user, admin);
+  await createUser(page, user, admin);
+  const form = await getUser(page, user);
   await browser.close();
   logger.logInfo('User created with id: %s', form.userNumber);
   const output = Output.getInstance();
@@ -455,13 +456,17 @@ function main(): number {
   BASE_URL = setup.config.url;
   TIMEOUT = parseInt(timeout);
 
+  if (setup.config.resultFilePath) {
+    output.isActive = true;
+  }
+
   const func = methods[method];
   func(setup)
     .then(() => {
       logger.logInfo('Done!');
-      if (setup.config.resultFilePath) {
-        logger.logInfo('Output file: %s', setup.config.resultFilePath);
-        output.writeFile(setup.config.resultFilePath);
+      if (output.isActive) {
+        logger.logInfo('Output file: %s', setup.config.resultFilePath!);
+        output.writeFile(setup.config.resultFilePath!);
       }
     })
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
