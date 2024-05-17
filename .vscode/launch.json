@@ -18,9 +18,8 @@
             ],
             "args": [
                 "-v",
-                "-l",
-                "-p", "resources/mocks/create_contest.json",
-                "-m", "createContest"
+                "-p", "resources/mocks/create_user.json",
+                "-m", "createUser",
             ],
             "outputCapture": "std"
         }

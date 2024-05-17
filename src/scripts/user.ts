@@ -85,11 +85,10 @@ export async function createUser(
   page: Page,
   user: User,
   admin: Login
-): Promise<User> {
+): Promise<void> {
   await fillUser(page, user, admin);
   page.once('dialog', dialogHandler);
   await page.getByRole('button', { name: 'Send' }).click();
-  return await getUser(page, user);
 }
 
 export async function deleteUser(
@@ -117,15 +116,16 @@ export async function deleteUser(
 }
 export async function getUser(page: Page, userId: UserId): Promise<User> {
   await page.goto(`${BASE_URL}/admin/user.php`);
-  const identifier =
-    userId.userName !== undefined ? userId.userName : userId.userNumber;
-  // eslint-disable-next-line no-useless-escape
-  const re = new RegExp(`^${identifier}[\(inactive\)]*$`);
+
   const loc =
-    userId.userName !== undefined ? 'td:nth-of-type(3)' : 'td:nth-of-type(1)';
-  const row = await page.locator('tr', {
-    has: page.locator(loc, { hasText: re })
-  });
+    userId.userName !== undefined
+      ? page.locator('td:nth-of-type(3)', { hasText: userId.userName })
+      : page.locator('td:nth-of-type(1)', {
+          // eslint-disable-next-line no-useless-escape
+          hasText: new RegExp(`^${userId.userNumber}[\(inactive\)]*$`)
+        });
+
+  const row = await page.locator('tr', { has: loc });
 
   await row.locator('td:nth-of-type(1) a').click();
 
