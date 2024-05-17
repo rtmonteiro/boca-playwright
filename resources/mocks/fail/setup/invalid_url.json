@@ -1,0 +1,9 @@
+{
+  "config": {
+    "url": "12345"
+  },
+  "login": {
+    "username": "system",
+    "password": "boca"
+  }
+}
