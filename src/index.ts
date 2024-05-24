@@ -440,16 +440,21 @@ function main(): number {
 
   try {
     fs.accessSync(path, fs.constants.R_OK);
+
+    if (!fs.existsSync(path)) {
+      logger.logError(ReadErrors.SETUP_NOT_FOUND);
+      process.exit(ExitErrors.INVALID_ARGUMENTS);
+    }
   } catch (e) {
     logger.logError(ReadErrors.SETUP_NOT_FOUND);
-    return 1;
+    process.exit(ExitErrors.INVALID_ARGUMENTS);
   }
   const setup = JSON.parse(fs.readFileSync(path, 'utf8')) as Setup;
   try {
     setupSchema.parse(setup);
   } catch (e) {
     if (e instanceof ZodError) logger.logZodError(e);
-    process.exit(ExitErrors.CONFIG_VALIDATION);
+    process.exit(ExitErrors.INVALID_CONFIG);
   } finally {
     logger.logInfo('Using setup file: %s', path);
   }
@@ -472,7 +477,7 @@ function main(): number {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     .catch((e) => {
       logger.logError(e);
-      process.exit(ExitErrors.CONFIG_VALIDATION);
+      process.exit(ExitErrors.INVALID_CONFIG);
     });
 
   return ExitErrors.OK;

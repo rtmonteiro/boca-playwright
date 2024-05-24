@@ -20,8 +20,8 @@
 
 export enum ExitErrors {
   OK = 0,
-  NOT_ENOUGH_ARGUMENTS = 1,
-  CONFIG_VALIDATION = 2,
+  INVALID_ARGUMENTS = 1,
+  INVALID_CONFIG = 2,
   CONTEST_NOT_EXIST = 101
 }
 
