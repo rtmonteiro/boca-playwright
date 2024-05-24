@@ -26,6 +26,8 @@ export type TCreateContest = z.infer<typeof createContestSchema>;
 
 export type TContestForm = z.infer<typeof contestFormSchema>;
 
+export type Contest = z.infer<typeof contestSchema>;
+
 export const contestSchema = z.object({
   id: z.string().refine((value) => parseInt(value) > 0, {
     message: 'Must be an positive integer number'
