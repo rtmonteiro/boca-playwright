@@ -162,9 +162,19 @@ async function checkContestExist(page: Page, id: string) {
 
 async function getContest(page: Page): Promise<TContestForm> {
   const contest: TContestForm = new ContestForm();
-  if (await page.locator('select[name="contest"]').isVisible()) {
-    contest.id = await page.locator('select[name="contest"]').inputValue();
+  // const contest: TContestForm = new ContestForm();
+  await page.locator('select[name="contest"]');
+  // // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
+  // Get url from page
+  const url = await page.url();
+  const contestNumber = new URL(url).searchParams.get('contest');
+  if (contestNumber) {
+    contest.id = contestNumber ? contestNumber : '';
   }
+  // if (await page.locator('select[name="contest"]').isVisible()) {
+  //   contest.id = await page.locator('select[name="contest"]').inputValue();
+  // }
   if (await page.locator('input[name="name"]').isVisible()) {
     contest.name = await page.locator('input[name="name"]').inputValue();
   }

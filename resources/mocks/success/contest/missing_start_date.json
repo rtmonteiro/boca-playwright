@@ -8,10 +8,10 @@
     "password": "boca"
   },
   "contest": {
-    "name": "2024/1 - INF15979 - BDI",
-    "endDate": "2024-07-20 23:59",
-    "stopAnsweringDate": "2024-07-20 23:44",
-    "stopScoreboardDate": "2024-07-20 22:59",
+    "name": "2054/1 - INF15979 - BDI",
+    "endDate": "2054-07-20 23:59",
+    "stopAnsweringDate": "2054-07-20 23:44",
+    "stopScoreboardDate": "2054-07-20 22:59",
     "penalty": "30",
     "maxFileSize": "1000",
     "mainSiteUrl": "localhost:8000/boca",

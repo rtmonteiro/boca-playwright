@@ -147,8 +147,8 @@ export class Validate {
     page: Page,
     type: User['userType'] | 'System'
   ): Promise<void> {
-    // Wait for navigation
-    await page.waitForEvent('load');
+    // Wait for load state
+    await page.waitForLoadState('domcontentloaded');
     // Get url from page
     const url = await page.url();
     // Get the type from the url

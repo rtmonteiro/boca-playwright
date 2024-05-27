@@ -28,7 +28,8 @@ export enum ExitErrors {
 export enum ReadErrors {
   SETUP_NOT_FOUND = 'Setup file not found',
   SETUP_INVALID = 'Setup file is invalid',
-  RESULT_FILE_NOT_FOUND = 'Result file not found'
+  RESULT_FILE_NOT_FOUND = 'Result file not found',
+  RESULT_FILE_INVALID = 'Result file is invalid'
 }
 
 export enum ProblemErrors {

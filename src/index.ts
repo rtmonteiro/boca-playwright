@@ -47,7 +47,7 @@ import {
 
 const STEP_DURATION = 50;
 const HEADLESS = true;
-let TIMEOUT = 30000;
+let TIMEOUT = 10000;
 export let BASE_URL = 'http://localhost:8000/boca';
 
 //#region User
@@ -172,13 +172,18 @@ async function shouldCreateContest(setup: Setup): Promise<void> {
     headless: HEADLESS,
     slowMo: STEP_DURATION
   });
-  const page = await browser.newPage();
+  // Create a new incognito browser context
+  const context = await browser.newContext();
+  // Create a new page inside context.
+  const page = await context.newPage();
   page.setDefaultTimeout(TIMEOUT);
   logger.logInfo('Logging in with system user: %s', system.username);
   await login(page, system);
   await validate.checkLoginType(page, 'System');
   logger.logInfo('Creating contest');
   const form = await createContest(page, contest);
+  // Dispose context once it's no longer needed.
+  await context.close();
   await browser.close();
   logger.logInfo('Contest created with id: %s', form.id);
   const output = Output.getInstance();
@@ -462,6 +467,13 @@ function main(): number {
   TIMEOUT = parseInt(timeout);
 
   if (setup.config.resultFilePath) {
+    try {
+      fs.accessSync(setup.config.resultFilePath, fs.constants.R_OK);
+    } catch (e) {
+      logger.logError(ReadErrors.RESULT_FILE_INVALID);
+      process.exit(ExitErrors.INVALID_CONFIG);
+    }
+
     output.isActive = true;
   }
 
