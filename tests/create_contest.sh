@@ -25,11 +25,17 @@ export RET_INVALID_CONFIG=2
 
 # It will be called before each test is run.
 setUp() {
+  [ -f "./result.json" ] && rm "./result.json"
   return 0
 }
 
 # It will be called after each test completes.
 tearDown() {
+  return 0
+}
+
+oneTimeTearDown() {
+  [ -f "./result.json" ] && rm "./result.json"
   return 0
 }
 
@@ -292,6 +298,24 @@ testCreateContestInvalidLocalSiteNumber() {
   assertEquals $RET_INVALID_CONFIG $ret_code
 }
 
+testCreateContestIncorrectEndDate() {
+  config_file="resources/mocks/success/contest/incorrect_end_date.json"
+  field="endDate"
+  testCreateValidContest $config_file $field
+}
+
+testCreateContestIncorrectStopAnsweringDate() {
+  config_file="resources/mocks/success/contest/incorrect_stop_answering_date.json"
+  field="stopAnsweringDate"
+  testCreateValidContest $config_file $field
+}
+
+testCreateContestIncorrectStopScoreboardDate() {
+  config_file="resources/mocks/success/contest/incorrect_stop_scoreboard_date.json"
+  field="stopScoreboardDate"
+  testCreateValidContest $config_file $field
+}
+
 testCreateValidContest() {
   if [ -n "$1" ];
   then
@@ -316,11 +340,12 @@ testCreateValidContest() {
   assertEquals $RET_SUCCESS $ret_code
 
   # Check if the contest was created according to the configuration file
-  jsonIn=$(jq -S '.contest' "../${config_file}")
   if [ -n "$2" ];
   then
+    jsonIn=$(jq -S --arg f "$2" '.contest | del(.[$f])' "../${config_file}")
     jsonOut=$(jq -S --arg f "$2" 'del(.id, .[$f])' "../${file_path}")
   else
+    jsonIn=$(jq -S '.contest' "../${config_file}")
     jsonOut=$(jq -S 'del(.id)' "../${file_path}")
   fi
   [ "$jsonIn" = "$jsonOut" ]

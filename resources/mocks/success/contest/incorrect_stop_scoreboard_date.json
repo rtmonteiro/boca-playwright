@@ -1,0 +1,22 @@
+{
+  "config": {
+    "url": "localhost:8000/boca",
+    "resultFilePath": "./tests/result.json"
+  },
+  "login": {
+    "username": "system",
+    "password": "boca"
+  },
+  "contest": {
+    "name": "Topcom 21",
+    "startDate": "2024-06-08 14:00",
+    "endDate": "2024-06-08 19:00",
+    "stopAnsweringDate": "2024-06-08 18:45",
+    "stopScoreboardDate": "2025-06-08 18:00",
+    "penalty": "20",
+    "maxFileSize": "100",
+    "mainSiteUrl": "localhost:8000/boca",
+    "mainSiteNumber": "1",
+    "localSiteNumber": "1"
+  }
+}

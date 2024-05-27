@@ -20,6 +20,7 @@
 
 import { Option, program } from 'commander';
 import * as fs from 'fs';
+import * as npath from 'path';
 import { chromium } from 'playwright';
 import { ZodError } from 'zod';
 import { type TCreateContest, type TUpdateContest } from './data/contest';
@@ -444,12 +445,12 @@ function main(): number {
   const output = Output.getInstance();
 
   try {
-    fs.accessSync(path, fs.constants.R_OK);
-
     if (!fs.existsSync(path)) {
       logger.logError(ReadErrors.SETUP_NOT_FOUND);
       process.exit(ExitErrors.INVALID_ARGUMENTS);
     }
+
+    fs.accessSync(path, fs.constants.R_OK);
   } catch (e) {
     logger.logError(ReadErrors.SETUP_NOT_FOUND);
     process.exit(ExitErrors.INVALID_ARGUMENTS);
@@ -468,7 +469,9 @@ function main(): number {
 
   if (setup.config.resultFilePath) {
     try {
-      fs.accessSync(setup.config.resultFilePath, fs.constants.R_OK);
+      const resultFile = setup.config.resultFilePath;
+      // Check if directory is writable
+      fs.accessSync(npath.dirname(resultFile), fs.constants.W_OK);
     } catch (e) {
       logger.logError(ReadErrors.RESULT_FILE_INVALID);
       process.exit(ExitErrors.INVALID_CONFIG);
