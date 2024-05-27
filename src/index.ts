@@ -23,7 +23,7 @@ import * as fs from 'fs';
 import { chromium } from 'playwright';
 import { exit } from 'process';
 import { ZodError } from 'zod';
-import { type TCreateContest, type TUpdateContest } from './data/contest';
+import { type CreateContest, type UpdateContest } from './data/contest';
 import { type Login } from './data/login';
 import { type Problem } from './data/problem';
 import { setupSchema, type Setup } from './data/setup';
@@ -166,7 +166,7 @@ async function shouldCreateContest(setup: Setup): Promise<void> {
   const validate = new Validate(setup);
   const setupValidated = validate.createContest();
   const system: Login = setupValidated.login;
-  const contest: TCreateContest | undefined = setupValidated.contest;
+  const contest: CreateContest | undefined = setupValidated.contest;
 
   // create contest
   const browser = await chromium.launch({
@@ -195,7 +195,7 @@ async function shouldUpdateContest(setup: Setup): Promise<void> {
   const validate = new Validate(setup);
   const setupValidated = validate.updateContest();
   const system: Login = setupValidated.login;
-  const contest: TUpdateContest = setupValidated.contest;
+  const contest: UpdateContest = setupValidated.contest;
 
   // create contest
   const browser = await chromium.launch({
