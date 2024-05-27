@@ -20,7 +20,7 @@
 
 import * as fs from 'fs';
 import { z } from 'zod';
-import { ProblemErrors } from '../errors/read_errors';
+import { ProblemMessages } from '../errors/read_errors';
 
 export type Problem = z.infer<typeof problemSchema>;
 
@@ -33,7 +33,7 @@ export const problemSchema = z.object({
     .string()
     .refine(
       (path) => path.endsWith('.zip'),
-      ProblemErrors.INVALID_FILE_EXTENSION
+      ProblemMessages.INVALID_FILE_EXTENSION
     )
     .refine((path) => {
       // Check if the file exists with fs.accessSync
@@ -43,13 +43,13 @@ export const problemSchema = z.object({
       } catch {
         return false;
       }
-    }, ProblemErrors.FILE_NOT_FOUND),
+    }, ProblemMessages.FILE_NOT_FOUND),
   colorName: z.string().optional(),
   colorCode: z
     .string()
     .refine(
       (value) => /^([0-9a-f]{3}){1,2}([0-9a-f]{2})?$/i.test(value),
-      ProblemErrors.INVALID_COLOR_CODE
+      ProblemMessages.INVALID_COLOR_CODE
     )
     .optional()
 });
@@ -59,5 +59,5 @@ export const problemIdSchema = problemSchema
   .partial()
   .refine(
     (problem) => problem.id === undefined || problem.name === undefined,
-    'Only one of id or name should be provided.'
+    ProblemMessages.ONLY_ID_OR_NAME_REQUIRED
   );

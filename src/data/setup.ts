@@ -19,6 +19,7 @@
 // ========================================================================
 
 import { z } from 'zod';
+import * as fs from 'fs';
 import { insertUsersSchema, userSchema } from './user';
 import { loginSchema } from './login';
 import { contestSchema } from './contest';
@@ -26,15 +27,34 @@ import { siteSchema } from './site';
 import { languageSchema } from './language';
 import { problemSchema } from './problem';
 import { reportSchema } from './report';
+import { Output } from '../output';
+import { ReadMessages } from '../errors/read_errors';
 
 export type Setup = z.infer<typeof setupSchema>;
+
+const resultSchema = z
+  .string()
+  .optional()
+  .refine((path) => {
+    if (!path) return true;
+    const output = Output.getInstance();
+    // Check if the file exists with fs.accessSync
+    try {
+      fs.accessSync(path, fs.constants.W_OK);
+      return true;
+    } catch {
+      return false;
+    } finally {
+      output.isActive = true;
+    }
+  }, ReadMessages.FORBIDDEN_PATH);
 
 export const setupSchema = z.object({
   config: z
     .object({
       url: z.string().url(),
       userPath: z.string().optional(),
-      resultFilePath: z.string().optional()
+      resultFilePath: resultSchema
     })
     .merge(reportSchema.partial())
     .merge(insertUsersSchema.partial()),

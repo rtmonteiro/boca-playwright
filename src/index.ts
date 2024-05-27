@@ -21,6 +21,7 @@
 import { Option, program } from 'commander';
 import * as fs from 'fs';
 import { chromium } from 'playwright';
+import { exit } from 'process';
 import { ZodError } from 'zod';
 import { type TCreateContest, type TUpdateContest } from './data/contest';
 import { type Login } from './data/login';
@@ -29,7 +30,7 @@ import { setupSchema, type Setup } from './data/setup';
 import { type Site } from './data/site';
 import { type User } from './data/user';
 import { Validate } from './data/validate';
-import { ExitErrors, ReadErrors } from './errors/read_errors';
+import { ExitErrors, ReadMessages } from './errors/read_errors';
 import { Logger } from './logger';
 import { Output } from './output';
 import { createContest, getContest, updateContest } from './scripts/contest';
@@ -466,27 +467,21 @@ function main(): number {
   const logger = Logger.getInstance(verbose);
   const output = Output.getInstance();
 
-  try {
-    fs.accessSync(path, fs.constants.R_OK);
-  } catch (e) {
-    logger.logError(ReadErrors.SETUP_NOT_FOUND);
-    return 1;
+  if (!fs.existsSync(path)) {
+    logger.logError(ReadMessages.SETUP_NOT_FOUND);
+    exit(ExitErrors.CONFIG_VALIDATION);
   }
   const setup = JSON.parse(fs.readFileSync(path, 'utf8')) as Setup;
   try {
     setupSchema.parse(setup);
   } catch (e) {
     if (e instanceof ZodError) logger.logZodError(e);
-    process.exit(ExitErrors.CONFIG_VALIDATION);
+    exit(ExitErrors.CONFIG_VALIDATION);
   } finally {
     logger.logInfo('Using setup file: %s', path);
   }
   BASE_URL = setup.config.url;
   TIMEOUT = parseInt(timeout);
-
-  if (setup.config.resultFilePath) {
-    output.isActive = true;
-  }
 
   const func = methods[method];
   func(setup)
@@ -499,8 +494,13 @@ function main(): number {
     })
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     .catch((e) => {
+      // OBS instanceof ErrorBase didn't work
+      if (e['code'] !== undefined) {
+        logger.logErrorBase(e);
+        exit(e.code);
+      }
       logger.logError(e);
-      process.exit(ExitErrors.CONFIG_VALIDATION);
+      exit(ExitErrors.CONFIG_VALIDATION);
     });
 
   return ExitErrors.OK;
