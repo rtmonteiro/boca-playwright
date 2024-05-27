@@ -25,7 +25,11 @@ import { loginSchema } from './login';
 import { siteSchema } from './site';
 import { problemIdSchema, problemSchema } from './problem';
 import { languageIdSchema, languageSchema } from './language';
-import { createContestSchema, updateContestSchema } from './contest';
+import {
+  contestSchema,
+  createContestSchema,
+  updateContestSchema
+} from './contest';
 import { reportSchema } from './report';
 import {
   ContestMessages,
@@ -61,6 +65,15 @@ export class Validate {
               .every(([, v]) => v === undefined),
           ContestMessages.ONE_FIELD_REQUIRED
         )
+    });
+    setupType.parse(this.setup);
+    return this.setup as z.infer<typeof setupType>;
+  }
+
+  getContest(): z.infer<typeof setupType> {
+    const setupType = z.object({
+      login: loginSchema,
+      contest: contestSchema.pick({ id: true })
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;

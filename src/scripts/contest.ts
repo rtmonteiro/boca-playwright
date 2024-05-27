@@ -26,7 +26,8 @@ import {
   type TCreateContest,
   type TUpdateContest,
   type TContestForm,
-  ContestForm
+  ContestForm,
+  Contest
 } from '../data/contest';
 import { dialogHandler } from '../utils/handlers';
 import { ContestError, ContestMessages } from '../errors/read_errors';
@@ -37,14 +38,14 @@ export async function createContest(
 ): Promise<TContestForm> {
   await page.goto(BASE_URL + '/system/');
   await page.getByRole('link', { name: 'Contest' }).click();
-  await selectContest(page, contest);
+  await selectContest(page, undefined);
 
   if (contest !== undefined) {
     await fillContest(page, contest);
   }
   page.once('dialog', dialogHandler);
   await page.getByRole('button', { name: 'Send' }).click();
-  return await getContest(page);
+  return await getContestForm(page);
 }
 
 export async function updateContest(
@@ -53,13 +54,22 @@ export async function updateContest(
 ): Promise<TContestForm> {
   await page.goto(BASE_URL + '/system/');
   await page.getByRole('link', { name: 'Contest' }).click();
-  await selectContest(page, contest);
+  await selectContest(page, contest.id);
 
   await fillContest(page, contest);
 
   page.once('dialog', dialogHandler);
   await page.getByRole('button', { name: 'Send' }).click();
-  return await getContest(page);
+  return await getContestForm(page);
+}
+
+export async function getContest(
+  page: Page,
+  contestId: Contest['id']
+): Promise<TContestForm> {
+  await page.goto(BASE_URL + '/system/contest.php');
+  await selectContest(page, contestId);
+  return await getContestForm(page);
 }
 
 async function fillContest(page: Page, contest: TUpdateContest): Promise<void> {
@@ -140,11 +150,11 @@ async function fillContest(page: Page, contest: TUpdateContest): Promise<void> {
 
 async function selectContest(
   page: Page,
-  contest: TUpdateContest | undefined
+  id: TUpdateContest['id'] | undefined
 ): Promise<void> {
-  if (contest?.id !== undefined) {
-    await checkContestExist(page, contest.id);
-    await page.locator('select[name="contest"]').selectOption(contest.id);
+  if (id !== undefined) {
+    await checkContestExist(page, id);
+    await page.locator('select[name="contest"]').selectOption(id);
   } else {
     await page.locator('select[name="contest"]').selectOption('new');
   }
@@ -163,7 +173,7 @@ async function checkContestExist(page: Page, id: string) {
   }
 }
 
-async function getContest(page: Page): Promise<TContestForm> {
+async function getContestForm(page: Page): Promise<TContestForm> {
   const contest: TContestForm = new ContestForm();
   if (await page.locator('select[name="contest"]').isVisible()) {
     contest.id = await page.locator('select[name="contest"]').inputValue();
