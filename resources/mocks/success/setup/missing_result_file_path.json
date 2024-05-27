@@ -7,6 +7,7 @@
     "password": "boca"
   },
   "contest": {
+    "id": "1",
     "name": "2024/1 - INF15979 - BDI",
     "startDate": "2024-03-14 13:00",
     "endDate": "2024-07-20 23:59",
@@ -15,7 +16,7 @@
     "penalty": "30",
     "maxFileSize": "1000",
     "mainSiteUrl": "localhost:8000/boca",
-    "mainSiteNumber": "2",
-    "localSiteNumber": "3"
+    "mainSiteNumber": "1",
+    "localSiteNumber": "1"
   }
 }

@@ -8,6 +8,7 @@
     "password": "boca"
   },
   "contest": {
+    "id": "1",
     "name": "Topcom 21",
     "startDate": "2024-06-08 14:00",
     "endDate": "2023-06-08 19:00",

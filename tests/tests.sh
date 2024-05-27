@@ -24,3 +24,5 @@ npm run build
 # Contest
 # ./create_contest.sh -- testCreateContestInvalidResultFilePath
 ./create_contest.sh
+# a contest of id 1 must exist
+./update_contest.sh

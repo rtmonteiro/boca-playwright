@@ -207,12 +207,17 @@ async function shouldUpdateContest(setup: Setup): Promise<void> {
     headless: HEADLESS,
     slowMo: STEP_DURATION
   });
-  const page = await browser.newPage();
+  // Create a new incognito browser context
+  const context = await browser.newContext();
+  // Create a new page inside context.
+  const page = await context.newPage();
   page.setDefaultTimeout(TIMEOUT);
   logger.logInfo('Logging in with system user: %s', system.username);
   await login(page, system);
   await validate.checkLoginType(page, 'System');
   const form = await updateContest(page, contest);
+  // Dispose context once it's no longer needed.
+  await context.close();
   await browser.close();
   logger.logInfo('Contest updated with id: %s', form.id);
   const output = Output.getInstance();
