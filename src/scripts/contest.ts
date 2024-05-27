@@ -29,6 +29,7 @@ import {
   ContestForm
 } from '../data/contest';
 import { dialogHandler } from '../utils/handlers';
+import { ContestError, ContestMessages } from '../errors/read_errors';
 
 export async function createContest(
   page: Page,
@@ -90,6 +91,8 @@ async function fillContest(page: Page, contest: TUpdateContest): Promise<void> {
     if (contest.endDate !== undefined) {
       const endDate = DateTime.fromFormat(contest.endDate, 'yyyy-MM-dd HH:mm');
       const duration = defineDuration(startDate, endDate);
+      if (!duration.isValid)
+        throw new ContestError(ContestMessages.NEGATIVE_DURATION);
       await page
         .locator('input[name="duration"]')
         .fill(duration.minutes.toString());
@@ -156,7 +159,7 @@ async function checkContestExist(page: Page, id: string) {
   const hasIdInOption = options.some((option) => option?.match(`^${id}\\*?$`));
 
   if (!hasIdInOption) {
-    throw new Error('Contest not found');
+    throw new ContestError(ContestMessages.NOT_FOUND);
   }
 }
 

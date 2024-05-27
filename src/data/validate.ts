@@ -27,7 +27,11 @@ import { problemIdSchema, problemSchema } from './problem';
 import { languageIdSchema, languageSchema } from './language';
 import { createContestSchema, updateContestSchema } from './contest';
 import { reportSchema } from './report';
-import { ContestErrors } from '../errors/read_errors';
+import {
+  ContestMessages,
+  LoginError,
+  LoginMessages
+} from '../errors/read_errors';
 import { type Page } from 'playwright';
 
 export class Validate {
@@ -48,14 +52,14 @@ export class Validate {
       contest: updateContestSchema
         .refine(
           (contest) => contest.id !== undefined,
-          ContestErrors.CONTEST_ID_REQUIRED
+          ContestMessages.CONTEST_ID_REQUIRED
         )
         .refine(
           (contest) =>
             !Object.entries(contest)
               .filter(([k]) => k !== 'id')
               .every(([, v]) => v === undefined),
-          ContestErrors.ONE_FIELD_REQUIRED
+          ContestMessages.ONE_FIELD_REQUIRED
         )
     });
     setupType.parse(this.setup);
@@ -153,8 +157,9 @@ export class Validate {
     const typeUrl = url.split('/').at(-2) as unknown as User['userType'];
     // Compare the types
     if (type.toLocaleLowerCase() !== typeUrl) {
-      throw new Error(
-        `Expected type ${type} but got ${typeUrl}. Are you logged in?`
+      throw new LoginError(
+        LoginMessages.INVALID_TYPE,
+        `Expected type ${type} but got ${typeUrl}`
       );
     }
   }
