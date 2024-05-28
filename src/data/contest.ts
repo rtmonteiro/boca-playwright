@@ -45,7 +45,8 @@ export const contestSchema = z.object({
   }),
   localSiteNumber: z.string().refine((value) => parseInt(value), {
     message: 'Must be an positive integer number'
-  })
+  }),
+  isActive: z.boolean().nullish()
 });
 
 export const updateContestSchema = contestSchema.partial();

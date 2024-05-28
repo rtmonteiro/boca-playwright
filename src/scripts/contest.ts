@@ -208,6 +208,9 @@ async function getContestForm(page: Page): Promise<Contest> {
   const contest: Contest = {} as Contest;
   if (await page.locator('select[name="contest"]').isVisible()) {
     contest.id = await page.locator('select[name="contest"]').inputValue();
+    contest.isActive = (
+      await page.locator('option[selected]').innerText()
+    ).endsWith('*');
   }
   if (await page.locator('input[name="name"]').isVisible()) {
     contest.name = await page.locator('input[name="name"]').inputValue();
