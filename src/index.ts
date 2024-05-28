@@ -239,12 +239,17 @@ async function shouldGetContest(setup: Setup): Promise<void> {
     headless: HEADLESS,
     slowMo: STEP_DURATION
   });
-  const page = await browser.newPage();
+  // Create a new incognito browser context
+  const context = await browser.newContext();
+  // Create a new page inside context.
+  const page = await context.newPage();
   page.setDefaultTimeout(TIMEOUT);
   logger.logInfo('Logging in with admin user: %s', admin.username);
   await login(page, admin);
   await validate.checkLoginType(page, 'System');
   const form = await getContest(page, contest.id);
+  // Dispose context once it's no longer needed.
+  await context.close();
   await browser.close();
   logger.logInfo('Contest found with name: %s', form.name);
   const output = Output.getInstance();
