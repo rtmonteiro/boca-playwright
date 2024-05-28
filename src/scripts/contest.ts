@@ -29,6 +29,8 @@ import {
 } from '../data/contest';
 import { dialogHandler } from '../utils/handlers';
 import { ContestError, ContestMessages } from '../errors/read_errors';
+import { login } from './user';
+import { Login } from '../data/login';
 
 export async function createContest(
   page: Page,
@@ -95,12 +97,19 @@ export async function getContests(page: Page): Promise<Contest[]> {
 
 export async function activateContest(
   page: Page,
-  contestId: Contest['id']
+  contestId: Contest['id'],
+  user: Login
 ): Promise<Contest> {
   await page.goto(BASE_URL + '/system/contest.php');
   await selectContest(page, contestId);
+
+  page.on('dialog', dialogHandler);
   await page.getByRole('button', { name: 'Activate' }).click();
-  return await getContestForm(page);
+  page.removeListener('dialog', dialogHandler);
+
+  // Because the activation of a contest logs out the user
+  await login(page, user);
+  return await getContest(page, contestId);
 }
 
 async function fillContest(page: Page, contest: UpdateContest): Promise<void> {

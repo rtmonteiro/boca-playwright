@@ -293,7 +293,7 @@ async function shouldActivateContest(setup: Setup): Promise<void> {
   logger.logInfo('Logging in with system user: %s', system.username);
   await login(page, system);
   await validate.checkLoginType(page, 'System');
-  const form = await activateContest(page, contest.id);
+  const form = await activateContest(page, contest.id, system);
   await browser.close();
   logger.logInfo('Contest activated with id: %s', form.id);
   const output = Output.getInstance();
