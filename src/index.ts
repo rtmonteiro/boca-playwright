@@ -378,11 +378,16 @@ async function shouldCreateLanguage(setup: Setup): Promise<void> {
     headless: HEADLESS,
     slowMo: STEP_DURATION
   });
-  const page = await browser.newPage();
+  // Create a new incognito browser context
+  const context = await browser.newContext();
+  // Create a new page inside context.
+  const page = await context.newPage();
   page.setDefaultTimeout(TIMEOUT);
   await login(page, admin);
   await validate.checkLoginType(page, 'Admin');
   const form = await createLanguage(page, language);
+  // Dispose context once it's no longer needed.
+  await context.close();
   await browser.close();
   logger.logInfo('Language created with id: %s', form.id);
   const output = Output.getInstance();

@@ -19,5 +19,10 @@
     "mainSiteUrl": "localhost:8000/boca",
     "mainSiteNumber": "1",
     "localSiteNumber": "1"
+  },
+  "language": {
+      "id": "11",
+      "name": "RelationalAlgebra",
+      "extension": "relax"
   }
 }

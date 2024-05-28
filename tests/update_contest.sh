@@ -74,14 +74,14 @@ testUpdateContestMissingConfigData() {
 }
 
 testUpdateContestMissingBocaUrl() {
-  config_file="resources/mocks/fail/setup/missing_config.json"
+  config_file="resources/mocks/fail/setup/missing_url.json"
   npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1;
   ret_code=$?
   assertEquals $RET_INVALID_CONFIG $ret_code
 }
 
 testUpdateContestMissingResultFilePath() {
-  config_file="resources/mocks/success/setup/missing_result_file_path.json"
+  config_file="resources/mocks/success/setup/missing_result_file_path_system.json"
   npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1;
   ret_code=$?
   assertEquals $RET_SUCCESS $ret_code
@@ -95,7 +95,7 @@ testUpdateContestInvalidBocaUrl() {
 }
 
 testUpdateContestInvalidResultFilePath() {
-  config_file="resources/mocks/success/setup/invalid_result_file_path.json"
+  config_file="resources/mocks/fail/setup/invalid_result_file_path.json"
   npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1;
   ret_code=$?
   assertEquals $RET_INVALID_CONFIG $ret_code
