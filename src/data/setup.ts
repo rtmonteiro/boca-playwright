@@ -20,6 +20,7 @@
 
 import { z } from 'zod';
 import * as fs from 'fs';
+import * as path from 'path';
 import { insertUsersSchema, userSchema } from './user';
 import { loginSchema } from './login';
 import { contestSchema } from './contest';
@@ -35,12 +36,13 @@ export type Setup = z.infer<typeof setupSchema>;
 const resultSchema = z
   .string()
   .optional()
-  .refine((path) => {
-    if (!path) return true;
+  .refine((filePath) => {
+    if (!filePath) return true;
     const output = Output.getInstance();
-    // Check if the file exists with fs.accessSync
+    const dirPath = path.dirname(filePath);
+    // Check if the path to file is writeble with fs.accessSync
     try {
-      fs.accessSync(path, fs.constants.W_OK);
+      fs.accessSync(dirPath, fs.constants.W_OK);
       return true;
     } catch {
       return false;

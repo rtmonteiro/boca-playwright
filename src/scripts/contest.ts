@@ -29,6 +29,8 @@ import {
 } from '../data/contest';
 import { dialogHandler } from '../utils/handlers';
 import { ContestError, ContestMessages } from '../errors/read_errors';
+import { login } from './user';
+import { Login } from '../data/login';
 
 export async function createContest(
   page: Page,
@@ -68,6 +70,46 @@ export async function getContest(
   await page.goto(BASE_URL + '/system/contest.php');
   await selectContest(page, contestId);
   return await getContestForm(page);
+}
+
+export async function getContests(page: Page): Promise<Contest[]> {
+  await page.goto(BASE_URL + '/system/contest.php');
+  const optionEls = await page.locator('select[name="contest"] option').all();
+  const options = await Promise.all(
+    optionEls.map(async (el) => el.textContent())
+  ).then((options) =>
+    // Remove the first option (empty) and the last option (new)
+    options.filter((option) => option !== 'new' && option !== '0')
+  );
+
+  if (options.some((option) => option === null) || options.length === 2) {
+    throw new ContestError(ContestMessages.NOT_FOUND);
+  }
+
+  const contests: Contest[] = [];
+  for (const option of options) {
+    await page.goto(BASE_URL + '/system/contest.php');
+    await selectContest(page, option!);
+    contests.push(await getContestForm(page));
+  }
+  return contests;
+}
+
+export async function activateContest(
+  page: Page,
+  contestId: Contest['id'],
+  user: Login
+): Promise<Contest> {
+  await page.goto(BASE_URL + '/system/contest.php');
+  await selectContest(page, contestId);
+
+  page.on('dialog', dialogHandler);
+  await page.getByRole('button', { name: 'Activate' }).click();
+  page.removeListener('dialog', dialogHandler);
+
+  // Because the activation of a contest logs out the user
+  await login(page, user);
+  return await getContest(page, contestId);
 }
 
 async function fillContest(page: Page, contest: UpdateContest): Promise<void> {
@@ -174,7 +216,12 @@ async function checkContestExist(page: Page, id: string) {
 async function getContestForm(page: Page): Promise<Contest> {
   const contest: Contest = {} as Contest;
   if (await page.locator('select[name="contest"]').isVisible()) {
-    contest.id = await page.locator('select[name="contest"]').inputValue();
+    contest.id = (await page
+      .locator('option[selected]')
+      .getAttribute('value')) as string;
+    contest.isActive = (
+      await page.locator('option[selected]').innerText()
+    ).endsWith('*');
   }
   if (await page.locator('input[name="name"]').isVisible()) {
     contest.name = await page.locator('input[name="name"]').inputValue();

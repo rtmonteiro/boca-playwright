@@ -41,7 +41,7 @@ export class Output {
     return Output.instance;
   }
 
-  setResult(result: Contest | User | Problem | Language) {
+  setResult(result: Contest | Contest[] | User | Problem | Language) {
     this.result = JSON.stringify(result, null, 2);
   }
 

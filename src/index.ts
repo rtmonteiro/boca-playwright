@@ -33,7 +33,13 @@ import { Validate } from './data/validate';
 import { ExitErrors, ReadMessages } from './errors/read_errors';
 import { Logger } from './logger';
 import { Output } from './output';
-import { createContest, getContest, updateContest } from './scripts/contest';
+import {
+  activateContest,
+  createContest,
+  getContest,
+  getContests,
+  updateContest
+} from './scripts/contest';
 import { createLanguage, deleteLanguage } from './scripts/language';
 import { createProblem, deleteProblem, getProblem } from './scripts/problem';
 import { retrieveFiles } from './scripts/report';
@@ -222,7 +228,7 @@ async function shouldGetContest(setup: Setup): Promise<void> {
   // validate setup file with zod
   const validate = new Validate(setup);
   const setupValidated = validate.getContest();
-  const admin: Login = setupValidated.login;
+  const system: Login = setupValidated.login;
   const contest = setupValidated.contest;
 
   const browser = await chromium.launch({
@@ -231,12 +237,65 @@ async function shouldGetContest(setup: Setup): Promise<void> {
   });
   const page = await browser.newPage();
   page.setDefaultTimeout(TIMEOUT);
-  logger.logInfo('Logging in with admin user: %s', admin.username);
-  await login(page, admin);
+  logger.logInfo('Logging in with system user: %s', system.username);
+  await login(page, system);
   await validate.checkLoginType(page, 'System');
   const form = await getContest(page, contest.id);
   await browser.close();
   logger.logInfo('Contest found with name: %s', form.name);
+  const output = Output.getInstance();
+  output.setResult(form);
+}
+
+async function shouldGetContests(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Getting contests');
+
+  // validate setup file with zod
+  const validate = new Validate(setup);
+  const setupValidated = validate.getContests();
+  const system: Login = setupValidated.login;
+
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
+  const page = await browser.newPage();
+  page.setDefaultTimeout(TIMEOUT);
+  logger.logInfo('Logging in with system user: %s', system.username);
+  await login(page, system);
+  await validate.checkLoginType(page, 'System');
+  const form = await getContests(page);
+  await browser.close();
+  logger.logInfo('Found %s contests', form.length);
+  const output = Output.getInstance();
+  output.setResult(form);
+}
+
+async function shouldActivateContest(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Activating contest');
+
+  // validate setup file with zod
+  const validate = new Validate(setup);
+  const setupValidated = validate.getContest();
+  const system: Login = setupValidated.login;
+  const contest = setupValidated.contest;
+
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
+  const page = await browser.newPage();
+  page.setDefaultTimeout(TIMEOUT);
+  logger.logInfo('Logging in with system user: %s', system.username);
+  await login(page, system);
+  await validate.checkLoginType(page, 'System');
+  const form = await activateContest(page, contest.id, system);
+  await browser.close();
+  logger.logInfo('Contest activated with id: %s', form.id);
   const output = Output.getInstance();
   output.setResult(form);
 }
@@ -435,6 +494,8 @@ const methods: Record<string, (setup: Setup) => Promise<void>> = {
   createContest: shouldCreateContest,
   updateContest: shouldUpdateContest,
   getContest: shouldGetContest,
+  getContests: shouldGetContests,
+  activateContest: shouldActivateContest,
   // Sites
   createSite: shouldCreateSite,
   // Problems
