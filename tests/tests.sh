@@ -39,7 +39,7 @@ npm run build
 # Testing problem methods
 # Use -m updateProblem as an alternative alias for createProblem
 ./create_problem.sh
-# ./delete_problem.sh
+./delete_problem.sh
 # TODO
 # ./get_problem.sh
 # ./get_problems.sh
