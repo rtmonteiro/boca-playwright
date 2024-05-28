@@ -168,6 +168,13 @@ testUpdateContestMissingContestData() {
   assertEquals $RET_INVALID_CONFIG $ret_code
 }
 
+testUpdateContestMissingId() {
+  config_file="resources/mocks/fail/contest/missing_id.json"
+  npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1;
+  ret_code=$?
+  assertEquals $RET_INVALID_CONFIG $ret_code
+}
+
 testUpdateContestMissingName() {
   config_file="resources/mocks/success/contest/missing_name.json"
   field="name"
@@ -226,6 +233,13 @@ testUpdateContestMissingLocalSiteNumber() {
   config_file="resources/mocks/success/contest/missing_local_site_number.json"
   field="localSiteNumber"
   testUpdateValidContest $config_file $field
+}
+
+testUpdateContestInvalidId() {
+  config_file="resources/mocks/fail/contest/invalid_id.json"
+  npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1;
+  ret_code=$?
+  assertEquals $RET_INVALID_CONFIG $ret_code
 }
 
 testUpdateContestInvalidName() {
@@ -298,6 +312,13 @@ testUpdateContestInvalidLocalSiteNumber() {
   assertEquals $RET_INVALID_CONFIG $ret_code
 }
 
+testUpdateContestIncorrectId() {
+  config_file="resources/mocks/fail/contest/incorrect_id.json"
+  npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1;
+  ret_code=$?
+  assertEquals $RET_INVALID_CONFIG $ret_code
+}
+
 testUpdateContestIncorrectEndDate() {
   config_file="resources/mocks/success/contest/incorrect_end_date.json"
   field="endDate"
@@ -339,7 +360,7 @@ testUpdateValidContest() {
   ret_code=$?
   assertEquals $RET_SUCCESS $ret_code
 
-  # Check if the contest was created according to the configuration file
+  # Check if the contest was updated according to the configuration file
   if [ -n "$2" ];
   then
     jsonIn=$(jq -S --arg f "$2" '.contest | del(.[$f])' "../${config_file}")

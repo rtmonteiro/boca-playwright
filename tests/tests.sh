@@ -26,3 +26,4 @@ npm run build
 ./create_contest.sh
 # a contest of id 1 must exist
 ./update_contest.sh
+./get_contest.sh
