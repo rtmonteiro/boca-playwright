@@ -57,10 +57,7 @@ export async function deleteProblem(
 ): Promise<Problem> {
   await page.goto(BASE_URL + '/admin/problem.php');
 
-  const identifier =
-    problem.id !== undefined && problem.name == undefined
-      ? problem.id
-      : problem.name;
+  const identifier = problem.id;
   const re = new RegExp(`^${identifier}[\\(deleted\\)]*$`);
 
   const row = await page.locator('form[name=form0] > table > tbody > tr', {
@@ -84,10 +81,7 @@ export async function getProblem(
   await page.goto(BASE_URL + '/admin/problem.php');
   const problem = {} as Required<Problem>;
 
-  const identifier =
-    problemId.id !== undefined && problemId.name == undefined
-      ? problemId.id
-      : problemId.name;
+  const identifier = problemId.id;
   const re = new RegExp(`^${identifier}[\\(deleted\\)]*$`);
 
   const row = await page.locator('form[name=form0] > table > tbody > tr', {
@@ -98,7 +92,7 @@ export async function getProblem(
     .locator('td')
     .filter({ hasNot: page.locator('[for*="autojudge"], [id*="autojudge"]') }) // Filter out autojudge elements
     .all();
-  problem.id = parseInt(await columns[0].innerText());
+  problem.id = await columns[0].innerText();
   problem.name = await columns[1].innerText();
   problem.filePath = (await columns[5].innerText()).trim();
   problem.colorName = await columns[6]

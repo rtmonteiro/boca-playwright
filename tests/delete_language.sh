@@ -34,7 +34,7 @@ oneTimeSetup() {
 # It will be called before each test is run.
 setUp() {
   config_file="resources/mocks/success/language/valid_language.json"
-  npm run test:cli -- -p "${config_file}" >/dev/null 2>&1;
+  npm run test:cli -- -p "${config_file}" -m createLanguage >/dev/null 2>&1;
   [ -f "./result.json" ] && rm "./result.json"
   return 0
 }
@@ -207,7 +207,7 @@ testDeleteValidLanguage() {
     config_file="resources/mocks/success/language/valid_language.json"
   fi
 
-  npm run test:cli -- -p "${config_file}" -m deleteLanguage
+  npm run test:cli -- -p "${config_file}" -m deleteLanguage >/dev/null 2>&1;
   ret_code=$?
   assertEquals $RET_SUCCESS $ret_code
 }

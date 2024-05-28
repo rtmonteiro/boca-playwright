@@ -298,11 +298,16 @@ async function shouldCreateProblem(setup: Setup): Promise<void> {
     headless: HEADLESS,
     slowMo: STEP_DURATION
   });
-  const page = await browser.newPage();
+  // Create a new incognito browser context
+  const context = await browser.newContext();
+  // Create a new page inside context.
+  const page = await context.newPage();
   page.setDefaultTimeout(TIMEOUT);
   await login(page, admin);
   await validate.checkLoginType(page, 'Admin');
   const form = await createProblem(page, problem);
+  // Dispose context once it's no longer needed.
+  await context.close();
   await browser.close();
   logger.logInfo('Problem created with id: %s', form.id);
   const output = Output.getInstance();
@@ -324,11 +329,16 @@ async function shouldDeleteProblem(setup: Setup): Promise<void> {
     headless: HEADLESS,
     slowMo: STEP_DURATION
   });
-  const page = await browser.newPage();
+  // Create a new incognito browser context
+  const context = await browser.newContext();
+  // Create a new page inside context.
+  const page = await context.newPage();
   page.setDefaultTimeout(TIMEOUT);
   await login(page, admin);
   await validate.checkLoginType(page, 'Admin');
   const form = await deleteProblem(page, problem);
+  // Dispose context once it's no longer needed.
+  await context.close();
   await browser.close();
   logger.logInfo('Problem deleted with id: %s', form.id);
   const output = Output.getInstance();
@@ -350,11 +360,16 @@ async function shouldGetProblem(setup: Setup): Promise<void> {
     headless: HEADLESS,
     slowMo: STEP_DURATION
   });
-  const page = await browser.newPage();
+  // Create a new incognito browser context
+  const context = await browser.newContext();
+  // Create a new page inside context.
+  const page = await context.newPage();
   page.setDefaultTimeout(TIMEOUT);
   await login(page, admin);
   await validate.checkLoginType(page, 'Admin');
   const form = await getProblem(page, problem);
+  // Dispose context once it's no longer needed.
+  await context.close();
   await browser.close();
   logger.logInfo('Problem found with name: %s', form.name);
   const output = Output.getInstance();
@@ -409,11 +424,16 @@ async function shouldDeleteLanguage(setup: Setup): Promise<void> {
     headless: HEADLESS,
     slowMo: STEP_DURATION
   });
-  const page = await browser.newPage();
+  // Create a new incognito browser context
+  const context = await browser.newContext();
+  // Create a new page inside context.
+  const page = await context.newPage();
   page.setDefaultTimeout(TIMEOUT);
   await login(page, admin);
   await validate.checkLoginType(page, 'Admin');
   await deleteLanguage(page, language);
+  // Dispose context once it's no longer needed.
+  await context.close();
   await browser.close();
 }
 
@@ -461,10 +481,11 @@ const methods: Record<string, (setup: Setup) => Promise<void>> = {
   createProblem: shouldCreateProblem,
   deleteProblem: shouldDeleteProblem,
   getProblem: shouldGetProblem,
+  updateProblem: shouldCreateProblem,
   // Languages
   createLanguage: shouldCreateLanguage,
-  updateLanguage: shouldCreateLanguage,
   deleteLanguage: shouldDeleteLanguage,
+  updateLanguage: shouldCreateLanguage,
   // Reports
   generateReport: shouldGenerateReport
 };

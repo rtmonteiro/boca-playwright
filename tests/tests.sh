@@ -21,18 +21,25 @@
 
 npm run build
 
-# Contest methods
+# Testing contest methods
 ./create_contest.sh
-./update_contest.sh
 ./get_contest.sh
 # TODO
 # ./get_contests.sh
+./update_contest.sh
 
-# Language methods
+# Testing language methods
+# Use -m updateLanguage as an alternative alias for createLanguage
 ./create_language.sh
-# -m updateLanguage: an alternative alias for createLanguage
-# ./update_language.sh
 ./delete_language.sh
 # TODO
 # ./get_language.sh
 # ./get_languages.sh
+
+# Testing problem methods
+# Use -m updateProblem as an alternative alias for createProblem
+./create_problem.sh
+# ./delete_problem.sh
+# TODO
+# ./get_problem.sh
+# ./get_problems.sh

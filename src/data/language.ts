@@ -25,22 +25,16 @@ export type Language = z.infer<typeof languageSchema>;
 export type LanguageId = z.infer<typeof languageIdSchema>;
 
 export const languageSchema = z.object({
-  id: z.string(),
+  id: z.string().refine((value) => parseInt(value) > 0, {
+    message: 'Must be an positive integer number'
+  }),
   name: z.string(),
-  extension: z.string()
+  extension: z.string().optional()
 });
 
 export const languageIdSchema = languageSchema
   .pick({
-    id: true,
-    name: true
+    id: true
   })
   .partial()
-  .refine(
-    (language) => language.id === undefined || language.name === undefined,
-    'Only one of id or name should be provided.'
-  )
-  .refine(
-    (language) => language.id !== undefined || language.name !== undefined,
-    'At least one of id or name should be provided.'
-  );
+  .refine((language) => language.id !== undefined, 'Id should be provided.');

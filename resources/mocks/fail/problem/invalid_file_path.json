@@ -1,20 +1,16 @@
 {
   "config": {
-    "url": "localhost:8000/boca"
+    "url": "localhost:8000/boca",
+    "resultFilePath": "./tests/result.json"
   },
   "login": {
     "username": "admin",
     "password": "boca"
   },
-  "language": {
-    "id": "11",
-    "name": "Relational_Algebra",
-    "extension": "relax"
-  },
   "problem": {
     "id": "1001",
     "name": "L1_1",
-    "filePath": "resources/L1_1.zip",
+    "filePath": false,
     "colorName": "green",
     "colorCode": "00FF00"
   }

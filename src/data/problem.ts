@@ -27,7 +27,9 @@ export type Problem = z.infer<typeof problemSchema>;
 export type ProblemId = z.infer<typeof problemIdSchema>;
 
 export const problemSchema = z.object({
-  id: z.number(),
+  id: z.string().refine((value) => parseInt(value) > 0, {
+    message: 'Must be an positive integer number'
+  }),
   name: z.string(),
   filePath: z
     .string()
@@ -55,9 +57,9 @@ export const problemSchema = z.object({
 });
 
 export const problemIdSchema = problemSchema
-  .pick({ id: true, name: true })
+  .pick({ id: true })
   .partial()
   .refine(
-    (problem) => problem.id === undefined || problem.name === undefined,
-    'Only one of id or name should be provided.'
+    (problem) => problem.id !== undefined,
+    'Id or name should be provided.'
   );
