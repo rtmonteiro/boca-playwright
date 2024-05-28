@@ -93,6 +93,16 @@ export async function getContests(page: Page): Promise<Contest[]> {
   return contests;
 }
 
+export async function activateContest(
+  page: Page,
+  contestId: Contest['id']
+): Promise<Contest> {
+  await page.goto(BASE_URL + '/system/contest.php');
+  await selectContest(page, contestId);
+  await page.getByRole('button', { name: 'Activate' }).click();
+  return await getContestForm(page);
+}
+
 async function fillContest(page: Page, contest: UpdateContest): Promise<void> {
   if (contest.name !== undefined) {
     await page.locator('input[name="name"]').fill(contest.name);
