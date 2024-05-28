@@ -33,7 +33,12 @@ import { Validate } from './data/validate';
 import { ExitErrors, ReadMessages } from './errors/read_errors';
 import { Logger } from './logger';
 import { Output } from './output';
-import { createContest, getContest, updateContest } from './scripts/contest';
+import {
+  createContest,
+  getContest,
+  getContests,
+  updateContest
+} from './scripts/contest';
 import { createLanguage, deleteLanguage } from './scripts/language';
 import { createProblem, deleteProblem, getProblem } from './scripts/problem';
 import { retrieveFiles } from './scripts/report';
@@ -240,6 +245,32 @@ async function shouldGetContest(setup: Setup): Promise<void> {
   const output = Output.getInstance();
   output.setResult(form);
 }
+
+async function shouldGetContests(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Getting contests');
+
+  // validate setup file with zod
+  const validate = new Validate(setup);
+  const setupValidated = validate.getContests();
+  const admin: Login = setupValidated.login;
+
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
+  const page = await browser.newPage();
+  page.setDefaultTimeout(TIMEOUT);
+  logger.logInfo('Logging in with admin user: %s', admin.username);
+  await login(page, admin);
+  await validate.checkLoginType(page, 'System');
+  const form = await getContests(page);
+  await browser.close();
+  logger.logInfo('Found %s contests', form.length);
+  const output = Output.getInstance();
+  output.setResult(form);
+}
 //#endregion
 
 //#region Site
@@ -435,6 +466,7 @@ const methods: Record<string, (setup: Setup) => Promise<void>> = {
   createContest: shouldCreateContest,
   updateContest: shouldUpdateContest,
   getContest: shouldGetContest,
+  getContests: shouldGetContests,
   // Sites
   createSite: shouldCreateSite,
   // Problems

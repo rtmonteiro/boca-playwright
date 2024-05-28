@@ -70,6 +70,29 @@ export async function getContest(
   return await getContestForm(page);
 }
 
+export async function getContests(page: Page): Promise<Contest[]> {
+  await page.goto(BASE_URL + '/system/contest.php');
+  const optionEls = await page.locator('select[name="contest"] option').all();
+  const options = await Promise.all(
+    optionEls.map(async (el) => el.textContent())
+  ).then((options) =>
+    // Remove the first option (empty) and the last option (new)
+    options.filter((option) => option !== 'new' && option !== '0')
+  );
+
+  if (options.some((option) => option === null) || options.length === 2) {
+    throw new ContestError(ContestMessages.NOT_FOUND);
+  }
+
+  const contests: Contest[] = [];
+  for (const option of options) {
+    await page.goto(BASE_URL + '/system/contest.php');
+    await selectContest(page, option!);
+    contests.push(await getContestForm(page));
+  }
+  return contests;
+}
+
 async function fillContest(page: Page, contest: UpdateContest): Promise<void> {
   if (contest.name !== undefined) {
     await page.locator('input[name="name"]').fill(contest.name);
