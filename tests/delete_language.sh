@@ -24,7 +24,7 @@ export RET_INVALID_ARGS=1
 export RET_INVALID_CONFIG=2
 
 # It will be called before the first test is run.
-oneTimeSetUp() {
+oneTimeSetup() {
   config_file="resources/mocks/success/contest/valid_contest.json"
   npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1;
   ret_code=$?
@@ -33,6 +33,8 @@ oneTimeSetUp() {
 
 # It will be called before each test is run.
 setUp() {
+  config_file="resources/mocks/success/language/valid_language.json"
+  npm run test:cli -- -p "${config_file}" >/dev/null 2>&1;
   [ -f "./result.json" ] && rm "./result.json"
   return 0
 }
@@ -42,70 +44,69 @@ tearDown() {
   return 0
 }
 
-# It will be called after the last test completes.
 oneTimeTearDown() {
   [ -f "./result.json" ] && rm "./result.json"
   return 0
 }
 
-testCreateLanguageMissingPathArgument() {
-  npm run test:cli -- -m createLanguage >/dev/null 2>&1;
+testDeleteLanguageMissingPathArgument() {
+  npm run test:cli -- -m deleteLanguage >/dev/null 2>&1;
   ret_code=$?
   assertEquals $RET_INVALID_ARGS $ret_code
 }
 
-testCreateLanguageMissingMethodArgument() {
+testDeleteLanguageMissingMethodArgument() {
   config_file="resources/mocks/success/language/valid_language.json"
   npm run test:cli -- -p "${config_file}" >/dev/null 2>&1;
   ret_code=$?
   assertEquals $RET_INVALID_ARGS $ret_code
 }
 
-testCreateLanguageInvalidPathArgument() {
+testDeleteLanguageInvalidPathArgument() {
   config_file="resources/mocks/fake.json"
-  npm run test:cli -- -p "${config_file}" -m createLanguage >/dev/null 2>&1;
+  npm run test:cli -- -p "${config_file}" -m deleteLanguage >/dev/null 2>&1;
   ret_code=$?
   assertEquals $RET_INVALID_ARGS $ret_code
 }
 
-testCreateLanguageInvalidMethodArgument() {
+testDeleteLanguageInvalidMethodArgument() {
   config_file="resources/mocks/success/language/valid_language.json"
-  npm run test:cli -- -p "${config_file}" -m createLanguageFake >/dev/null 2>&1;
+  npm run test:cli -- -p "${config_file}" -m deleteLanguageFake >/dev/null 2>&1;
   ret_code=$?
   assertEquals $RET_INVALID_ARGS $ret_code
 }
 
-testCreateLanguageMissingConfigData() {
+testDeleteLanguageMissingConfigData() {
   config_file="resources/mocks/fail/setup/missing_config.json"
-  npm run test:cli -- -p "${config_file}" -m createLanguage >/dev/null 2>&1;
+  npm run test:cli -- -p "${config_file}" -m deleteLanguage >/dev/null 2>&1;
   ret_code=$?
   assertEquals $RET_INVALID_CONFIG $ret_code
 }
 
-testCreateLanguageMissingBocaUrl() {
+testDeleteLanguageMissingBocaUrl() {
   config_file="resources/mocks/fail/setup/missing_url.json"
-  npm run test:cli -- -p "${config_file}" -m createLanguage >/dev/null 2>&1;
+  npm run test:cli -- -p "${config_file}" -m deleteLanguage >/dev/null 2>&1;
   ret_code=$?
   assertEquals $RET_INVALID_CONFIG $ret_code
 }
 
-testCreateLanguageMissingResultFilePath() {
+testDeleteLanguageMissingResultFilePath() {
   config_file="resources/mocks/success/setup/missing_result_file_path_admin.json"
-  npm run test:cli -- -p "${config_file}" -m createLanguage >/dev/null 2>&1;
+  npm run test:cli -- -p "${config_file}" -m deleteLanguage >/dev/null 2>&1;
   ret_code=$?
   assertEquals $RET_SUCCESS $ret_code
 }
 
-testCreateLanguageInvalidBocaUrl() {
+testDeleteLanguageInvalidBocaUrl() {
   config_file="resources/mocks/fail/setup/invalid_url.json"
-  npm run test:cli -- -p "${config_file}" -m createLanguage >/dev/null 2>&1;
+  npm run test:cli -- -p "${config_file}" -m deleteLanguage >/dev/null 2>&1;
   ret_code=$?
   assertEquals $RET_INVALID_CONFIG $ret_code
 }
 
-testCreateLanguageInvalidResultFilePath() {
+testDeleteLanguageInvalidResultFilePath() {
   config_file="resources/mocks/fail/setup/invalid_result_file_path.json"
-  npm run test:cli -- -p "${config_file}" -m createLanguage >/dev/null 2>&1;
+  npm run test:cli -- -p "${config_file}" -m deleteLanguage >/dev/null 2>&1;
   ret_code=$?
   assertEquals $RET_INVALID_CONFIG $ret_code
 
@@ -114,112 +115,91 @@ testCreateLanguageInvalidResultFilePath() {
   assertEquals $RET_INVALID_CONFIG $ret_code
 }
 
-testCreateLanguageIncorrectBocaUrl() {
+testDeleteLanguageIncorrectBocaUrl() {
   config_file="resources/mocks/fail/setup/incorrect_url.json"
-  npm run test:cli -- -p "${config_file}" -m createLanguage >/dev/null 2>&1;
+  npm run test:cli -- -p "${config_file}" -m deleteLanguage >/dev/null 2>&1;
   ret_code=$?
   assertEquals $RET_INVALID_CONFIG $ret_code
 }
 
-testCreateLanguageMissingLoginData() {
+testDeleteLanguageMissingLoginData() {
   config_file="resources/mocks/fail/login/missing_login.json"
-  npm run test:cli -- -p "${config_file}" -m createLanguage >/dev/null 2>&1;
+  npm run test:cli -- -p "${config_file}" -m deleteLanguage >/dev/null 2>&1;
   ret_code=$?
   assertEquals $RET_INVALID_CONFIG $ret_code
 }
 
-testCreateLanguageMissingUsername() {
+testDeleteLanguageMissingUsername() {
   config_file="resources/mocks/fail/login/missing_username.json"
-  npm run test:cli -- -p "${config_file}" -m createLanguage >/dev/null 2>&1;
+  npm run test:cli -- -p "${config_file}" -m deleteLanguage >/dev/null 2>&1;
   ret_code=$?
   assertEquals $RET_INVALID_CONFIG $ret_code
 }
 
-testCreateLanguageMissingPassword() {
+testDeleteLanguageMissingPassword() {
   config_file="resources/mocks/fail/login/missing_password.json"
-  npm run test:cli -- -p "${config_file}" -m createLanguage >/dev/null 2>&1;
+  npm run test:cli -- -p "${config_file}" -m deleteLanguage >/dev/null 2>&1;
   ret_code=$?
   assertEquals $RET_INVALID_CONFIG $ret_code
 }
 
-testCreateLanguageInvalidUsername() {
+testDeleteLanguageInvalidUsername() {
   config_file="resources/mocks/fail/login/invalid_username.json"
-  npm run test:cli -- -p "${config_file}" -m createLanguage >/dev/null 2>&1;
+  npm run test:cli -- -p "${config_file}" -m deleteLanguage >/dev/null 2>&1;
   ret_code=$?
   assertEquals $RET_INVALID_CONFIG $ret_code
 }
 
-testCreateLanguageInvalidPassword() {
+testDeleteLanguageInvalidPassword() {
   config_file="resources/mocks/fail/login/invalid_password.json"
-  npm run test:cli -- -p "${config_file}" -m createLanguage >/dev/null 2>&1;
+  npm run test:cli -- -p "${config_file}" -m deleteLanguage >/dev/null 2>&1;
   ret_code=$?
   assertEquals $RET_INVALID_CONFIG $ret_code
 }
 
-testCreateLanguageIncorrectUsername() {
+testDeleteLanguageIncorrectUsername() {
   config_file="resources/mocks/fail/login/incorrect_username.json"
-  npm run test:cli -- -p "${config_file}" -m createLanguage >/dev/null 2>&1;
+  npm run test:cli -- -p "${config_file}" -m deleteLanguage >/dev/null 2>&1;
   ret_code=$?
   assertEquals $RET_INVALID_CONFIG $ret_code
 }
 
-testCreateLanguageIncorrectPassword() {
+testDeleteLanguageIncorrectPassword() {
   config_file="resources/mocks/fail/login/incorrect_password.json"
-  npm run test:cli -- -p "${config_file}" -m createLanguage >/dev/null 2>&1;
+  npm run test:cli -- -p "${config_file}" -m deleteLanguage >/dev/null 2>&1;
   ret_code=$?
   assertEquals $RET_INVALID_CONFIG $ret_code
 }
 
-testCreateLanguageMissingLanguageData() {
+testDeleteLanguageMissingLanguageData() {
   config_file="resources/mocks/fail/language/missing_language.json"
-  npm run test:cli -- -p "${config_file}" -m createLanguage >/dev/null 2>&1;
+  npm run test:cli -- -p "${config_file}" -m deleteLanguage >/dev/null 2>&1;
   ret_code=$?
   assertEquals $RET_INVALID_CONFIG $ret_code
 }
 
-testCreateLanguageMissingId() {
+testDeleteLanguageMissingId() {
   config_file="resources/mocks/fail/language/missing_id.json"
-  npm run test:cli -- -p "${config_file}" -m createLanguage >/dev/null 2>&1;
+  npm run test:cli -- -p "${config_file}" -m deleteLanguage >/dev/null 2>&1;
   ret_code=$?
   assertEquals $RET_INVALID_CONFIG $ret_code
 }
 
-testCreateLanguageMissingName() {
-  config_file="resources/mocks/fail/language/missing_name.json"
-  npm run test:cli -- -p "${config_file}" -m createLanguage >/dev/null 2>&1;
-  ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
-}
-
-testCreateLanguageMissingExtension() {
-  config_file="resources/mocks/fail/language/missing_extension.json"
-  npm run test:cli -- -p "${config_file}" -m createLanguage >/dev/null 2>&1;
-  ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
-}
-
-testCreateLanguageInvalidId() {
+testDeleteLanguageInvalidId() {
   config_file="resources/mocks/fail/language/invalid_id.json"
-  npm run test:cli -- -p "${config_file}" -m createLanguage >/dev/null 2>&1;
+  npm run test:cli -- -p "${config_file}" -m deleteLanguage >/dev/null 2>&1;
   ret_code=$?
   assertEquals $RET_INVALID_CONFIG $ret_code
 }
 
-testCreateLanguageInvalidName() {
-  config_file="resources/mocks/fail/language/invalid_name.json"
-  npm run test:cli -- -p "${config_file}" -m createLanguage >/dev/null 2>&1;
+testDeleteLanguageIncorrectId() {
+  config_file="resources/mocks/fail/language/incorrect_id.json"
+  npm run test:cli -- -p "${config_file}" -m deleteLanguage >/dev/null 2>&1;
   ret_code=$?
   assertEquals $RET_INVALID_CONFIG $ret_code
 }
 
-testCreateLanguageInvalidExtension() {
-  config_file="resources/mocks/fail/language/invalid_extension.json"
-  npm run test:cli -- -p "${config_file}" -m createLanguage >/dev/null 2>&1;
-  ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
-}
-
-testCreateValidLanguage() {
+testDeleteValidLanguage() {
   if [ -n "$1" ];
   then
     config_file="$1"
@@ -227,31 +207,7 @@ testCreateValidLanguage() {
     config_file="resources/mocks/success/language/valid_language.json"
   fi
 
-  npm run test:cli -- -p "${config_file}" -m createLanguage >/dev/null 2>&1;
-  ret_code=$?
-  assertEquals $RET_SUCCESS $ret_code
-
-  # Check if the result file was created
-  file_path=$(jq -r '.config.resultFilePath' "../${config_file}")
-  [ -f "../${file_path}" ]
-  ret_code=$?
-  assertEquals $RET_SUCCESS $ret_code
-
-  # Check if the created language has a valid id
-  jq -e '.id != null and .id != ""' "../${file_path}" >/dev/null 2>&1;
-  ret_code=$?
-  assertEquals $RET_SUCCESS $ret_code
-
-  # Check if the language was updated according to the configuration file
-  if [ -n "$2" ];
-  then
-    jsonIn=$(jq -S --arg f "$2" '.language | del(.[$f])' "../${config_file}")
-    jsonOut=$(jq -S --arg f "$2" 'del(.[$f])' "../${file_path}")
-  else
-    jsonIn=$(jq -S '.language' "../${config_file}")
-    jsonOut=$(jq -S '.' "../${file_path}")
-  fi
-  [ "$jsonIn" = "$jsonOut" ]
+  npm run test:cli -- -p "${config_file}" -m deleteLanguage
   ret_code=$?
   assertEquals $RET_SUCCESS $ret_code
 }

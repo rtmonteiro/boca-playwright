@@ -23,6 +23,14 @@ export RET_SUCCESS=0
 export RET_INVALID_ARGS=1
 export RET_INVALID_CONFIG=2
 
+# It will be called before the first test is run.
+oneTimeSetup() {
+  config_file="resources/mocks/success/contest/valid_contest.json"
+  npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1;
+  ret_code=$?
+  return $ret_code
+}
+
 # It will be called before each test is run.
 setUp() {
   [ -f "./result.json" ] && rm "./result.json"
@@ -34,6 +42,7 @@ tearDown() {
   return 0
 }
 
+# It will be called after the last test completes.
 oneTimeTearDown() {
   [ -f "./result.json" ] && rm "./result.json"
   return 0

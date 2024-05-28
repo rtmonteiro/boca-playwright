@@ -463,6 +463,7 @@ const methods: Record<string, (setup: Setup) => Promise<void>> = {
   getProblem: shouldGetProblem,
   // Languages
   createLanguage: shouldCreateLanguage,
+  updateLanguage: shouldCreateLanguage,
   deleteLanguage: shouldDeleteLanguage,
   // Reports
   generateReport: shouldGenerateReport

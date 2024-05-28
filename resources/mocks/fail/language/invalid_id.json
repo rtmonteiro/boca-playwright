@@ -9,7 +9,7 @@
   },
   "language": {
       "id": 11,
-      "name": "RelationalAlgebra",
+      "name": "Relational_Algebra",
       "extension": "relax"
   }
 }

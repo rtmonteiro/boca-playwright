@@ -8,7 +8,7 @@
     "password": "boca"
   },
   "language": {
-      "name": "RelationalAlgebra",
+      "name": "Relational_Algebra",
       "extension": "relax"
   }
 }

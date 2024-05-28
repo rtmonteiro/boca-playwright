@@ -23,16 +23,16 @@ npm run build
 
 # Contest methods
 ./create_contest.sh
-# a contest of id 1 must exist
 ./update_contest.sh
 ./get_contest.sh
 # TODO
 # ./get_contests.sh
 
 # Language methods
-# a contest of id 1 must exist
 ./create_language.sh
+# -m updateLanguage: an alternative alias for createLanguage
 # ./update_language.sh
+./delete_language.sh
+# TODO
 # ./get_language.sh
 # ./get_languages.sh
-# ./delete_language.sh
