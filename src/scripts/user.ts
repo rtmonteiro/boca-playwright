@@ -51,9 +51,11 @@ async function fillUser(page: Page, user: User, admin: Login): Promise<void> {
   if (user.userIcpcId != null) {
     await page.locator('input[name="usericpcid"]').fill(user.userIcpcId);
   }
-  await page
-    .locator('select[name="usertype"]')
-    .selectOption({ label: user.userType });
+  if (user.userType !== undefined) {
+    await page
+      .locator('select[name="usertype"]')
+      .selectOption({ label: user.userType });
+  }
   if (user.userEnabled !== undefined) {
     await page
       .locator('select[name="userenabled"]')
@@ -64,12 +66,19 @@ async function fillUser(page: Page, user: User, admin: Login): Promise<void> {
       .locator('select[name="usermultilogin"]')
       .selectOption({ label: user.userMultiLogin });
   }
-  await page.locator('input[name="userfullname"]').fill(user.userFullName);
-  await page.locator('input[name="userdesc"]').fill(user.userDesc);
+  if (user.userFullName !== undefined) {
+    await page.locator('input[name="userfullname"]').fill(user.userFullName);
+  }
+  if (user.userDesc !== undefined) {
+    await page.locator('input[name="userdesc"]').fill(user.userDesc);
+  }
   if (user.userIp !== undefined) {
     await page.locator('input[name="userip"]').fill(user.userIp);
   }
-  if (user.userPassword !== undefined) {
+  if (
+    (await page.isVisible('input[name="passwordn1"]')) &&
+    user.userPassword !== undefined
+  ) {
     await page.locator('input[name="passwordn1"]').fill(user.userPassword);
     await page.locator('input[name="passwordn2"]').fill(user.userPassword);
   }
@@ -78,7 +87,9 @@ async function fillUser(page: Page, user: User, admin: Login): Promise<void> {
       .locator('select[name="changepass"]')
       .selectOption({ label: user.userChangePass });
   }
-  await page.locator('input[name="passwordo"]').fill(admin.password);
+  if (await page.isVisible('input[name="passwordo"]')) {
+    await page.locator('input[name="passwordo"]').fill(admin.password);
+  }
 }
 
 export async function createUser(
@@ -101,15 +112,16 @@ export async function deleteUser(
   await page
     .locator('tr', {
       has: page.locator('td', {
-        hasText:
-          userId.userName !== undefined ? userId.userName : userId.userNumber
+        hasText: userId.userNumber
       })
     })
     .locator('td')
     .nth(0)
     .click();
 
-  await page.locator('input[name="passwordo"]').fill(admin.password);
+  if (await page.isVisible('input[name="passwordo"]')) {
+    await page.locator('input[name="passwordo"]').fill(admin.password);
+  }
 
   page.once('dialog', dialogHandler);
   await page.getByRole('button', { name: 'Delete' }).click();
@@ -117,23 +129,43 @@ export async function deleteUser(
 export async function getUser(page: Page, userId: UserId): Promise<User> {
   await page.goto(`${BASE_URL}/admin/user.php`);
 
-  const loc =
-    userId.userName !== undefined
-      ? page.locator('td:nth-of-type(3)', { hasText: userId.userName })
-      : page.locator('td:nth-of-type(1)', {
-          // eslint-disable-next-line no-useless-escape
-          hasText: new RegExp(`^${userId.userNumber}[\(inactive\)]*$`)
-        });
+  const loc = page.locator('td:nth-of-type(1)', {
+    // eslint-disable-next-line no-useless-escape
+    hasText: new RegExp(`^${userId.userNumber}[\(inactive\)]*$`)
+  });
 
   const row = await page.locator('tr', { has: loc });
 
   await row.locator('td:nth-of-type(1) a').click();
 
+  function capitalize(s: string) {
+    return s && s[0].toUpperCase() + s.slice(1);
+  }
+
   return {
+    userSiteNumber: await page
+      .locator('input[name="usersitenumber"]')
+      .inputValue(),
     userNumber: await page.locator('input[name="usernumber"]').inputValue(),
     userName: await page.locator('input[name="username"]').inputValue(),
-    userType: await page.locator('select[name="usertype"]').inputValue(),
+    userIcpcId: await page.locator('input[name="usericpcid"]').inputValue(),
+    userType: capitalize(
+      await page.locator('select[name="usertype"]').inputValue()
+    ),
+    userEnabled:
+      (await page.locator('select[name="userenabled"]').inputValue()) === 't'
+        ? 'Yes'
+        : 'No',
+    userMultiLogin:
+      (await page.locator('select[name="usermultilogin"]').inputValue()) === 't'
+        ? 'Yes'
+        : 'No',
     userFullName: await page.locator('input[name="userfullname"]').inputValue(),
-    userDesc: await page.locator('input[name="userdesc"]').inputValue()
+    userDesc: await page.locator('input[name="userdesc"]').inputValue(),
+    userIp: await page.locator('input[name="userip"]').inputValue(),
+    userChangePass:
+      (await page.locator('select[name="changepass"]').inputValue()) === 't'
+        ? 'Yes'
+        : 'No'
   } as User;
 }

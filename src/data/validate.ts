@@ -176,7 +176,7 @@ export class Validate {
     // Get the type from the url
     const typeUrl = url.split('/').at(-2) as unknown as User['userType'];
     // Compare the types
-    if (type.toLocaleLowerCase() !== typeUrl) {
+    if (type && type.toLocaleLowerCase() !== typeUrl) {
       throw new Error(
         `Expected type ${type} but got ${typeUrl}. Are you logged in?`
       );

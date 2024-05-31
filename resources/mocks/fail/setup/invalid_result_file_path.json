@@ -24,5 +24,19 @@
       "id": "11",
       "name": "Relational_Algebra",
       "extension": "relax"
+  },
+  "user": {
+    "userSiteNumber": "1",
+    "userNumber": "2019202359",
+    "userName": "ryanmonteiro",
+    "userIcpcId": "ryanmonteiro2",
+    "userType": "Team",
+    "userEnabled": "No",
+    "userMultiLogin": "Yes",
+    "userFullName": "Ryan Tavares Farias da Silva Monteiro",
+    "userDesc": "ryan.monteiro@aluno.ufes.br",
+    "userIp": "127.0.0.1",
+    "userPassword": "boca",
+    "userChangePass": "Yes"
   }
 }

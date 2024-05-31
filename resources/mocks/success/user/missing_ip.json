@@ -1,22 +1,11 @@
 {
   "config": {
-    "url": "localhost:8000/boca"
+    "url": "localhost:8000/boca",
+    "resultFilePath": "./tests/result.json"
   },
   "login": {
     "username": "admin",
     "password": "boca"
-  },
-  "language": {
-    "id": "11",
-    "name": "Relational_Algebra",
-    "extension": "relax"
-  },
-  "problem": {
-    "id": "1001",
-    "name": "L1_1",
-    "filePath": "resources/L1_1.zip",
-    "colorName": "green",
-    "colorCode": "00FF00"
   },
   "user": {
     "userSiteNumber": "1",
@@ -28,7 +17,6 @@
     "userMultiLogin": "Yes",
     "userFullName": "Ryan Tavares Farias da Silva Monteiro",
     "userDesc": "ryan.monteiro@aluno.ufes.br",
-    "userIp": "127.0.0.1",
     "userPassword": "boca",
     "userChangePass": "Yes"
   }

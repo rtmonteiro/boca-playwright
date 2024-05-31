@@ -67,7 +67,10 @@ async function shouldCreateUser(setup: Setup): Promise<void> {
     headless: HEADLESS,
     slowMo: STEP_DURATION
   });
-  const page = await browser.newPage();
+  // Create a new incognito browser context
+  const context = await browser.newContext();
+  // Create a new page inside context.
+  const page = await context.newPage();
   page.setDefaultTimeout(TIMEOUT);
   logger.logInfo('Logging in with admin user: %s', admin.username);
   await login(page, admin);
@@ -75,6 +78,8 @@ async function shouldCreateUser(setup: Setup): Promise<void> {
   logger.logInfo('Creating user: %s', user.userName);
   await createUser(page, user, admin);
   const form = await getUser(page, user);
+  // Dispose context once it's no longer needed.
+  await context.close();
   await browser.close();
   logger.logInfo('User created with id: %s', form.userNumber);
   const output = Output.getInstance();
@@ -96,13 +101,18 @@ async function shouldInsertUsers(setup: Setup): Promise<void> {
     headless: HEADLESS,
     slowMo: STEP_DURATION
   });
-  const page = await browser.newPage();
+  // Create a new incognito browser context
+  const context = await browser.newContext();
+  // Create a new page inside context.
+  const page = await context.newPage();
   page.setDefaultTimeout(TIMEOUT);
   logger.logInfo('Logging in with admin user: %s', admin.username);
   await login(page, admin);
   await validate.checkLoginType(page, 'Admin');
   logger.logInfo('Inserting users from file: %s', userPath);
   await insertUsers(page, userPath);
+  // Dispose context once it's no longer needed.
+  await context.close();
   await browser.close();
 }
 
@@ -121,11 +131,16 @@ async function shouldDeleteUser(setup: Setup): Promise<void> {
     headless: HEADLESS,
     slowMo: STEP_DURATION
   });
-  const page = await browser.newPage();
+  // Create a new incognito browser context
+  const context = await browser.newContext();
+  // Create a new page inside context.
+  const page = await context.newPage();
   page.setDefaultTimeout(TIMEOUT);
   await login(page, admin);
   await validate.checkLoginType(page, 'Admin');
   await deleteUser(page, userId, admin);
+  // Dispose context once it's no longer needed.
+  await context.close();
   await browser.close();
 }
 
@@ -144,11 +159,16 @@ async function shouldGetUser(setup: Setup): Promise<void> {
     headless: HEADLESS,
     slowMo: STEP_DURATION
   });
-  const page = await browser.newPage();
+  // Create a new incognito browser context
+  const context = await browser.newContext();
+  // Create a new page inside context.
+  const page = await context.newPage();
   page.setDefaultTimeout(TIMEOUT);
   await login(page, admin);
   await validate.checkLoginType(page, 'Admin');
   const form = await getUser(page, userId);
+  // Dispose context once it's no longer needed.
+  await context.close();
   await browser.close();
   logger.logInfo('User found with name: %s', form.userName);
   const output = Output.getInstance();
@@ -471,6 +491,7 @@ const methods: Record<string, (setup: Setup) => Promise<void>> = {
   insertUsers: shouldInsertUsers,
   deleteUser: shouldDeleteUser,
   getUser: shouldGetUser,
+  updateUser: shouldCreateUser,
   // Contests
   createContest: shouldCreateContest,
   updateContest: shouldUpdateContest,

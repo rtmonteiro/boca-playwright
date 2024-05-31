@@ -29,22 +29,31 @@ export const insertUsersSchema = z.object({
 });
 
 export const userSchema = z.object({
-  userSiteNumber: z.number().optional(),
-  userNumber: z.string(),
+  userSiteNumber: z
+    .string()
+    .refine((value) => parseInt(value) > 0, {
+      message: 'Must be an positive integer number'
+    })
+    .optional(),
+  userNumber: z.string().refine((value) => parseInt(value) > 0, {
+    message: 'Must be an positive integer number'
+  }),
   userName: z.string(),
   userIcpcId: z.string().optional(),
-  userType: z.union([
-    z.literal('Team'),
-    z.literal('Judge'),
-    z.literal('Admin'),
-    z.literal('Staff'),
-    z.literal('Score'),
-    z.literal('Site')
-  ]),
+  userType: z
+    .union([
+      z.literal('Team'),
+      z.literal('Judge'),
+      z.literal('Admin'),
+      z.literal('Staff'),
+      z.literal('Score'),
+      z.literal('Site')
+    ])
+    .optional(),
   userEnabled: z.union([z.literal('Yes'), z.literal('No')]).optional(),
   userMultiLogin: z.union([z.literal('Yes'), z.literal('No')]).optional(),
-  userFullName: z.string(),
-  userDesc: z.string(),
+  userFullName: z.string().optional(),
+  userDesc: z.string().optional(),
   userIp: z.string().ip().optional(),
   userPassword: z.string().optional(),
   userChangePass: z.union([z.literal('Yes'), z.literal('No')]).optional()
@@ -52,15 +61,7 @@ export const userSchema = z.object({
 
 export const userIdSchema = userSchema
   .pick({
-    userName: true,
     userNumber: true
   })
   .partial()
-  .refine(
-    (user) => user.userName === undefined || user.userNumber === undefined,
-    'Only one of id or name should be provided.'
-  )
-  .refine(
-    (user) => user.userName !== undefined || user.userNumber !== undefined,
-    'At least one of id or name should be provided.'
-  );
+  .refine((user) => user.userNumber !== undefined, 'Id should be provided.');

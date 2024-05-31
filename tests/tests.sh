@@ -43,3 +43,14 @@ npm run build
 ./get_problem.sh
 # TODO
 # ./get_problems.sh
+
+# Testing user methods
+# TODO
+# ./change_password.sh
+# Use -m updateUser as an alternative alias for createUser
+./create_user.sh
+# ./delete_user.sh
+# ./get_user.sh
+# TODO
+# ./get_users.sh
+# ./import_users.sh

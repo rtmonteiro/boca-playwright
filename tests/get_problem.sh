@@ -27,6 +27,10 @@ export RET_INVALID_CONFIG=2
 oneTimeSetup() {
   config_file="resources/mocks/success/contest/valid_contest.json"
   npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1;
+  # ret_code1=$?
+  # npm run test:cli -- -p "${config_file}" -m activateContest >/dev/null 2>&1;
+  # ret_code2=$?
+  # [ $ret_code1 = 0 && $ret_code2 = 0 ]
   ret_code=$?
   return $ret_code
 }
