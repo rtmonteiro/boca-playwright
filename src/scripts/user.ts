@@ -117,11 +117,23 @@ export async function deleteUser(
   // Wait for load state
   await page.waitForLoadState('domcontentloaded');
 
+  const loc1 = page.locator('td:nth-of-type(1)', {
+    // eslint-disable-next-line no-useless-escape
+    hasText: userId.userNumber
+  });
+
+  const loc2 = page.locator('td:nth-of-type(2)', {
+    // eslint-disable-next-line no-useless-escape
+    hasText: userId.userSiteNumber
+  });
+
   await page
-    .locator('tr', {
-      has: page.locator('td', {
-        hasText: userId.userNumber
-      })
+    .locator('tr')
+    .filter({
+      has: loc1
+    })
+    .filter({
+      has: loc2
     })
     .locator('td')
     .nth(0)
@@ -139,12 +151,20 @@ export async function getUser(page: Page, userId: UserId): Promise<User> {
   // Wait for load state
   await page.waitForLoadState('domcontentloaded');
 
-  const loc = page.locator('td:nth-of-type(1)', {
+  const loc1 = page.locator('td:nth-of-type(1)', {
     // eslint-disable-next-line no-useless-escape
     hasText: new RegExp(`^${userId.userNumber}[\(inactive\)]*$`)
   });
 
-  const row = await page.locator('tr', { has: loc });
+  const loc2 = page.locator('td:nth-of-type(2)', {
+    // eslint-disable-next-line no-useless-escape
+    hasText: userId.userSiteNumber
+  });
+
+  const row = await page
+    .locator('tr')
+    .filter({ has: loc1 })
+    .filter({ has: loc2 });
 
   await row.locator('td:nth-of-type(1) a').click();
 

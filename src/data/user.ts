@@ -61,7 +61,11 @@ export const userSchema = z.object({
 
 export const userIdSchema = userSchema
   .pick({
+    userSiteNumber: true,
     userNumber: true
   })
-  .partial()
-  .refine((user) => user.userNumber !== undefined, 'Id should be provided.');
+  .refine(
+    (user) =>
+      user.userSiteNumber !== undefined && user.userNumber !== undefined,
+    'Site and id should be provided.'
+  );

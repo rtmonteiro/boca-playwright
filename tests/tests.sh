@@ -49,7 +49,7 @@ npm run build
 # ./change_password.sh
 # Use -m updateUser as an alternative alias for createUser
 ./create_user.sh
-# ./delete_user.sh
+./delete_user.sh
 # ./get_user.sh
 # TODO
 # ./get_users.sh
