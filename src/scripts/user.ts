@@ -26,6 +26,8 @@ import { dialogHandler } from '../utils/handlers';
 
 export async function login(page: Page, login: Login): Promise<void> {
   await page.goto(BASE_URL + '/');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
   await page.locator('input[name="name"]').click();
   await page.locator('input[name="name"]').fill(login.username);
   await page.locator('input[name="name"]').press('Tab');
@@ -35,6 +37,8 @@ export async function login(page: Page, login: Login): Promise<void> {
 
 export async function insertUsers(page: Page, path: string): Promise<void> {
   await page.goto(`${BASE_URL}/admin/user.php`);
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
   await page.locator('input[name="importfile"]').click();
   await page.locator('input[name="importfile"]').setInputFiles(path);
   page.once('dialog', dialogHandler);
@@ -43,6 +47,8 @@ export async function insertUsers(page: Page, path: string): Promise<void> {
 
 async function fillUser(page: Page, user: User, admin: Login): Promise<void> {
   await page.goto(`${BASE_URL}/admin/user.php`);
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
   await page
     .locator('input[name="usersitenumber"]')
     .fill(user.userSiteNumber?.toString() ?? '1');
@@ -108,6 +114,8 @@ export async function deleteUser(
   admin: Login
 ): Promise<void> {
   await page.goto(BASE_URL + '/admin/user.php');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
 
   await page
     .locator('tr', {
@@ -128,6 +136,8 @@ export async function deleteUser(
 }
 export async function getUser(page: Page, userId: UserId): Promise<User> {
   await page.goto(`${BASE_URL}/admin/user.php`);
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
 
   const loc = page.locator('td:nth-of-type(1)', {
     // eslint-disable-next-line no-useless-escape

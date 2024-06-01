@@ -36,6 +36,8 @@ export async function createContest(
   contest: TCreateContest | undefined
 ): Promise<TContestForm> {
   await page.goto(BASE_URL + '/system/');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
   await page.getByRole('link', { name: 'Contest' }).click();
   await selectContest(page, undefined);
 
@@ -52,6 +54,8 @@ export async function updateContest(
   contest: TUpdateContest
 ): Promise<TContestForm> {
   await page.goto(BASE_URL + '/system/');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
   await page.getByRole('link', { name: 'Contest' }).click();
   await selectContest(page, contest.id);
 
@@ -67,6 +71,8 @@ export async function getContest(
   contestId: Contest['id']
 ): Promise<TContestForm> {
   await page.goto(BASE_URL + '/system/contest.php');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
   await selectContest(page, contestId);
   return await getContestForm(page);
 }
@@ -193,7 +199,7 @@ async function getContestForm(page: Page): Promise<TContestForm> {
   const contest: TContestForm = new ContestForm();
   // const contest: TContestForm = new ContestForm();
   await page.locator('select[name="contest"]');
-  // // Wait for load state
+  // Wait for load state
   await page.waitForLoadState('domcontentloaded');
   // Get url from page
   const url = await page.url();

@@ -28,6 +28,8 @@ export async function createLanguage(
   language: Language
 ): Promise<Language> {
   await page.goto(BASE_URL + '/admin/language.php');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
   await page.locator("input[name='langnumber']").fill(language.id);
   await page.locator("input[name='langname']").fill(language.name);
   if (language.extension != null) {
@@ -48,6 +50,8 @@ export async function deleteLanguage(
   language: LanguageId
 ): Promise<void> {
   await page.goto(BASE_URL + '/admin/language.php');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
 
   const loc = language.id ? 'td:nth-of-type(1)' : 'td:nth-of-type(2)';
 
@@ -67,6 +71,8 @@ export async function getLanguage(
   language: LanguageId
 ): Promise<Language> {
   await page.goto(BASE_URL + '/admin/language.php');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
 
   const loc = language.id ? 'td:nth-of-type(1)' : 'td:nth-of-type(2)';
 

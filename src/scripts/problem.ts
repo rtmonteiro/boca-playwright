@@ -25,6 +25,8 @@ import { dialogHandler } from '../utils/handlers';
 
 async function fillProblems(page: Page, problem: Problem): Promise<void> {
   await page.goto(BASE_URL + '/admin/');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
   await page.getByRole('link', { name: 'Problems' }).click();
   await page.locator('input[name="problemnumber"]').fill(problem.id.toString());
   await page.locator('input[name="problemname"]').fill(problem.name);
@@ -56,6 +58,8 @@ export async function deleteProblem(
   problem: ProblemId
 ): Promise<Problem> {
   await page.goto(BASE_URL + '/admin/problem.php');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
 
   const identifier = problem.id;
   const re = new RegExp(`^${identifier}[\\(deleted\\)]*$`);
@@ -79,6 +83,8 @@ export async function getProblem(
   problemId: ProblemId
 ): Promise<Problem> {
   await page.goto(BASE_URL + '/admin/problem.php');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
   const problem = {} as Required<Problem>;
 
   const identifier = problemId.id;
