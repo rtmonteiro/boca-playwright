@@ -20,25 +20,80 @@
 
 export enum ExitErrors {
   OK = 0,
-  INVALID_ARGUMENTS = 1,
-  INVALID_CONFIG = 2,
-  CONTEST_NOT_EXIST = 101
+  NOT_ENOUGH_ARGUMENTS = 11,
+  CONFIG_VALIDATION = 12,
+  CONTEST_ERROR = 13,
+  PROBLEM_ERROR = 14,
+  LOGIN_ERROR = 15
 }
 
-export enum ReadErrors {
+export enum ReadMessages {
   SETUP_NOT_FOUND = 'Setup file not found',
   SETUP_INVALID = 'Setup file is invalid',
   RESULT_FILE_NOT_FOUND = 'Result file not found',
-  RESULT_FILE_INVALID = 'Result file is invalid'
+  FORBIDDEN_PATH = "You don't have permission to access this path"
 }
 
-export enum ProblemErrors {
+export enum ProblemMessages {
+  NOT_FOUND = 'Problem not found',
   INVALID_COLOR_CODE = 'Invalid color code',
   INVALID_FILE_EXTENSION = 'Invalid file extension',
-  FILE_NOT_FOUND = 'File not found'
+  FILE_NOT_FOUND = 'File not found',
+  ONLY_ID_OR_NAME_REQUIRED = 'Only one of id or name should be provided.'
 }
 
-export enum ContestErrors {
+export enum ContestMessages {
+  NOT_FOUND = 'Contest not found',
   CONTEST_ID_REQUIRED = 'Contest id is required',
-  ONE_FIELD_REQUIRED = 'At least one field is required'
+  ONE_FIELD_REQUIRED = 'At least one field is required',
+  NEGATIVE_DURATION = 'The end date must be greater than the start date'
+}
+
+export enum LoginMessages {
+  INVALID_USER = 'Invalid user',
+  INVALID_PASSWORD = 'Invalid password',
+  INVALID_TYPE = 'Invalid type'
+}
+
+type ErrorMessages =
+  | ReadMessages
+  | ProblemMessages
+  | ContestMessages
+  | LoginMessages;
+
+export class ErrorBase extends Error {
+  code: number;
+  cause?: unknown;
+
+  constructor({
+    code,
+    message,
+    cause
+  }: {
+    code: number;
+    message: ErrorMessages;
+    cause?: unknown;
+  }) {
+    super(message);
+    this.code = code;
+    this.cause = cause;
+  }
+}
+
+export class ContestError extends ErrorBase {
+  constructor(message: ContestMessages, cause?: unknown) {
+    super({ code: ExitErrors.CONTEST_ERROR, message, cause });
+  }
+}
+
+export class ProblemError extends ErrorBase {
+  constructor(message: ProblemMessages, cause?: unknown) {
+    super({ code: ExitErrors.PROBLEM_ERROR, message, cause });
+  }
+}
+
+export class LoginError extends ErrorBase {
+  constructor(message: LoginMessages, cause?: unknown) {
+    super({ code: ExitErrors.CONFIG_VALIDATION, message, cause });
+  }
 }

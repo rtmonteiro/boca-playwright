@@ -20,11 +20,9 @@
 
 import { z } from 'zod';
 
-export type TUpdateContest = z.infer<typeof updateContestSchema>;
+export type UpdateContest = z.infer<typeof updateContestSchema>;
 
-export type TCreateContest = z.infer<typeof createContestSchema>;
-
-export type TContestForm = z.infer<typeof contestFormSchema>;
+export type CreateContest = z.infer<typeof createContestSchema>;
 
 export type Contest = z.infer<typeof contestSchema>;
 
@@ -47,41 +45,10 @@ export const contestSchema = z.object({
   }),
   localSiteNumber: z.string().refine((value) => parseInt(value), {
     message: 'Must be an positive integer number'
-  })
+  }),
+  isActive: z.boolean().nullish()
 });
 
 export const updateContestSchema = contestSchema.partial();
 
 export const createContestSchema = contestSchema.partial().omit({ id: true });
-
-export const contestFormSchema = contestSchema.partial({
-  mainSiteUrl: true
-});
-
-export class ContestForm implements TContestForm {
-  id: string;
-  name: string;
-  startDate: string;
-  endDate: string;
-  stopAnsweringDate: string;
-  stopScoreboardDate: string;
-  penalty: string;
-  maxFileSize: string;
-  mainSiteUrl?: string;
-  mainSiteNumber: string;
-  localSiteNumber: string;
-
-  constructor(contest?: TContestForm) {
-    this.id = contest?.id ?? '';
-    this.name = contest?.name ?? '';
-    this.startDate = contest?.startDate ?? '';
-    this.endDate = contest?.endDate ?? '';
-    this.stopAnsweringDate = contest?.stopAnsweringDate ?? '';
-    this.stopScoreboardDate = contest?.stopScoreboardDate ?? '';
-    this.penalty = contest?.penalty ?? '';
-    this.maxFileSize = contest?.maxFileSize ?? '';
-    this.mainSiteUrl = contest?.mainSiteUrl ?? '';
-    this.mainSiteNumber = contest?.mainSiteNumber ?? '';
-    this.localSiteNumber = contest?.localSiteNumber ?? '';
-  }
-}

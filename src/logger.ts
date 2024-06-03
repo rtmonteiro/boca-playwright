@@ -26,7 +26,7 @@ import {
   type Logger as LoggerW
 } from 'winston';
 import { type ZodError } from 'zod';
-import { ReadErrors } from './errors/read_errors';
+import { ErrorBase, ReadMessages } from './errors/read_errors';
 
 export class Logger {
   private static instance: Logger | null = null;
@@ -72,8 +72,12 @@ export class Logger {
     this.log.error(message, ...params);
   }
 
+  logErrorBase(error: ErrorBase): void {
+    this.log.error(error);
+  }
+
   logZodError(error: ZodError): void {
-    this.log.error(ReadErrors.SETUP_INVALID);
+    this.log.error(ReadMessages.SETUP_INVALID);
     console.error(error.errors);
   }
 }

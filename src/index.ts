@@ -22,18 +22,25 @@ import { Option, program } from 'commander';
 import * as fs from 'fs';
 import * as npath from 'path';
 import { chromium } from 'playwright';
+import { exit } from 'process';
 import { ZodError } from 'zod';
-import { type TCreateContest, type TUpdateContest } from './data/contest';
+import { type CreateContest, type UpdateContest } from './data/contest';
 import { type Login } from './data/login';
 import { type Problem } from './data/problem';
 import { setupSchema, type Setup } from './data/setup';
 import { type Site } from './data/site';
 import { type User } from './data/user';
 import { Validate } from './data/validate';
-import { ExitErrors, ReadErrors } from './errors/read_errors';
+import { ExitErrors, ReadMessages } from './errors/read_errors';
 import { Logger } from './logger';
 import { Output } from './output';
-import { createContest, getContest, updateContest } from './scripts/contest';
+import {
+  activateContest,
+  createContest,
+  getContest,
+  getContests,
+  updateContest
+} from './scripts/contest';
 import { createLanguage, deleteLanguage } from './scripts/language';
 import { createProblem, deleteProblem, getProblem } from './scripts/problem';
 import { retrieveFiles } from './scripts/report';
@@ -186,7 +193,7 @@ async function shouldCreateContest(setup: Setup): Promise<void> {
   const validate = new Validate(setup);
   const setupValidated = validate.createContest();
   const system: Login = setupValidated.login;
-  const contest: TCreateContest | undefined = setupValidated.contest;
+  const contest: CreateContest | undefined = setupValidated.contest;
 
   // create contest
   const browser = await chromium.launch({
@@ -220,7 +227,7 @@ async function shouldUpdateContest(setup: Setup): Promise<void> {
   const validate = new Validate(setup);
   const setupValidated = validate.updateContest();
   const system: Login = setupValidated.login;
-  const contest: TUpdateContest = setupValidated.contest;
+  const contest: UpdateContest = setupValidated.contest;
 
   // create contest
   const browser = await chromium.launch({
@@ -252,7 +259,7 @@ async function shouldGetContest(setup: Setup): Promise<void> {
   // validate setup file with zod
   const validate = new Validate(setup);
   const setupValidated = validate.getContest();
-  const admin: Login = setupValidated.login;
+  const system: Login = setupValidated.login;
   const contest = setupValidated.contest;
 
   const browser = await chromium.launch({
@@ -264,14 +271,67 @@ async function shouldGetContest(setup: Setup): Promise<void> {
   // Create a new page inside context.
   const page = await context.newPage();
   page.setDefaultTimeout(TIMEOUT);
-  logger.logInfo('Logging in with admin user: %s', admin.username);
-  await login(page, admin);
+  logger.logInfo('Logging in with system user: %s', system.username);
+  await login(page, system);
   await validate.checkLoginType(page, 'System');
   const form = await getContest(page, contest.id);
   // Dispose context once it's no longer needed.
   await context.close();
   await browser.close();
   logger.logInfo('Contest found with name: %s', form.name);
+  const output = Output.getInstance();
+  output.setResult(form);
+}
+
+async function shouldGetContests(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Getting contests');
+
+  // validate setup file with zod
+  const validate = new Validate(setup);
+  const setupValidated = validate.getContests();
+  const system: Login = setupValidated.login;
+
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
+  const page = await browser.newPage();
+  page.setDefaultTimeout(TIMEOUT);
+  logger.logInfo('Logging in with system user: %s', system.username);
+  await login(page, system);
+  await validate.checkLoginType(page, 'System');
+  const form = await getContests(page);
+  await browser.close();
+  logger.logInfo('Found %s contests', form.length);
+  const output = Output.getInstance();
+  output.setResult(form);
+}
+
+async function shouldActivateContest(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Activating contest');
+
+  // validate setup file with zod
+  const validate = new Validate(setup);
+  const setupValidated = validate.getContest();
+  const system: Login = setupValidated.login;
+  const contest = setupValidated.contest;
+
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
+  const page = await browser.newPage();
+  page.setDefaultTimeout(TIMEOUT);
+  logger.logInfo('Logging in with system user: %s', system.username);
+  await login(page, system);
+  await validate.checkLoginType(page, 'System');
+  const form = await activateContest(page, contest.id, system);
+  await browser.close();
+  logger.logInfo('Contest activated with id: %s', form.id);
   const output = Output.getInstance();
   output.setResult(form);
 }
@@ -496,6 +556,8 @@ const methods: Record<string, (setup: Setup) => Promise<void>> = {
   createContest: shouldCreateContest,
   updateContest: shouldUpdateContest,
   getContest: shouldGetContest,
+  getContests: shouldGetContests,
+  activateContest: shouldActivateContest,
   // Sites
   createSite: shouldCreateSite,
   // Problems
@@ -530,41 +592,21 @@ function main(): number {
   const logger = Logger.getInstance(verbose);
   const output = Output.getInstance();
 
-  try {
-    if (!fs.existsSync(path)) {
-      logger.logError(ReadErrors.SETUP_NOT_FOUND);
-      process.exit(ExitErrors.INVALID_ARGUMENTS);
-    }
-
-    fs.accessSync(path, fs.constants.R_OK);
-  } catch (e) {
-    logger.logError(ReadErrors.SETUP_NOT_FOUND);
-    process.exit(ExitErrors.INVALID_ARGUMENTS);
+  if (!fs.existsSync(path)) {
+    logger.logError(ReadMessages.SETUP_NOT_FOUND);
+    exit(ExitErrors.CONFIG_VALIDATION);
   }
   const setup = JSON.parse(fs.readFileSync(path, 'utf8')) as Setup;
   try {
     setupSchema.parse(setup);
   } catch (e) {
     if (e instanceof ZodError) logger.logZodError(e);
-    process.exit(ExitErrors.INVALID_CONFIG);
+    exit(ExitErrors.CONFIG_VALIDATION);
   } finally {
     logger.logInfo('Using setup file: %s', path);
   }
   BASE_URL = setup.config.url;
   TIMEOUT = parseInt(timeout);
-
-  if (setup.config.resultFilePath) {
-    try {
-      const resultFile = setup.config.resultFilePath;
-      // Check if directory is writable
-      fs.accessSync(npath.dirname(resultFile), fs.constants.W_OK);
-    } catch (e) {
-      logger.logError(ReadErrors.RESULT_FILE_INVALID);
-      process.exit(ExitErrors.INVALID_CONFIG);
-    }
-
-    output.isActive = true;
-  }
 
   const func = methods[method];
   func(setup)
@@ -577,8 +619,13 @@ function main(): number {
     })
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     .catch((e) => {
+      // OBS instanceof ErrorBase didn't work
+      if (e['code'] !== undefined) {
+        logger.logErrorBase(e);
+        exit(e.code);
+      }
       logger.logError(e);
-      process.exit(ExitErrors.INVALID_CONFIG);
+      exit(ExitErrors.CONFIG_VALIDATION);
     });
 
   return ExitErrors.OK;

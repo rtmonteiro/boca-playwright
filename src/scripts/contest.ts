@@ -23,18 +23,19 @@ import { DateTime } from 'luxon';
 import { BASE_URL } from '../index';
 import { defineDuration, fillDateField } from '../utils/time';
 import {
-  type TCreateContest,
-  type TUpdateContest,
-  type TContestForm,
-  ContestForm,
-  Contest
+  type CreateContest,
+  type UpdateContest,
+  type Contest
 } from '../data/contest';
 import { dialogHandler } from '../utils/handlers';
+import { ContestError, ContestMessages } from '../errors/read_errors';
+import { login } from './user';
+import { Login } from '../data/login';
 
 export async function createContest(
   page: Page,
-  contest: TCreateContest | undefined
-): Promise<TContestForm> {
+  contest: CreateContest | undefined
+): Promise<Contest> {
   await page.goto(BASE_URL + '/system/');
   // Wait for load state
   await page.waitForLoadState('domcontentloaded');
@@ -51,8 +52,8 @@ export async function createContest(
 
 export async function updateContest(
   page: Page,
-  contest: TUpdateContest
-): Promise<TContestForm> {
+  contest: UpdateContest
+): Promise<Contest> {
   await page.goto(BASE_URL + '/system/');
   // Wait for load state
   await page.waitForLoadState('domcontentloaded');
@@ -63,13 +64,13 @@ export async function updateContest(
 
   page.once('dialog', dialogHandler);
   await page.getByRole('button', { name: 'Send' }).click();
-  return await getContestForm(page);
+  return await getContest(page, contest.id!);
 }
 
 export async function getContest(
   page: Page,
   contestId: Contest['id']
-): Promise<TContestForm> {
+): Promise<Contest> {
   await page.goto(BASE_URL + '/system/contest.php');
   // Wait for load state
   await page.waitForLoadState('domcontentloaded');
@@ -77,7 +78,47 @@ export async function getContest(
   return await getContestForm(page);
 }
 
-async function fillContest(page: Page, contest: TUpdateContest): Promise<void> {
+export async function getContests(page: Page): Promise<Contest[]> {
+  await page.goto(BASE_URL + '/system/contest.php');
+  const optionEls = await page.locator('select[name="contest"] option').all();
+  const options = await Promise.all(
+    optionEls.map(async (el) => el.textContent())
+  ).then((options) =>
+    // Remove the first option (empty) and the last option (new)
+    options.filter((option) => option !== 'new' && option !== '0')
+  );
+
+  if (options.some((option) => option === null) || options.length === 2) {
+    throw new ContestError(ContestMessages.NOT_FOUND);
+  }
+
+  const contests: Contest[] = [];
+  for (const option of options) {
+    await page.goto(BASE_URL + '/system/contest.php');
+    await selectContest(page, option!);
+    contests.push(await getContestForm(page));
+  }
+  return contests;
+}
+
+export async function activateContest(
+  page: Page,
+  contestId: Contest['id'],
+  user: Login
+): Promise<Contest> {
+  await page.goto(BASE_URL + '/system/contest.php');
+  await selectContest(page, contestId);
+
+  page.on('dialog', dialogHandler);
+  await page.getByRole('button', { name: 'Activate' }).click();
+  page.removeListener('dialog', dialogHandler);
+
+  // Because the activation of a contest logs out the user
+  await login(page, user);
+  return await getContest(page, contestId);
+}
+
+async function fillContest(page: Page, contest: UpdateContest): Promise<void> {
   if (contest.name !== undefined) {
     await page.locator('input[name="name"]').fill(contest.name);
   }
@@ -114,39 +155,33 @@ async function fillContest(page: Page, contest: TUpdateContest): Promise<void> {
     );
   }
 
-  let duration;
-  if (contest.endDate !== undefined) {
-    const endDate = DateTime.fromFormat(contest.endDate, 'yyyy-MM-dd HH:mm');
-    duration = defineDuration(startDate, endDate);
-    await page
-      .locator('input[name="duration"]')
-      .fill(duration.minutes.toString());
-  } else {
-    const dur = await page.locator('input[name="duration"]').inputValue();
-    const endDate = startDate.plus({ minutes: parseInt(dur) });
-    duration = defineDuration(startDate, endDate);
-  }
+    if (contest.endDate !== undefined) {
+      const endDate = DateTime.fromFormat(contest.endDate, 'yyyy-MM-dd HH:mm');
+      const duration = defineDuration(startDate, endDate);
+      if (!duration.isValid)
+        throw new ContestError(ContestMessages.NEGATIVE_DURATION);
+      await page
+        .locator('input[name="duration"]')
+        .fill(duration.minutes.toString());
 
-  if (contest.stopAnsweringDate !== undefined) {
-    await fillDateField(
-      startDate,
-      page,
-      duration,
-      15,
-      'input[name="lastmileanswer"]',
-      contest.stopAnsweringDate
-    );
-  }
+      await fillDateField(
+        startDate,
+        page,
+        duration,
+        15,
+        'input[name="lastmileanswer"]',
+        contest.stopAnsweringDate
+      );
 
-  if (contest.stopScoreboardDate !== undefined) {
-    await fillDateField(
-      startDate,
-      page,
-      duration,
-      60,
-      'input[name="lastmilescore"]',
-      contest.stopScoreboardDate
-    );
+      await fillDateField(
+        startDate,
+        page,
+        duration,
+        60,
+        'input[name="lastmilescore"]',
+        contest.stopScoreboardDate
+      );
+    }
   }
 
   if (contest.penalty !== undefined) {
@@ -172,7 +207,7 @@ async function fillContest(page: Page, contest: TUpdateContest): Promise<void> {
 
 async function selectContest(
   page: Page,
-  id: TUpdateContest['id'] | undefined
+  id: UpdateContest['id'] | undefined
 ): Promise<void> {
   if (id !== undefined) {
     await checkContestExist(page, id);
@@ -191,21 +226,19 @@ async function checkContestExist(page: Page, id: string) {
   const hasIdInOption = options.some((option) => option?.match(`^${id}\\*?$`));
 
   if (!hasIdInOption) {
-    throw new Error('Contest not found');
+    throw new ContestError(ContestMessages.NOT_FOUND);
   }
 }
 
-async function getContestForm(page: Page): Promise<TContestForm> {
-  const contest: TContestForm = new ContestForm();
-  // const contest: TContestForm = new ContestForm();
-  await page.locator('select[name="contest"]');
-  // Wait for load state
-  await page.waitForLoadState('domcontentloaded');
-  // Get url from page
-  const url = await page.url();
-  const contestNumber = new URL(url).searchParams.get('contest');
-  if (contestNumber) {
-    contest.id = contestNumber ? contestNumber : '';
+async function getContestForm(page: Page): Promise<Contest> {
+  const contest: Contest = {} as Contest;
+  if (await page.locator('select[name="contest"]').isVisible()) {
+    contest.id = (await page
+      .locator('option[selected]')
+      .getAttribute('value')) as string;
+    contest.isActive = (
+      await page.locator('option[selected]').innerText()
+    ).endsWith('*');
   }
   // if (await page.locator('select[name="contest"]').isVisible()) {
   //   contest.id = await page.locator('select[name="contest"]').inputValue();

@@ -22,6 +22,7 @@ import { type Page } from 'playwright';
 import { BASE_URL } from '../index';
 import { type ProblemId, type Problem } from '../data/problem';
 import { dialogHandler } from '../utils/handlers';
+import { ProblemError, ProblemMessages } from '../errors/read_errors';
 
 async function fillProblems(page: Page, problem: Problem): Promise<void> {
   await page.goto(BASE_URL + '/admin/');
@@ -68,7 +69,8 @@ export async function deleteProblem(
     has: page.locator('td', { hasText: re })
   });
 
-  if ((await row.count()) == 0) throw new Error('Problem not found');
+  if ((await row.count()) == 0)
+    throw new ProblemError(ProblemMessages.NOT_FOUND);
 
   page.on('dialog', dialogHandler);
 
@@ -93,7 +95,8 @@ export async function getProblem(
   const row = await page.locator('form[name=form0] > table > tbody > tr', {
     has: page.locator('td', { hasText: re })
   });
-  if ((await row.count()) == 0) throw new Error('Problem not found');
+  if ((await row.count()) == 0)
+    throw new ProblemError(ProblemMessages.NOT_FOUND);
   const columns = await row
     .locator('td')
     .filter({ hasNot: page.locator('[for*="autojudge"], [id*="autojudge"]') }) // Filter out autojudge elements

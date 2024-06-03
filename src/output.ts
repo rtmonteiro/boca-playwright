@@ -22,7 +22,7 @@ import * as fs from 'fs';
 import { type User } from './data/user';
 import { type Problem } from './data/problem';
 import { type Language } from './data/language';
-import { type TContestForm } from './data/contest';
+import { type Contest } from './data/contest';
 
 export class Output {
   private static instance: Output | null = null;
@@ -41,7 +41,7 @@ export class Output {
     return Output.instance;
   }
 
-  setResult(result: TContestForm | User | Problem | Language) {
+  setResult(result: Contest | Contest[] | User | Problem | Language) {
     this.result = JSON.stringify(result, null, 2);
   }
 
