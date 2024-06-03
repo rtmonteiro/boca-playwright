@@ -53,4 +53,4 @@ npm run build
 ./get_user.sh
 # TODO
 # ./get_users.sh
-# ./import_users.sh
+./import_users.sh

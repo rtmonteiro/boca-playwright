@@ -195,8 +195,8 @@ testCreateProblemMissingName() {
   assertEquals $RET_INVALID_CONFIG $ret_code
 }
 
-testCreateProblemMissingFilePath() {
-  config_file="resources/mocks/fail/problem/missing_file_path.json"
+testCreateProblemMissingProblemFilePath() {
+  config_file="resources/mocks/fail/problem/missing_problem_file_path.json"
   npm run test:cli -- -p "${config_file}" -m createProblem >/dev/null 2>&1;
   ret_code=$?
   assertEquals $RET_INVALID_CONFIG $ret_code
@@ -228,8 +228,8 @@ testCreateProblemInvalidName() {
   assertEquals $RET_INVALID_CONFIG $ret_code
 }
 
-testCreateProblemInvalidFilePath() {
-  config_file="resources/mocks/fail/problem/invalid_file_path.json"
+testCreateProblemInvalidProblemFilePath() {
+  config_file="resources/mocks/fail/problem/invalid_problem_file_path.json"
   npm run test:cli -- -p "${config_file}" -m createProblem >/dev/null 2>&1;
   ret_code=$?
   assertEquals $RET_INVALID_CONFIG $ret_code
@@ -249,8 +249,8 @@ testCreateProblemInvalidColorCode() {
   assertEquals $RET_INVALID_CONFIG $ret_code
 }
 
-testCreateProblemIncorrectFilePath() {
-  config_file="resources/mocks/fail/problem/incorrect_file_path.json"
+testCreateProblemIncorrectProblemFilePath() {
+  config_file="resources/mocks/fail/problem/incorrect_problem_file_path.json"
   npm run test:cli -- -p "${config_file}" -m createProblem >/dev/null 2>&1;
   ret_code=$?
   assertEquals $RET_INVALID_CONFIG $ret_code
