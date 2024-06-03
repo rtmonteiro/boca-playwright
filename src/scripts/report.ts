@@ -86,6 +86,8 @@ async function saveFiles(
 
 export async function retrieveFiles(page: Page, outDir: string): Promise<void> {
   await page.goto(BASE_URL + '/admin');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
 
   await page.getByRole('link', { name: 'Run' }).click();
 

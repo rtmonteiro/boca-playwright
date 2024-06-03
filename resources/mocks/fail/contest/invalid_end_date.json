@@ -1,0 +1,22 @@
+{
+  "config": {
+    "url": "localhost:8000/boca"
+  },
+  "login": {
+    "username": "system",
+    "password": "boca"
+  },
+  "contest": {
+    "id": "1",
+    "name": "Contest 1",
+    "startDate": "2023-10-20 10:00",
+    "endDate": 300,
+    "stopAnsweringDate": "2023-10-30 22:00",
+    "stopScoreboardDate": "2023-10-30 22:00",
+    "penalty": "40",
+    "maxFileSize": "200",
+    "mainSiteUrl": "localhost:8000/boca",
+    "mainSiteNumber": "1",
+    "localSiteNumber": "1"
+  }
+}

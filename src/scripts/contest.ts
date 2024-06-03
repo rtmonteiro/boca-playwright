@@ -37,6 +37,8 @@ export async function createContest(
   contest: CreateContest | undefined
 ): Promise<Contest> {
   await page.goto(BASE_URL + '/system/');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
   await page.getByRole('link', { name: 'Contest' }).click();
   await selectContest(page, undefined);
 
@@ -53,6 +55,8 @@ export async function updateContest(
   contest: UpdateContest
 ): Promise<Contest> {
   await page.goto(BASE_URL + '/system/');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
   await page.getByRole('link', { name: 'Contest' }).click();
   await selectContest(page, contest.id);
 
@@ -68,6 +72,8 @@ export async function getContest(
   contestId: Contest['id']
 ): Promise<Contest> {
   await page.goto(BASE_URL + '/system/contest.php');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
   await selectContest(page, contestId);
   return await getContestForm(page);
 }
@@ -117,11 +123,9 @@ async function fillContest(page: Page, contest: UpdateContest): Promise<void> {
     await page.locator('input[name="name"]').fill(contest.name);
   }
 
+  let startDate;
   if (contest.startDate !== undefined) {
-    const startDate = DateTime.fromFormat(
-      contest.startDate,
-      'yyyy-MM-dd HH:mm'
-    );
+    startDate = DateTime.fromFormat(contest.startDate, 'yyyy-MM-dd HH:mm');
     await page
       .locator('input[name="startdateh"]')
       .fill(startDate.hour.toString());
@@ -137,6 +141,19 @@ async function fillContest(page: Page, contest: UpdateContest): Promise<void> {
     await page
       .locator('input[name="startdatey"]')
       .fill(startDate.year.toString());
+  } else {
+    const hour = await page.locator('input[name="startdateh"]').inputValue();
+    const minute = await page
+      .locator('input[name="startdatemin"]')
+      .inputValue();
+    const day = await page.locator('input[name="startdated"]').inputValue();
+    const month = await page.locator('input[name="startdatem"]').inputValue();
+    const year = await page.locator('input[name="startdatey"]').inputValue();
+    startDate = DateTime.fromFormat(
+      `${year}-${month}-${day} ${hour}:${minute}`,
+      'yyyy-MM-dd HH:mm'
+    );
+  }
 
     if (contest.endDate !== undefined) {
       const endDate = DateTime.fromFormat(contest.endDate, 'yyyy-MM-dd HH:mm');
@@ -223,6 +240,9 @@ async function getContestForm(page: Page): Promise<Contest> {
       await page.locator('option[selected]').innerText()
     ).endsWith('*');
   }
+  // if (await page.locator('select[name="contest"]').isVisible()) {
+  //   contest.id = await page.locator('select[name="contest"]').inputValue();
+  // }
   if (await page.locator('input[name="name"]').isVisible()) {
     contest.name = await page.locator('input[name="name"]').inputValue();
   }
@@ -235,37 +255,34 @@ async function getContestForm(page: Page): Promise<Contest> {
     const month = await page.locator('input[name="startdatem"]').inputValue();
     const year = await page.locator('input[name="startdatey"]').inputValue();
     contest.startDate = `${year}-${month}-${day} ${hour}:${minute}`;
-    if (await page.locator('input[name="duration"]').isVisible()) {
-      const endDate = await page.locator('input[name="duration"]').inputValue();
-      contest.endDate = DateTime.fromFormat(
-        contest.startDate,
-        'yyyy-MM-dd HH:mm'
-      )
-        .plus({ minutes: parseInt(endDate) })
-        .toFormat('yyyy-MM-dd HH:mm');
-    }
-    if (await page.locator('input[name="lastmileanswer"]').isVisible()) {
-      const stopAnswering = await page
-        .locator('input[name="lastmileanswer"]')
-        .inputValue();
-      contest.stopAnsweringDate = DateTime.fromFormat(
-        contest.startDate,
-        'yyyy-MM-dd HH:mm'
-      )
-        .plus({ minutes: parseInt(stopAnswering) })
-        .toFormat('yyyy-MM-dd HH:mm');
-    }
-    if (await page.locator('input[name="lastmilescore"]').isVisible()) {
-      const stopScoreboard = await page
-        .locator('input[name="lastmilescore"]')
-        .inputValue();
-      contest.stopScoreboardDate = DateTime.fromFormat(
-        contest.startDate,
-        'yyyy-MM-dd HH:mm'
-      )
-        .plus({ minutes: parseInt(stopScoreboard) })
-        .toFormat('yyyy-MM-dd HH:mm');
-    }
+  }
+  if (await page.locator('input[name="duration"]').isVisible()) {
+    const endDate = await page.locator('input[name="duration"]').inputValue();
+    contest.endDate = DateTime.fromFormat(contest.startDate, 'yyyy-MM-dd HH:mm')
+      .plus({ minutes: parseInt(endDate) })
+      .toFormat('yyyy-MM-dd HH:mm');
+  }
+  if (await page.locator('input[name="lastmileanswer"]').isVisible()) {
+    const stopAnswering = await page
+      .locator('input[name="lastmileanswer"]')
+      .inputValue();
+    contest.stopAnsweringDate = DateTime.fromFormat(
+      contest.startDate,
+      'yyyy-MM-dd HH:mm'
+    )
+      .plus({ minutes: parseInt(stopAnswering) })
+      .toFormat('yyyy-MM-dd HH:mm');
+  }
+  if (await page.locator('input[name="lastmilescore"]').isVisible()) {
+    const stopScoreboard = await page
+      .locator('input[name="lastmilescore"]')
+      .inputValue();
+    contest.stopScoreboardDate = DateTime.fromFormat(
+      contest.startDate,
+      'yyyy-MM-dd HH:mm'
+    )
+      .plus({ minutes: parseInt(stopScoreboard) })
+      .toFormat('yyyy-MM-dd HH:mm');
   }
   if (await page.locator('input[name="penalty"]').isVisible()) {
     contest.penalty = await page.locator('input[name="penalty"]').inputValue();

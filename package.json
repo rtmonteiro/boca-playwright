@@ -9,6 +9,7 @@
     "build": "tsc",
     "test": "npx playwright test",
     "test:debug": "npx playwright test --debug",
+    "test:cli": "node build/index.js",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --fix",
     "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write"

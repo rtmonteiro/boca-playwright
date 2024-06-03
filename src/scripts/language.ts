@@ -28,9 +28,13 @@ export async function createLanguage(
   language: Language
 ): Promise<Language> {
   await page.goto(BASE_URL + '/admin/language.php');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
   await page.locator("input[name='langnumber']").fill(language.id);
   await page.locator("input[name='langname']").fill(language.name);
-  await page.locator("input[name='langextension']").fill(language.extension);
+  if (language.extension != null) {
+    await page.locator("input[name='langextension']").fill(language.extension);
+  }
 
   page.on('dialog', dialogHandler);
 
@@ -46,11 +50,13 @@ export async function deleteLanguage(
   language: LanguageId
 ): Promise<void> {
   await page.goto(BASE_URL + '/admin/language.php');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
 
   const loc = language.id ? 'td:nth-of-type(1)' : 'td:nth-of-type(2)';
 
   const row = await page.locator('table:nth-of-type(3) > tbody > tr', {
-    has: page.locator(loc, { hasText: language.id ?? language.name })
+    has: page.locator(loc, { hasText: language.id })
   });
 
   page.on('dialog', dialogHandler);
@@ -65,11 +71,13 @@ export async function getLanguage(
   language: LanguageId
 ): Promise<Language> {
   await page.goto(BASE_URL + '/admin/language.php');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
 
   const loc = language.id ? 'td:nth-of-type(1)' : 'td:nth-of-type(2)';
 
   const row = await page.locator('table:nth-of-type(3) > tbody > tr', {
-    has: page.locator(loc, { hasText: language.id ?? language.name })
+    has: page.locator(loc, { hasText: language.id })
   });
 
   return {

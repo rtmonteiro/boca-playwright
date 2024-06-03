@@ -96,6 +96,15 @@ export class Validate {
     return this.setup as z.infer<typeof setupType>;
   }
 
+  deleteUser(): z.infer<typeof setupType> {
+    const setupType = z.object({
+      login: loginSchema,
+      user: userIdSchema
+    });
+    setupType.parse(this.setup);
+    return this.setup as z.infer<typeof setupType>;
+  }
+
   insertUsers(): z.infer<typeof setupType> {
     const setupType = z.object({
       login: loginSchema,
@@ -127,6 +136,15 @@ export class Validate {
     const setupType = z.object({
       login: loginSchema,
       problem: problemSchema
+    });
+    setupType.parse(this.setup);
+    return this.setup as z.infer<typeof setupType>;
+  }
+
+  deleteProblem(): z.infer<typeof setupType> {
+    const setupType = z.object({
+      login: loginSchema,
+      problem: problemIdSchema
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;
@@ -172,12 +190,14 @@ export class Validate {
     page: Page,
     type: User['userType'] | 'System'
   ): Promise<void> {
+    // Wait for load state
+    await page.waitForLoadState('domcontentloaded');
     // Get url from page
     const url = await page.url();
     // Get the type from the url
     const typeUrl = url.split('/').at(-2) as unknown as User['userType'];
     // Compare the types
-    if (type.toLocaleLowerCase() !== typeUrl) {
+    if (type && type.toLocaleLowerCase() !== typeUrl) {
       throw new LoginError(
         LoginMessages.INVALID_TYPE,
         `Expected type ${type} but got ${typeUrl}`

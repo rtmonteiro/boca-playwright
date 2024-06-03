@@ -27,6 +27,8 @@ import { dialogHandler } from '../utils/handlers';
 
 export async function fillSite(page: Page, site: Site): Promise<void> {
   await page.goto(BASE_URL + '/admin/');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
   await page.getByRole('link', { name: 'Site' }).click();
 
   if (site.id != null) {

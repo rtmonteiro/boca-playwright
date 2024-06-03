@@ -1,0 +1,14 @@
+{
+  "config": {
+    "url": "localhost:8000/boca",
+    "resultFilePath": "./tests/result.json",
+    "userPath": 12345
+  },
+  "login": {
+    "username": "admin",
+    "password": "boca"
+  },
+  "user": {
+    "userPath": 12345
+  }
+}

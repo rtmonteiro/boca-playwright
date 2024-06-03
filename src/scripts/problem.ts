@@ -26,6 +26,8 @@ import { ProblemError, ProblemMessages } from '../errors/read_errors';
 
 async function fillProblems(page: Page, problem: Problem): Promise<void> {
   await page.goto(BASE_URL + '/admin/');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
   await page.getByRole('link', { name: 'Problems' }).click();
   await page.locator('input[name="problemnumber"]').fill(problem.id.toString());
   await page.locator('input[name="problemname"]').fill(problem.name);
@@ -57,11 +59,10 @@ export async function deleteProblem(
   problem: ProblemId
 ): Promise<Problem> {
   await page.goto(BASE_URL + '/admin/problem.php');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
 
-  const identifier =
-    problem.id !== undefined && problem.name == undefined
-      ? problem.id
-      : problem.name;
+  const identifier = problem.id;
   const re = new RegExp(`^${identifier}[\\(deleted\\)]*$`);
 
   const row = await page.locator('form[name=form0] > table > tbody > tr', {
@@ -84,12 +85,11 @@ export async function getProblem(
   problemId: ProblemId
 ): Promise<Problem> {
   await page.goto(BASE_URL + '/admin/problem.php');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
   const problem = {} as Required<Problem>;
 
-  const identifier =
-    problemId.id !== undefined && problemId.name == undefined
-      ? problemId.id
-      : problemId.name;
+  const identifier = problemId.id;
   const re = new RegExp(`^${identifier}[\\(deleted\\)]*$`);
 
   const row = await page.locator('form[name=form0] > table > tbody > tr', {
@@ -101,7 +101,7 @@ export async function getProblem(
     .locator('td')
     .filter({ hasNot: page.locator('[for*="autojudge"], [id*="autojudge"]') }) // Filter out autojudge elements
     .all();
-  problem.id = parseInt(await columns[0].innerText());
+  problem.id = await columns[0].innerText();
   problem.name = await columns[1].innerText();
   problem.filePath = (await columns[5].innerText()).trim();
   problem.colorName = await columns[6]
