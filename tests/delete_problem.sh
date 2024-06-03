@@ -126,6 +126,13 @@ testDeleteProblemIncorrectBocaUrl() {
   assertEquals $RET_INVALID_CONFIG $ret_code
 }
 
+testDeleteProblemIncorrectResultFilePath() {
+  config_file="resources/mocks/fail/setup/incorrect_result_file_path.json"
+  npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1;
+  ret_code=$?
+  assertEquals $RET_INVALID_CONFIG $ret_code
+}
+
 testDeleteProblemMissingLoginData() {
   config_file="resources/mocks/fail/login/missing_login.json"
   npm run test:cli -- -p "${config_file}" -m deleteProblem >/dev/null 2>&1;
