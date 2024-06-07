@@ -1,0 +1,66 @@
+[
+  {
+    "userSiteNumber": "1",
+    "userNumber": "1000",
+    "userName": "admin",
+    "userIcpcId": "",
+    "userType": "Admin",
+    "userEnabled": "Yes",
+    "userMultiLogin": "Yes",
+    "userFullName": "Administrator",
+    "userDesc": "",
+    "userIp": "172.18.0.1"
+  },
+  {
+    "userSiteNumber": "1",
+    "userNumber": "2019202359",
+    "userName": "ryanmonteiro",
+    "userIcpcId": "ryanmonteiro2",
+    "userType": "Team",
+    "userEnabled": "No",
+    "userMultiLogin": "Yes",
+    "userFullName": "Ryan Tavares Farias da Silva Monteiro",
+    "userDesc": "ryan.monteiro@aluno.ufes.br",
+    "userIp": "127.0.0.1",
+    "userChangePass": "Yes"
+  },
+  {
+    "userSiteNumber": "1",
+    "userNumber": "2020101502",
+    "userName": "tony.stork",
+    "userIcpcId": "",
+    "userType": "Team",
+    "userEnabled": "Yes",
+    "userMultiLogin": "Yes",
+    "userFullName": "TONY STORK",
+    "userDesc": "Major: 11 / Registration: 2020101502 / E-mail: tony.stork@edu.ufes.br",
+    "userIp": "",
+    "userChangePass": "Yes"
+  },
+  {
+    "userSiteNumber": "1",
+    "userNumber": "2022101501",
+    "userName": "clark.kent",
+    "userIcpcId": "",
+    "userType": "Team",
+    "userEnabled": "Yes",
+    "userMultiLogin": "Yes",
+    "userFullName": "CLARK KENT",
+    "userDesc": "Major: 11 / Registration: 2022101501 / E-mail: clark.kent@edu.ufes.br",
+    "userIp": "",
+    "userChangePass": "Yes"
+  },
+  {
+    "userSiteNumber": "1",
+    "userNumber": "2023101500",
+    "userName": "bruce.wayne",
+    "userIcpcId": "",
+    "userType": "Team",
+    "userEnabled": "Yes",
+    "userMultiLogin": "Yes",
+    "userFullName": "BRUCE WAYNE",
+    "userDesc": "Major: 11 / Registration: 2023101500 / E-mail: bruce.wayne@edu.ufes.br",
+    "userIp": "",
+    "userChangePass": "Yes"
+  }
+]

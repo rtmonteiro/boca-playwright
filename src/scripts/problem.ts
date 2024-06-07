@@ -24,7 +24,7 @@ import { type ProblemId, type Problem } from '../data/problem';
 import { dialogHandler } from '../utils/handlers';
 import { ProblemError, ProblemMessages } from '../errors/read_errors';
 
-async function fillProblems(page: Page, problem: Problem): Promise<void> {
+async function fillProblem(page: Page, problem: Problem): Promise<void> {
   await page.goto(BASE_URL + '/admin/');
   // Wait for load state
   await page.waitForLoadState('domcontentloaded');
@@ -48,7 +48,7 @@ export async function createProblem(
   page: Page,
   problem: Problem
 ): Promise<Problem> {
-  await fillProblems(page, problem);
+  await fillProblem(page, problem);
   page.once('dialog', dialogHandler);
   await page.getByRole('button', { name: 'Send' }).click();
   return await getProblem(page, problem);
@@ -63,20 +63,21 @@ export async function deleteProblem(
   await page.waitForLoadState('domcontentloaded');
 
   const identifier = problem.id;
-  const re = new RegExp(`^${identifier}[\\(deleted\\)]*$`);
+  const re = new RegExp(`^${identifier}$`);
 
   const row = await page.locator('form[name=form0] > table > tbody > tr', {
     has: page.locator('td', { hasText: re })
   });
 
-  if ((await row.count()) == 0)
-    throw new ProblemError(ProblemMessages.NOT_FOUND);
+  // Soft delete only if it is active
+  if ((await row.count()) > 0) {
+    page.on('dialog', dialogHandler);
 
-  page.on('dialog', dialogHandler);
+    // Click on the id link
+    await row.locator('td > a').first().click();
+    page.removeListener('dialog', dialogHandler);
+  }
 
-  // Click on the id link
-  await row.locator('td > a').first().click();
-  page.removeListener('dialog', dialogHandler);
   return await getProblem(page, problem);
 }
 
@@ -111,4 +112,33 @@ export async function getProblem(
     .locator('input[type=text]:nth-child(3)')
     .inputValue();
   return problem;
+}
+
+export async function getProblems(page: Page): Promise<Problem[]> {
+  await page.goto(BASE_URL + '/admin/problem.php');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
+
+  const rows = await page.locator('form[name=form0] > table > tbody > tr');
+  const rowCount = await rows.count();
+
+  const problems: Problem[] = [];
+  for (let i = 0; i < rowCount; i++) {
+    const row = rows.nth(i);
+    const columns = await row.locator('td').all();
+    const id = await columns[0].innerText();
+    if (id === 'Problem #' || id === '0 (fake)') continue;
+    const problem = {} as Problem;
+    problem.id = await columns[0].innerText();
+    problem.name = await columns[1].innerText();
+    problem.filePath = (await columns[5].innerText()).trim();
+    problem.colorName = await columns[6]
+      .locator('input[type=text]:nth-child(2)')
+      .inputValue();
+    problem.colorCode = await columns[6]
+      .locator('input[type=text]:nth-child(3)')
+      .inputValue();
+    problems.push(problem);
+  }
+  return problems;
 }

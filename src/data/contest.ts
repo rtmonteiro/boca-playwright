@@ -19,6 +19,7 @@
 // ========================================================================
 
 import { z } from 'zod';
+import { TypeMessages, ContestMessages } from '../errors/read_errors';
 
 export type UpdateContest = z.infer<typeof updateContestSchema>;
 
@@ -28,27 +29,46 @@ export type Contest = z.infer<typeof contestSchema>;
 
 export const contestSchema = z.object({
   id: z.string().refine((value) => parseInt(value) > 0, {
-    message: 'Must be an positive integer number'
+    message: TypeMessages.POSITIVE_NUMBER_REQUIRED
   }),
-  name: z.string(),
-  startDate: z.string(),
-  endDate: z.string(),
-  stopAnsweringDate: z.string(),
-  stopScoreboardDate: z.string(),
-  penalty: z.string(),
-  maxFileSize: z.string().refine((value) => parseInt(value), {
-    message: 'Must be an positive integer number'
-  }),
-  mainSiteUrl: z.string(),
-  mainSiteNumber: z.string().refine((value) => parseInt(value), {
-    message: 'Must be an positive integer number'
-  }),
-  localSiteNumber: z.string().refine((value) => parseInt(value), {
-    message: 'Must be an positive integer number'
-  }),
-  isActive: z.boolean().nullish()
+  name: z.string().optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+  stopAnsweringDate: z.string().optional(),
+  stopScoreboardDate: z.string().optional(),
+  penalty: z
+    .string()
+    .refine((value) => parseInt(value), {
+      message: TypeMessages.POSITIVE_NUMBER_REQUIRED
+    })
+    .optional(),
+  maxFileSize: z
+    .string()
+    .refine((value) => parseInt(value), {
+      message: TypeMessages.POSITIVE_NUMBER_REQUIRED
+    })
+    .optional(),
+  mainSiteUrl: z.string().optional(),
+  mainSiteNumber: z
+    .string()
+    .refine((value) => parseInt(value), {
+      message: TypeMessages.POSITIVE_NUMBER_REQUIRED
+    })
+    .optional(),
+  localSiteNumber: z
+    .string()
+    .refine((value) => parseInt(value), {
+      message: TypeMessages.POSITIVE_NUMBER_REQUIRED
+    })
+    .optional(),
+  isActive: z.union([z.literal('Yes'), z.literal('No')])
 });
 
-export const updateContestSchema = contestSchema.partial();
+export const updateContestSchema = contestSchema
+  .partial()
+  .omit({ isActive: true })
+  .refine((contest) => contest.id !== undefined, ContestMessages.ID_REQUIRED);
 
-export const createContestSchema = contestSchema.partial().omit({ id: true });
+export const createContestSchema = contestSchema
+  .partial()
+  .omit({ id: true, isActive: true });

@@ -20,7 +20,7 @@
 
 import * as fs from 'fs';
 import { z } from 'zod';
-import { ProblemMessages } from '../errors/read_errors';
+import { TypeMessages, ProblemMessages } from '../errors/read_errors';
 
 export type Problem = z.infer<typeof problemSchema>;
 
@@ -28,7 +28,7 @@ export type ProblemId = z.infer<typeof problemIdSchema>;
 
 export const problemSchema = z.object({
   id: z.string().refine((value) => parseInt(value) > 0, {
-    message: 'Must be an positive integer number'
+    message: TypeMessages.POSITIVE_NUMBER_REQUIRED
   }),
   name: z.string(),
   filePath: z
@@ -59,7 +59,4 @@ export const problemSchema = z.object({
 export const problemIdSchema = problemSchema
   .pick({ id: true })
   .partial()
-  .refine(
-    (problem) => problem.id !== undefined || problem.name === undefined,
-    ProblemMessages.ONLY_ID_OR_NAME_REQUIRED
-  );
+  .refine((problem) => problem.id !== undefined, ProblemMessages.ID_REQUIRED);

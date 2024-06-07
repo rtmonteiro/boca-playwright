@@ -18,25 +18,35 @@
 //
 // ========================================================================
 
+import * as fs from 'fs';
 import { z } from 'zod';
+import { TypeMessages, UserMessages } from '../errors/read_errors';
 
 export type User = z.infer<typeof userSchema>;
 
 export type UserId = z.infer<typeof userIdSchema>;
 
-export const insertUsersSchema = z.object({
-  userPath: z.string()
+export const importUsersSchema = z.object({
+  userPath: z.string().refine((path) => {
+    // Check if the file exists with fs.accessSync
+    try {
+      fs.accessSync(path, fs.constants.R_OK);
+      return true;
+    } catch {
+      return false;
+    }
+  }, UserMessages.FILE_NOT_FOUND)
 });
 
 export const userSchema = z.object({
   userSiteNumber: z
     .string()
     .refine((value) => parseInt(value) > 0, {
-      message: 'Must be an positive integer number'
+      message: TypeMessages.POSITIVE_NUMBER_REQUIRED
     })
     .optional(),
   userNumber: z.string().refine((value) => parseInt(value) > 0, {
-    message: 'Must be an positive integer number'
+    message: TypeMessages.POSITIVE_NUMBER_REQUIRED
   }),
   userName: z.string(),
   userIcpcId: z.string().optional(),
@@ -67,5 +77,5 @@ export const userIdSchema = userSchema
   .refine(
     (user) =>
       user.userSiteNumber !== undefined && user.userNumber !== undefined,
-    'Site and id should be provided.'
+    UserMessages.SITE_AND_ID_REQUIRED
   );

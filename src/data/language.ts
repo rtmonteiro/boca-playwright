@@ -19,6 +19,7 @@
 // ========================================================================
 
 import { z } from 'zod';
+import { TypeMessages, LanguageMessages } from '../errors/read_errors';
 
 export type Language = z.infer<typeof languageSchema>;
 
@@ -26,7 +27,7 @@ export type LanguageId = z.infer<typeof languageIdSchema>;
 
 export const languageSchema = z.object({
   id: z.string().refine((value) => parseInt(value) > 0, {
-    message: 'Must be an positive integer number'
+    message: TypeMessages.POSITIVE_NUMBER_REQUIRED
   }),
   name: z.string(),
   extension: z.string().optional()
@@ -37,4 +38,7 @@ export const languageIdSchema = languageSchema
     id: true
   })
   .partial()
-  .refine((language) => language.id !== undefined, 'Id should be provided.');
+  .refine(
+    (language) => language.id !== undefined,
+    LanguageMessages.ID_REQUIRED
+  );

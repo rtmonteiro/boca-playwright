@@ -20,8 +20,13 @@
 #========================================================================
 
 export RET_SUCCESS=0
-export RET_INVALID_ARGS=1
-export RET_INVALID_CONFIG=2
+export RET_ARGS_VALIDATION=1
+export RET_CONFIG_VALIDATION=12
+
+# It will be called before the first test is run.
+oneTimeSetUp() {
+  return 0
+}
 
 # It will be called before each test is run.
 setUp() {
@@ -43,42 +48,42 @@ oneTimeTearDown() {
 testCreateContestMissingPathArgument() {
   npm run test:cli -- -m createContest >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_ARGS $ret_code
+  assertEquals $RET_ARGS_VALIDATION $ret_code
 }
 
 testCreateContestMissingMethodArgument() {
   config_file="resources/mocks/success/contest/valid_contest.json"
   npm run test:cli -- -p "${config_file}" >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_ARGS $ret_code
+  assertEquals $RET_ARGS_VALIDATION $ret_code
 }
 
-testCreateContestInvalidPathArgument() {
+testCreateContestIncorrectPathArgument() {
   config_file="resources/mocks/fake.json"
   npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_ARGS $ret_code
+  assertEquals $RET_ARGS_VALIDATION $ret_code
 }
 
-testCreateContestInvalidMethodArgument() {
+testCreateContestIncorrectMethodArgument() {
   config_file="resources/mocks/success/contest/valid_contest.json"
   npm run test:cli -- -p "${config_file}" -m createContestFake >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_ARGS $ret_code
+  assertEquals $RET_ARGS_VALIDATION $ret_code
 }
 
 testCreateContestMissingConfigData() {
   config_file="resources/mocks/fail/setup/missing_config.json"
   npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testCreateContestMissingBocaUrl() {
   config_file="resources/mocks/fail/setup/missing_url.json"
   npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testCreateContestMissingResultFilePath() {
@@ -92,81 +97,81 @@ testCreateContestInvalidBocaUrl() {
   config_file="resources/mocks/fail/setup/invalid_url.json"
   npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testCreateContestInvalidResultFilePath() {
   config_file="resources/mocks/fail/setup/invalid_result_file_path.json"
   npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 
   file_path=$(jq -r '.config.resultFilePath' "../${config_file}")
-  ret_code=`[ -f "${file_path}" ] && echo $RET_SUCCESS || echo $RET_INVALID_CONFIG`
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  ret_code=`[ -f "${file_path}" ] && echo $RET_SUCCESS || echo $RET_CONFIG_VALIDATION`
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testCreateContestIncorrectBocaUrl() {
   config_file="resources/mocks/fail/setup/incorrect_url.json"
   npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testCreateContestIncorrectResultFilePath() {
   config_file="resources/mocks/fail/setup/incorrect_result_file_path.json"
   npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testCreateContestMissingLoginData() {
   config_file="resources/mocks/fail/login/missing_login.json"
   npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testCreateContestMissingUsername() {
   config_file="resources/mocks/fail/login/missing_username.json"
   npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testCreateContestMissingPassword() {
   config_file="resources/mocks/fail/login/missing_password.json"
   npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testCreateContestInvalidUsername() {
   config_file="resources/mocks/fail/login/invalid_username.json"
   npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testCreateContestInvalidPassword() {
   config_file="resources/mocks/fail/login/invalid_password.json"
   npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testCreateContestIncorrectUsername() {
   config_file="resources/mocks/fail/login/incorrect_username.json"
   npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testCreateContestIncorrectPassword() {
   config_file="resources/mocks/fail/login/incorrect_password.json"
   npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testCreateContestMissingContestData() {
@@ -240,70 +245,76 @@ testCreateContestInvalidName() {
   config_file="resources/mocks/fail/contest/invalid_name.json"
   npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testCreateContestInvalidStartDate() {
   config_file="resources/mocks/fail/contest/invalid_start_date.json"
   npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testCreateContestInvalidEndDate() {
   config_file="resources/mocks/fail/contest/invalid_end_date.json"
   npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testCreateContestInvalidStopAnsweringDate() {
   config_file="resources/mocks/fail/contest/invalid_stop_answering_date.json"
   npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testCreateContestInvalidStopScoreboardDate() {
   config_file="resources/mocks/fail/contest/invalid_stop_scoreboard_date.json"
   npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testCreateContestInvalidPenalty() {
   config_file="resources/mocks/fail/contest/invalid_penalty.json"
   npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testCreateContestInvalidMaxFileSize() {
   config_file="resources/mocks/fail/contest/invalid_max_file_size.json"
   npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testCreateContestInvalidMainSiteUrl() {
   config_file="resources/mocks/fail/contest/invalid_main_site_url.json"
   npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testCreateContestInvalidMainSiteNumber() {
   config_file="resources/mocks/fail/contest/invalid_main_site_number.json"
   npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testCreateContestInvalidLocalSiteNumber() {
   config_file="resources/mocks/fail/contest/invalid_local_site_number.json"
   npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
+}
+
+testCreateContestIncorrectStartDate() {
+  config_file="resources/mocks/success/contest/incorrect_start_date.json"
+  field="startDate"
+  testCreateValidContest $config_file $field
 }
 
 testCreateContestIncorrectEndDate() {
@@ -322,6 +333,34 @@ testCreateContestIncorrectStopScoreboardDate() {
   config_file="resources/mocks/success/contest/incorrect_stop_scoreboard_date.json"
   field="stopScoreboardDate"
   testCreateValidContest $config_file $field
+}
+
+testCreateContestIncorrectPenalty() {
+  config_file="resources/mocks/fail/contest/incorrect_penalty.json"
+  npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1;
+  ret_code=$?
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
+}
+
+testCreateContestIncorrectMaxFileSize() {
+  config_file="resources/mocks/fail/contest/incorrect_max_file_size.json"
+  npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1;
+  ret_code=$?
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
+}
+
+testCreateContestIncorrectMainSiteNumber() {
+  config_file="resources/mocks/fail/contest/incorrect_main_site_number.json"
+  npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1;
+  ret_code=$?
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
+}
+
+testCreateContestIncorrectLocalSiteNumber() {
+  config_file="resources/mocks/fail/contest/incorrect_local_site_number.json"
+  npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1;
+  ret_code=$?
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testCreateValidContest() {
@@ -351,10 +390,10 @@ testCreateValidContest() {
   if [ -n "$2" ];
   then
     jsonIn=$(jq -S --arg f "$2" '.contest | del(.id, .[$f])' "../${config_file}")
-    jsonOut=$(jq -S --arg f "$2" 'del(.id, .[$f])' "../${file_path}")
+    jsonOut=$(jq -S --arg f "$2" 'del(.id, .isActive, .[$f])' "../${file_path}")
   else
     jsonIn=$(jq -S '.contest | del(.id)' "../${config_file}")
-    jsonOut=$(jq -S 'del(.id)' "../${file_path}")
+    jsonOut=$(jq -S 'del(.id, .isActive)' "../${file_path}")
   fi
   [ "$jsonIn" = "$jsonOut" ]
   ret_code=$?

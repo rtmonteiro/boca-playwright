@@ -21,7 +21,7 @@
 import { z } from 'zod';
 import * as fs from 'fs';
 import * as path from 'path';
-import { insertUsersSchema, userSchema } from './user';
+import { importUsersSchema, userSchema } from './user';
 import { loginSchema } from './login';
 import { contestSchema } from './contest';
 import { siteSchema } from './site';
@@ -59,7 +59,7 @@ export const setupSchema = z.object({
       resultFilePath: resultSchema
     })
     .merge(reportSchema.partial())
-    .merge(insertUsersSchema.partial()),
+    .merge(importUsersSchema.partial()),
   login: loginSchema,
   user: userSchema.partial().optional(),
   contest: contestSchema.partial().optional(),

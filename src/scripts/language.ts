@@ -22,6 +22,7 @@ import { BASE_URL } from '../index';
 import { type LanguageId, type Language } from '../data/language';
 import { type Page } from 'playwright';
 import { dialogHandler } from '../utils/handlers';
+import { LanguageError, LanguageMessages } from '../errors/read_errors';
 
 export async function createLanguage(
   page: Page,
@@ -48,22 +49,24 @@ export async function createLanguage(
 export async function deleteLanguage(
   page: Page,
   language: LanguageId
-): Promise<void> {
+): Promise<Language> {
   await page.goto(BASE_URL + '/admin/language.php');
   // Wait for load state
   await page.waitForLoadState('domcontentloaded');
 
-  const loc = language.id ? 'td:nth-of-type(1)' : 'td:nth-of-type(2)';
+  const loc = 'td:nth-of-type(1)';
 
   const row = await page.locator('table:nth-of-type(3) > tbody > tr', {
     has: page.locator(loc, { hasText: language.id })
   });
+  if ((await row.count()) == 0)
+    throw new LanguageError(LanguageMessages.NOT_FOUND);
 
+  const l: Language = await getLanguage(page, language);
   page.on('dialog', dialogHandler);
-
   await row.locator('td:nth-of-type(1) a').click();
-
   page.removeListener('dialog', dialogHandler);
+  return l;
 }
 
 export async function getLanguage(
@@ -74,15 +77,43 @@ export async function getLanguage(
   // Wait for load state
   await page.waitForLoadState('domcontentloaded');
 
-  const loc = language.id ? 'td:nth-of-type(1)' : 'td:nth-of-type(2)';
+  const loc = 'td:nth-of-type(1)';
 
   const row = await page.locator('table:nth-of-type(3) > tbody > tr', {
     has: page.locator(loc, { hasText: language.id })
   });
+  if ((await row.count()) == 0)
+    throw new LanguageError(LanguageMessages.NOT_FOUND);
 
   return {
     id: await row.locator('td:nth-of-type(1)').innerText(),
     name: await row.locator('td:nth-of-type(2)').innerText(),
     extension: await row.locator('td:nth-of-type(3)').innerText()
   };
+}
+
+export async function getLanguages(page: Page): Promise<Language[]> {
+  await page.goto(BASE_URL + '/admin/language.php');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
+
+  const loc = 'td:nth-of-type(1)';
+
+  const rows = await page.locator('table:nth-of-type(3) > tbody > tr', {
+    has: page.locator(loc)
+  });
+  const rowCount = await rows.count();
+
+  const languages: Language[] = [];
+  for (let i = 0; i < rowCount; i++) {
+    const row = rows.nth(i);
+    if ((await row.locator('td:nth-of-type(1)').innerText()) === 'Language #')
+      continue;
+    languages.push({
+      id: await row.locator('td:nth-of-type(1)').innerText(),
+      name: await row.locator('td:nth-of-type(2)').innerText(),
+      extension: await row.locator('td:nth-of-type(3)').innerText()
+    });
+  }
+  return languages;
 }

@@ -18,32 +18,12 @@
 //
 // ========================================================================
 
-import { type Page } from 'playwright';
+import { type Locator, type Page } from 'playwright';
 import { type Login } from '../data/login';
 import { type UserId, type User } from '../data/user';
 import { BASE_URL } from '../index';
 import { dialogHandler } from '../utils/handlers';
-
-export async function login(page: Page, login: Login): Promise<void> {
-  await page.goto(BASE_URL + '/');
-  // Wait for load state
-  await page.waitForLoadState('domcontentloaded');
-  await page.locator('input[name="name"]').click();
-  await page.locator('input[name="name"]').fill(login.username);
-  await page.locator('input[name="name"]').press('Tab');
-  await page.locator('input[name="password"]').fill(login.password);
-  await page.locator('input[name="password"]').press('Enter');
-}
-
-export async function insertUsers(page: Page, path: string): Promise<void> {
-  await page.goto(`${BASE_URL}/admin/user.php`);
-  // Wait for load state
-  await page.waitForLoadState('domcontentloaded');
-  await page.locator('input[name="importfile"]').click();
-  await page.locator('input[name="importfile"]').setInputFiles(path);
-  page.once('dialog', dialogHandler);
-  await page.getByRole('button', { name: 'Import' }).click();
-}
+import { UserError, UserMessages } from '../errors/read_errors';
 
 async function fillUser(page: Page, user: User, admin: Login): Promise<void> {
   await page.goto(`${BASE_URL}/admin/user.php`);
@@ -98,6 +78,95 @@ async function fillUser(page: Page, user: User, admin: Login): Promise<void> {
   }
 }
 
+function capitalize(s: unknown) {
+  if (typeof s === 'string' || s instanceof String)
+    return s[0].toUpperCase() + s.slice(1);
+  else return s;
+}
+
+async function getUserFromForm(page: Page): Promise<User> {
+  const user: User = {} as User;
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
+
+  if (await page.locator('input[name="usersitenumber"]').isVisible()) {
+    user.userSiteNumber = await page
+      .locator('input[name="usersitenumber"]')
+      .inputValue();
+  }
+  if (await page.locator('input[name="usernumber"]').isVisible()) {
+    user.userNumber = await page
+      .locator('input[name="usernumber"]')
+      .inputValue();
+  }
+  if (await page.locator('input[name="username"]').isVisible()) {
+    user.userName = await page.locator('input[name="username"]').inputValue();
+  }
+  if (await page.locator('input[name="usericpcid"]').isVisible()) {
+    user.userIcpcId = await page
+      .locator('input[name="usericpcid"]')
+      .inputValue();
+  }
+  if (await page.locator('select[name="usertype"]').isVisible()) {
+    user.userType = capitalize(
+      (await page.locator('select[name="usertype"]').inputValue()) as string
+    ) as User['userType'];
+  }
+  if (await page.locator('select[name="userenabled"]').isVisible()) {
+    user.userEnabled =
+      (await page.locator('select[name="userenabled"]').inputValue()) === 't'
+        ? 'Yes'
+        : 'No';
+  }
+  if (await page.locator('select[name="usermultilogin"]').isVisible()) {
+    user.userMultiLogin =
+      (await page.locator('select[name="usermultilogin"]').inputValue()) === 't'
+        ? 'Yes'
+        : 'No';
+  }
+  if (await page.locator('input[name="userfullname"]').isVisible()) {
+    user.userFullName = await page
+      .locator('input[name="userfullname"]')
+      .inputValue();
+  }
+  if (await page.locator('input[name="userdesc"]').isVisible()) {
+    user.userDesc = await page.locator('input[name="userdesc"]').inputValue();
+  }
+  if (await page.locator('input[name="userip"]').isVisible()) {
+    user.userIp = await page.locator('input[name="userip"]').inputValue();
+  }
+  if (await page.locator('select[name="changepass"]').isVisible()) {
+    user.userChangePass =
+      (await page.locator('select[name="changepass"]').inputValue()) === 't'
+        ? 'Yes'
+        : 'No';
+  }
+  return user;
+}
+
+async function getUserFromRow(row: Locator): Promise<User> {
+  return {
+    userSiteNumber: (
+      await row.locator('td:nth-of-type(2)').textContent()
+    )?.trim(),
+    userNumber: (await row.locator('td:nth-of-type(1)').textContent())?.trim(),
+    userName: (await row.locator('td:nth-of-type(3)').textContent())?.trim(),
+    userIcpcId: (await row.locator('td:nth-of-type(4)').textContent())?.trim(),
+    userType: capitalize(
+      (await row.locator('td:nth-of-type(5)').textContent())?.trim()
+    ),
+    userEnabled: (await row.locator('td:nth-of-type(9)').textContent())?.trim(),
+    userMultiLogin: (
+      await row.locator('td:nth-of-type(10)').textContent()
+    )?.trim(),
+    userFullName: (
+      await row.locator('td:nth-of-type(11)').textContent()
+    )?.trim(),
+    userDesc: (await row.locator('td:nth-of-type(12)').textContent())?.trim(),
+    userIp: (await row.locator('td:nth-of-type(6)').textContent())?.trim()
+  } as User;
+}
+
 export async function createUser(
   page: Page,
   user: User,
@@ -112,14 +181,17 @@ export async function deleteUser(
   page: Page,
   userId: UserId,
   admin: Login
-): Promise<void> {
+): Promise<User> {
   await page.goto(BASE_URL + '/admin/user.php');
   // Wait for load state
   await page.waitForLoadState('domcontentloaded');
 
+  const identifier = userId.userNumber;
+  const re = new RegExp(`^${identifier}$`);
+
   const loc1 = page.locator('td:nth-of-type(1)', {
     // eslint-disable-next-line no-useless-escape
-    hasText: userId.userNumber
+    hasText: re
   });
 
   const loc2 = page.locator('td:nth-of-type(2)', {
@@ -127,25 +199,32 @@ export async function deleteUser(
     hasText: userId.userSiteNumber
   });
 
-  await page
+  const row = await page
     .locator('tr')
     .filter({
       has: loc1
     })
     .filter({
       has: loc2
-    })
-    .locator('td')
-    .nth(0)
-    .click();
+    });
 
-  if (await page.isVisible('input[name="passwordo"]')) {
-    await page.locator('input[name="passwordo"]').fill(admin.password);
+  // Soft delete only if it is active
+  if ((await row.count()) > 0) {
+    await row.locator('td').nth(0).click();
+
+    if (await page.isVisible('input[name="passwordo"]')) {
+      await page.locator('input[name="passwordo"]').fill(admin.password);
+    }
+
+    page.once('dialog', dialogHandler);
+    await page.getByRole('button', { name: 'Delete' }).click();
   }
 
-  page.once('dialog', dialogHandler);
-  await page.getByRole('button', { name: 'Delete' }).click();
+  const user = await getUser(page, userId);
+  user.userNumber = user.userNumber + '(inactive)';
+  return user;
 }
+
 export async function getUser(page: Page, userId: UserId): Promise<User> {
   await page.goto(`${BASE_URL}/admin/user.php`);
   // Wait for load state
@@ -166,36 +245,66 @@ export async function getUser(page: Page, userId: UserId): Promise<User> {
     .filter({ has: loc1 })
     .filter({ has: loc2 });
 
-  await row.locator('td:nth-of-type(1) a').click();
+  if ((await row.count()) == 0) throw new UserError(UserMessages.NOT_FOUND);
 
-  function capitalize(s: string) {
-    return s && s[0].toUpperCase() + s.slice(1);
+  if (await row.locator('td:nth-of-type(1) a').isVisible()) {
+    await row.locator('td:nth-of-type(1) a').click();
+    return await getUserFromForm(page);
+  } else {
+    return await getUserFromRow(row);
   }
+}
 
-  return {
-    userSiteNumber: await page
-      .locator('input[name="usersitenumber"]')
-      .inputValue(),
-    userNumber: await page.locator('input[name="usernumber"]').inputValue(),
-    userName: await page.locator('input[name="username"]').inputValue(),
-    userIcpcId: await page.locator('input[name="usericpcid"]').inputValue(),
-    userType: capitalize(
-      await page.locator('select[name="usertype"]').inputValue()
-    ),
-    userEnabled:
-      (await page.locator('select[name="userenabled"]').inputValue()) === 't'
-        ? 'Yes'
-        : 'No',
-    userMultiLogin:
-      (await page.locator('select[name="usermultilogin"]').inputValue()) === 't'
-        ? 'Yes'
-        : 'No',
-    userFullName: await page.locator('input[name="userfullname"]').inputValue(),
-    userDesc: await page.locator('input[name="userdesc"]').inputValue(),
-    userIp: await page.locator('input[name="userip"]').inputValue(),
-    userChangePass:
-      (await page.locator('select[name="changepass"]').inputValue()) === 't'
-        ? 'Yes'
-        : 'No'
-  } as User;
+export async function getUsers(page: Page): Promise<User[]> {
+  await page.goto(`${BASE_URL}/admin/user.php`);
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
+
+  const loc1 = page.locator('tr > td:nth-of-type(1)', {
+    hasText: 'User #'
+  });
+
+  const loc2 = page.locator('td:nth-of-type(1)', {
+    hasNotText: 'User #'
+  });
+
+  const rows = await page
+    .locator('table')
+    .filter({ has: loc1 })
+    .locator('tr')
+    .filter({ has: loc2 });
+  const rowCount = await rows.count();
+  const users: User[] = [];
+  for (let i = 0; i < rowCount; i++) {
+    const row = rows.nth(i);
+    if (await row.locator('td:nth-of-type(1) a').isVisible()) {
+      await row.locator('td:nth-of-type(1) a').click();
+      const user: User = await getUserFromForm(page);
+      users.push(user);
+    } else {
+      users.push(await getUserFromRow(row));
+    }
+  }
+  return users;
+}
+
+export async function importUsers(page: Page, path: string): Promise<void> {
+  await page.goto(`${BASE_URL}/admin/user.php`);
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
+  await page.locator('input[name="importfile"]').click();
+  await page.locator('input[name="importfile"]').setInputFiles(path);
+  page.once('dialog', dialogHandler);
+  await page.getByRole('button', { name: 'Import' }).click();
+}
+
+export async function login(page: Page, login: Login): Promise<void> {
+  await page.goto(BASE_URL + '/');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
+  await page.locator('input[name="name"]').click();
+  await page.locator('input[name="name"]').fill(login.username);
+  await page.locator('input[name="name"]').press('Tab');
+  await page.locator('input[name="password"]').fill(login.password);
+  await page.locator('input[name="password"]').press('Enter');
 }

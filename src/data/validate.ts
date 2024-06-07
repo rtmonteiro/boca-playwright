@@ -20,7 +20,7 @@
 
 import { z } from 'zod';
 import { type Setup } from './setup';
-import { type User, userIdSchema, insertUsersSchema, userSchema } from './user';
+import { type User, userIdSchema, importUsersSchema, userSchema } from './user';
 import { loginSchema } from './login';
 import { siteSchema } from './site';
 import { problemIdSchema, problemSchema } from './problem';
@@ -31,11 +31,7 @@ import {
   updateContestSchema
 } from './contest';
 import { reportSchema } from './report';
-import {
-  ContestMessages,
-  LoginError,
-  LoginMessages
-} from '../errors/read_errors';
+import { LoginError, LoginMessages } from '../errors/read_errors';
 import { type Page } from 'playwright';
 
 export class Validate {
@@ -45,26 +41,6 @@ export class Validate {
     const setupType = z.object({
       login: loginSchema,
       contest: createContestSchema.optional()
-    });
-    setupType.parse(this.setup);
-    return this.setup as z.infer<typeof setupType>;
-  }
-
-  updateContest(): z.infer<typeof setupType> {
-    const setupType = z.object({
-      login: loginSchema,
-      contest: updateContestSchema
-        .refine(
-          (contest) => contest.id !== undefined,
-          ContestMessages.CONTEST_ID_REQUIRED
-        )
-        .refine(
-          (contest) =>
-            !Object.entries(contest)
-              .filter(([k]) => k !== 'id')
-              .every(([, v]) => v === undefined),
-          ContestMessages.ONE_FIELD_REQUIRED
-        )
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;
@@ -87,46 +63,36 @@ export class Validate {
     return this.setup as z.infer<typeof setupType>;
   }
 
-  createUser(): z.infer<typeof setupType> {
+  updateContest(): z.infer<typeof setupType> {
     const setupType = z.object({
       login: loginSchema,
-      user: userSchema
+      contest: updateContestSchema
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;
   }
 
-  deleteUser(): z.infer<typeof setupType> {
+  createLanguage(): z.infer<typeof setupType> {
     const setupType = z.object({
       login: loginSchema,
-      user: userIdSchema
+      language: languageSchema
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;
   }
 
-  insertUsers(): z.infer<typeof setupType> {
+  getLanguage(): z.infer<typeof setupType> {
     const setupType = z.object({
       login: loginSchema,
-      config: insertUsersSchema
+      language: languageIdSchema
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;
   }
 
-  getUser(): z.infer<typeof setupType> {
+  getLanguages(): z.infer<typeof setupType> {
     const setupType = z.object({
-      login: loginSchema,
-      user: userIdSchema
-    });
-    setupType.parse(this.setup);
-    return this.setup as z.infer<typeof setupType>;
-  }
-
-  createSite(): z.infer<typeof setupType> {
-    const setupType = z.object({
-      login: loginSchema,
-      site: siteSchema // TODO - Review if it should be optional
+      login: loginSchema
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;
@@ -159,19 +125,62 @@ export class Validate {
     return this.setup as z.infer<typeof setupType>;
   }
 
-  createLanguage(): z.infer<typeof setupType> {
+  getProblems(): z.infer<typeof setupType> {
     const setupType = z.object({
-      login: loginSchema,
-      language: languageSchema
+      login: loginSchema
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;
   }
 
-  deleteLanguage(): z.infer<typeof setupType> {
+  createUser(): z.infer<typeof setupType> {
     const setupType = z.object({
       login: loginSchema,
-      language: languageIdSchema
+      user: userSchema
+    });
+    setupType.parse(this.setup);
+    return this.setup as z.infer<typeof setupType>;
+  }
+
+  deleteUser(): z.infer<typeof setupType> {
+    const setupType = z.object({
+      login: loginSchema,
+      user: userIdSchema
+    });
+    setupType.parse(this.setup);
+    return this.setup as z.infer<typeof setupType>;
+  }
+
+  getUser(): z.infer<typeof setupType> {
+    const setupType = z.object({
+      login: loginSchema,
+      user: userIdSchema
+    });
+    setupType.parse(this.setup);
+    return this.setup as z.infer<typeof setupType>;
+  }
+
+  getUsers(): z.infer<typeof setupType> {
+    const setupType = z.object({
+      login: loginSchema
+    });
+    setupType.parse(this.setup);
+    return this.setup as z.infer<typeof setupType>;
+  }
+
+  importUsers(): z.infer<typeof setupType> {
+    const setupType = z.object({
+      login: loginSchema,
+      config: importUsersSchema
+    });
+    setupType.parse(this.setup);
+    return this.setup as z.infer<typeof setupType>;
+  }
+
+  createSite(): z.infer<typeof setupType> {
+    const setupType = z.object({
+      login: loginSchema,
+      site: siteSchema // TODO - Review if it should be optional
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;

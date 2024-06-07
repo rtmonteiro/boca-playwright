@@ -32,6 +32,25 @@ import { ContestError, ContestMessages } from '../errors/read_errors';
 import { login } from './user';
 import { Login } from '../data/login';
 
+export async function activateContest(
+  page: Page,
+  contestId: Contest['id'],
+  user: Login
+): Promise<Contest> {
+  await page.goto(BASE_URL + '/system/contest.php');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
+  await selectContest(page, contestId);
+
+  page.on('dialog', dialogHandler);
+  await page.getByRole('button', { name: 'Activate' }).click();
+  page.removeListener('dialog', dialogHandler);
+
+  // Because the activation of a contest logs out the user
+  await login(page, user);
+  return await getContest(page, contestId);
+}
+
 export async function createContest(
   page: Page,
   contest: CreateContest | undefined
@@ -48,6 +67,47 @@ export async function createContest(
   page.once('dialog', dialogHandler);
   await page.getByRole('button', { name: 'Send' }).click();
   return await getContestForm(page);
+}
+
+export async function getContest(
+  page: Page,
+  contestId: Contest['id']
+): Promise<Contest> {
+  await page.goto(BASE_URL + '/system/contest.php');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
+  await selectContest(page, contestId);
+  return await getContestForm(page);
+}
+
+export async function getContests(page: Page): Promise<Contest[]> {
+  await page.goto(BASE_URL + '/system/contest.php');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
+  const optionEls = await page.locator('select[name="contest"] option').all();
+  const options = await Promise.all(
+    optionEls.map(async (el) => el.textContent())
+  ).then((options) =>
+    // Remove the first option (empty) and the last option (new)
+    options.filter((option) => option !== 'new' && option !== '0')
+  );
+
+  if (options.some((option) => option === null) || options.length === 2) {
+    throw new ContestError(ContestMessages.NOT_FOUND);
+  }
+
+  const contests: Contest[] = [];
+  for (const option of options) {
+    await page.goto(BASE_URL + '/system/contest.php');
+    // Wait for load state
+    await page.waitForLoadState('domcontentloaded');
+    await selectContest(page, option!);
+    const contest: Contest = await getContestForm(page);
+    if (contest !== undefined && contest.id !== '0') {
+      contests.push(contest);
+    }
+  }
+  return contests;
 }
 
 export async function updateContest(
@@ -67,57 +127,6 @@ export async function updateContest(
   return await getContest(page, contest.id!);
 }
 
-export async function getContest(
-  page: Page,
-  contestId: Contest['id']
-): Promise<Contest> {
-  await page.goto(BASE_URL + '/system/contest.php');
-  // Wait for load state
-  await page.waitForLoadState('domcontentloaded');
-  await selectContest(page, contestId);
-  return await getContestForm(page);
-}
-
-export async function getContests(page: Page): Promise<Contest[]> {
-  await page.goto(BASE_URL + '/system/contest.php');
-  const optionEls = await page.locator('select[name="contest"] option').all();
-  const options = await Promise.all(
-    optionEls.map(async (el) => el.textContent())
-  ).then((options) =>
-    // Remove the first option (empty) and the last option (new)
-    options.filter((option) => option !== 'new' && option !== '0')
-  );
-
-  if (options.some((option) => option === null) || options.length === 2) {
-    throw new ContestError(ContestMessages.NOT_FOUND);
-  }
-
-  const contests: Contest[] = [];
-  for (const option of options) {
-    await page.goto(BASE_URL + '/system/contest.php');
-    await selectContest(page, option!);
-    contests.push(await getContestForm(page));
-  }
-  return contests;
-}
-
-export async function activateContest(
-  page: Page,
-  contestId: Contest['id'],
-  user: Login
-): Promise<Contest> {
-  await page.goto(BASE_URL + '/system/contest.php');
-  await selectContest(page, contestId);
-
-  page.on('dialog', dialogHandler);
-  await page.getByRole('button', { name: 'Activate' }).click();
-  page.removeListener('dialog', dialogHandler);
-
-  // Because the activation of a contest logs out the user
-  await login(page, user);
-  return await getContest(page, contestId);
-}
-
 async function fillContest(page: Page, contest: UpdateContest): Promise<void> {
   if (contest.name !== undefined) {
     await page.locator('input[name="name"]').fill(contest.name);
@@ -126,22 +135,28 @@ async function fillContest(page: Page, contest: UpdateContest): Promise<void> {
   let startDate;
   if (contest.startDate !== undefined) {
     startDate = DateTime.fromFormat(contest.startDate, 'yyyy-MM-dd HH:mm');
-    await page
-      .locator('input[name="startdateh"]')
-      .fill(startDate.hour.toString());
-    await page
-      .locator('input[name="startdatemin"]')
-      .fill(startDate.minute.toString());
-    await page
-      .locator('input[name="startdated"]')
-      .fill(startDate.day.toString());
-    await page
-      .locator('input[name="startdatem"]')
-      .fill(startDate.month.toString());
-    await page
-      .locator('input[name="startdatey"]')
-      .fill(startDate.year.toString());
-  } else {
+
+    if (startDate.toUnixInteger() >= 0) {
+      await page
+        .locator('input[name="startdateh"]')
+        .fill(startDate.hour.toString());
+      await page
+        .locator('input[name="startdatemin"]')
+        .fill(startDate.minute.toString());
+      await page
+        .locator('input[name="startdated"]')
+        .fill(startDate.day.toString());
+      await page
+        .locator('input[name="startdatem"]')
+        .fill(startDate.month.toString());
+      await page
+        .locator('input[name="startdatey"]')
+        .fill(startDate.year.toString());
+    } else {
+      startDate = undefined;
+    }
+  }
+  if (startDate === undefined) {
     const hour = await page.locator('input[name="startdateh"]').inputValue();
     const minute = await page
       .locator('input[name="startdatemin"]')
@@ -155,33 +170,41 @@ async function fillContest(page: Page, contest: UpdateContest): Promise<void> {
     );
   }
 
-    if (contest.endDate !== undefined) {
-      const endDate = DateTime.fromFormat(contest.endDate, 'yyyy-MM-dd HH:mm');
-      const duration = defineDuration(startDate, endDate);
-      if (!duration.isValid)
-        throw new ContestError(ContestMessages.NEGATIVE_DURATION);
-      await page
-        .locator('input[name="duration"]')
-        .fill(duration.minutes.toString());
+  let duration;
+  if (contest.endDate !== undefined) {
+    const endDate = DateTime.fromFormat(contest.endDate, 'yyyy-MM-dd HH:mm');
+    duration = defineDuration(startDate, endDate);
+    if (!duration.isValid)
+      throw new ContestError(ContestMessages.NEGATIVE_DURATION);
+    await page
+      .locator('input[name="duration"]')
+      .fill(duration.minutes.toString());
+  } else {
+    const dur = await page.locator('input[name="duration"]').inputValue();
+    const endDate = startDate.plus({ minutes: parseInt(dur) });
+    duration = defineDuration(startDate, endDate);
+  }
 
-      await fillDateField(
-        startDate,
-        page,
-        duration,
-        15,
-        'input[name="lastmileanswer"]',
-        contest.stopAnsweringDate
-      );
+  if (contest.stopAnsweringDate !== undefined) {
+    await fillDateField(
+      startDate,
+      page,
+      duration,
+      15,
+      'input[name="lastmileanswer"]',
+      contest.stopAnsweringDate
+    );
+  }
 
-      await fillDateField(
-        startDate,
-        page,
-        duration,
-        60,
-        'input[name="lastmilescore"]',
-        contest.stopScoreboardDate
-      );
-    }
+  if (contest.stopScoreboardDate !== undefined) {
+    await fillDateField(
+      startDate,
+      page,
+      duration,
+      60,
+      'input[name="lastmilescore"]',
+      contest.stopScoreboardDate
+    );
   }
 
   if (contest.penalty !== undefined) {
@@ -232,13 +255,17 @@ async function checkContestExist(page: Page, id: string) {
 
 async function getContestForm(page: Page): Promise<Contest> {
   const contest: Contest = {} as Contest;
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
   if (await page.locator('select[name="contest"]').isVisible()) {
     contest.id = (await page
       .locator('option[selected]')
       .getAttribute('value')) as string;
     contest.isActive = (
       await page.locator('option[selected]').innerText()
-    ).endsWith('*');
+    ).endsWith('*')
+      ? 'Yes'
+      : 'No';
   }
   // if (await page.locator('select[name="contest"]').isVisible()) {
   //   contest.id = await page.locator('select[name="contest"]').inputValue();
@@ -256,13 +283,19 @@ async function getContestForm(page: Page): Promise<Contest> {
     const year = await page.locator('input[name="startdatey"]').inputValue();
     contest.startDate = `${year}-${month}-${day} ${hour}:${minute}`;
   }
-  if (await page.locator('input[name="duration"]').isVisible()) {
+  if (
+    contest.startDate &&
+    (await page.locator('input[name="duration"]').isVisible())
+  ) {
     const endDate = await page.locator('input[name="duration"]').inputValue();
     contest.endDate = DateTime.fromFormat(contest.startDate, 'yyyy-MM-dd HH:mm')
       .plus({ minutes: parseInt(endDate) })
       .toFormat('yyyy-MM-dd HH:mm');
   }
-  if (await page.locator('input[name="lastmileanswer"]').isVisible()) {
+  if (
+    contest.startDate &&
+    (await page.locator('input[name="lastmileanswer"]').isVisible())
+  ) {
     const stopAnswering = await page
       .locator('input[name="lastmileanswer"]')
       .inputValue();
@@ -273,7 +306,10 @@ async function getContestForm(page: Page): Promise<Contest> {
       .plus({ minutes: parseInt(stopAnswering) })
       .toFormat('yyyy-MM-dd HH:mm');
   }
-  if (await page.locator('input[name="lastmilescore"]').isVisible()) {
+  if (
+    contest.startDate &&
+    (await page.locator('input[name="lastmilescore"]').isVisible())
+  ) {
     const stopScoreboard = await page
       .locator('input[name="lastmilescore"]')
       .inputValue();

@@ -21,36 +21,33 @@
 
 npm run build
 
-# Testing contest methods
+# Testing contest methods (count: 165)
+./activate_contest.sh
 ./create_contest.sh
 ./get_contest.sh
-# TODO
-# ./get_contests.sh
+./get_contests.sh
 ./update_contest.sh
 
-# Testing language methods
-# Use -m updateLanguage as an alternative alias for createLanguage
+# # Testing language methods (count: 92)
+# # Use -m updateLanguage as an alternative alias for createLanguage
 ./create_language.sh
 ./delete_language.sh
-# TODO
-# ./get_language.sh
-# ./get_languages.sh
+./get_language.sh
+./get_languages.sh
 
-# Testing problem methods
+# Testing problem methods (count: 98)
 # Use -m updateProblem as an alternative alias for createProblem
 ./create_problem.sh
 ./delete_problem.sh
 ./get_problem.sh
-# TODO
-# ./get_problems.sh
+./get_problems.sh
 
-# Testing user methods
+# Testing user methods (count: )
 # TODO
 # ./change_password.sh
 # Use -m updateUser as an alternative alias for createUser
 ./create_user.sh
 ./delete_user.sh
 ./get_user.sh
-# TODO
-# ./get_users.sh
+./get_users.sh
 ./import_users.sh

@@ -20,25 +20,42 @@
 #========================================================================
 
 export RET_SUCCESS=0
-export RET_INVALID_ARGS=1
-export RET_INVALID_CONFIG=2
+export RET_ARGS_VALIDATION=1
+export RET_CONFIG_VALIDATION=12
+export RET_USER_ERROR=17
 
 # It will be called before the first test is run.
-oneTimeSetup() {
+oneTimeSetUp() {
+  # Check if contest exists. If not, create it.
   config_file="resources/mocks/success/contest/valid_contest.json"
-  npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1;
-  # ret_code1=$?
-  # npm run test:cli -- -p "${config_file}" -m activateContest >/dev/null 2>&1;
-  # ret_code2=$?
-  # [ $ret_code1 = 0 && $ret_code2 = 0 ]
+  npm run test:cli -- -p "${config_file}" -m getContest >/dev/null 2>&1;
   ret_code=$?
+  if [ $ret_code != $RET_SUCCESS ];
+  then
+    npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1;
+    ret_code=$?
+  fi
+  # Activate contest.
+  if [ $ret_code = $RET_SUCCESS ];
+  then
+    npm run test:cli -- -p "${config_file}" -m activateContest >/dev/null 2>&1;
+    ret_code=$?
+  fi
+  # Check if site exists. If not, create it.
+  # TODO
+  # Create a valid user.
+  if [ $ret_code = $RET_SUCCESS ];
+  then
+    config_file="resources/mocks/success/user/valid_user.json"
+    npm run test:cli -- -p "${config_file}" -m createUser >/dev/null 2>&1;
+    ret_code=$?
+    return $ret_code
+  fi
   return $ret_code
 }
 
 # It will be called before each test is run.
 setUp() {
-  config_file="resources/mocks/success/user/valid_user.json"
-  npm run test:cli -- -p "${config_file}" -m createUser >/dev/null 2>&1;
   [ -f "./result.json" ] && rm "./result.json"
   return 0
 }
@@ -57,42 +74,42 @@ oneTimeTearDown() {
 testGetUserMissingPathArgument() {
   npm run test:cli -- -m getUser >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_ARGS $ret_code
+  assertEquals $RET_ARGS_VALIDATION $ret_code
 }
 
 testGetUserMissingMethodArgument() {
   config_file="resources/mocks/success/user/valid_user.json"
   npm run test:cli -- -p "${config_file}" >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_ARGS $ret_code
+  assertEquals $RET_ARGS_VALIDATION $ret_code
 }
 
-testGetUserInvalidPathArgument() {
+testGetUserIncorrectPathArgument() {
   config_file="resources/mocks/fake.json"
   npm run test:cli -- -p "${config_file}" -m getUser >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_ARGS $ret_code
+  assertEquals $RET_ARGS_VALIDATION $ret_code
 }
 
-testGetUserInvalidMethodArgument() {
+testGetUserIncorrectMethodArgument() {
   config_file="resources/mocks/success/user/valid_user.json"
   npm run test:cli -- -p "${config_file}" -m getUserFake >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_ARGS $ret_code
+  assertEquals $RET_ARGS_VALIDATION $ret_code
 }
 
 testGetUserMissingConfigData() {
   config_file="resources/mocks/fail/setup/missing_config.json"
   npm run test:cli -- -p "${config_file}" -m getUser >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testGetUserMissingBocaUrl() {
   config_file="resources/mocks/fail/setup/missing_url.json"
   npm run test:cli -- -p "${config_file}" -m getUser >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testGetUserMissingResultFilePath() {
@@ -106,140 +123,134 @@ testGetUserInvalidBocaUrl() {
   config_file="resources/mocks/fail/setup/invalid_url.json"
   npm run test:cli -- -p "${config_file}" -m getUser >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testGetUserInvalidResultFilePath() {
   config_file="resources/mocks/fail/setup/invalid_result_file_path.json"
   npm run test:cli -- -p "${config_file}" -m getUser >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 
   file_path=$(jq -r '.config.resultFilePath' "../${config_file}")
-  ret_code=`[ -f "${file_path}" ] && echo $RET_SUCCESS || echo $RET_INVALID_CONFIG`
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  ret_code=`[ -f "${file_path}" ] && echo $RET_SUCCESS || echo $RET_CONFIG_VALIDATION`
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testGetUserIncorrectBocaUrl() {
   config_file="resources/mocks/fail/setup/incorrect_url.json"
   npm run test:cli -- -p "${config_file}" -m getUser >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testGetUserIncorrectResultFilePath() {
   config_file="resources/mocks/fail/setup/incorrect_result_file_path.json"
-  npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1;
+  npm run test:cli -- -p "${config_file}" -m getUser >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testGetUserMissingLoginData() {
   config_file="resources/mocks/fail/login/missing_login.json"
   npm run test:cli -- -p "${config_file}" -m getUser >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testGetUserMissingUsername() {
   config_file="resources/mocks/fail/login/missing_username.json"
   npm run test:cli -- -p "${config_file}" -m getUser >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testGetUserMissingPassword() {
   config_file="resources/mocks/fail/login/missing_password.json"
   npm run test:cli -- -p "${config_file}" -m getUser >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testGetUserInvalidUsername() {
   config_file="resources/mocks/fail/login/invalid_username.json"
   npm run test:cli -- -p "${config_file}" -m getUser >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testGetUserInvalidPassword() {
   config_file="resources/mocks/fail/login/invalid_password.json"
   npm run test:cli -- -p "${config_file}" -m getUser >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testGetUserIncorrectUsername() {
   config_file="resources/mocks/fail/login/incorrect_username.json"
   npm run test:cli -- -p "${config_file}" -m getUser >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testGetUserIncorrectPassword() {
   config_file="resources/mocks/fail/login/incorrect_password.json"
   npm run test:cli -- -p "${config_file}" -m getUser >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testGetUserMissingUserData() {
   config_file="resources/mocks/fail/user/missing_user.json"
   npm run test:cli -- -p "${config_file}" -m getUser >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
-testDeleteUserMissingSite() {
+testGetUserMissingSite() {
   config_file="resources/mocks/success/user/missing_site.json"
-  npm run test:cli -- -p "${config_file}" -m deleteUser >/dev/null 2>&1;
+  npm run test:cli -- -p "${config_file}" -m getUser >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testGetUserMissingId() {
   config_file="resources/mocks/fail/user/missing_id.json"
   npm run test:cli -- -p "${config_file}" -m getUser >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
-testDeleteUserInvalidSite() {
+testGetUserInvalidSite() {
   config_file="resources/mocks/fail/user/invalid_site.json"
-  npm run test:cli -- -p "${config_file}" -m deleteUser >/dev/null 2>&1;
+  npm run test:cli -- -p "${config_file}" -m getUser >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testGetUserInvalidId() {
   config_file="resources/mocks/fail/user/invalid_id.json"
   npm run test:cli -- -p "${config_file}" -m getUser >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
-testDeleteUserIncorrectSite() {
+testGetUserIncorrectSite() {
   config_file="resources/mocks/fail/user/incorrect_site.json"
-  npm run test:cli -- -p "${config_file}" -m deleteUser >/dev/null 2>&1;
+  npm run test:cli -- -p "${config_file}" -m getUser >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testGetUserIncorrectId() {
   config_file="resources/mocks/fail/user/incorrect_id.json"
   npm run test:cli -- -p "${config_file}" -m getUser >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_INVALID_CONFIG $ret_code
+  assertEquals $RET_USER_ERROR $ret_code
 }
 
 testGetValidUser() {
-  if [ -n "$1" ];
-  then
-    config_file="$1"
-  else
-    config_file="resources/mocks/success/user/valid_user.json"
-  fi
-
+  config_file="resources/mocks/success/user/valid_user.json"
   npm run test:cli -- -p "${config_file}" -m getUser >/dev/null 2>&1;
   ret_code=$?
   assertEquals $RET_SUCCESS $ret_code
@@ -255,15 +266,9 @@ testGetValidUser() {
   ret_code=$?
   assertEquals $RET_SUCCESS $ret_code
 
-  # Check if the returned user is according to the configuration file
-  if [ -n "$2" ];
-  then
-    jsonIn=$(jq -S --arg f "$2" '.user | del(.userPassword, .[$f])' "../${config_file}")
-    jsonOut=$(jq -S --arg f "$2" 'del(.[$f])' "../${file_path}")
-  else
-    jsonIn=$(jq -S '.user | del(.userPassword)' "../${config_file}")
-    jsonOut=$(jq -S '.' "../${file_path}")
-  fi
+  # Check if the returned user has the same id of the configuration file
+  jsonIn=$(jq -S '.user | del(.userPassword)' "../${config_file}")
+  jsonOut=$(jq -S '.' "../${file_path}")
   [ "$jsonIn" = "$jsonOut" ]
   ret_code=$?
   assertEquals $RET_SUCCESS $ret_code
