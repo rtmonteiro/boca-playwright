@@ -42,9 +42,9 @@ npm run build
 ./get_problem.sh
 ./get_problems.sh
 
-# Testing user methods (count: )
+# Testing user methods (count: 124)
 # TODO
-# ./change_password.sh
+# ./update_options.sh
 # Use -m updateUser as an alternative alias for createUser
 ./create_user.sh
 ./delete_user.sh

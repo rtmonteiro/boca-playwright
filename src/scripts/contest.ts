@@ -29,8 +29,8 @@ import {
 } from '../data/contest';
 import { dialogHandler } from '../utils/handlers';
 import { ContestError, ContestMessages } from '../errors/read_errors';
-import { login } from './user';
-import { Login } from '../data/login';
+import { login } from './auth';
+import { Login } from '../data/auth';
 
 export async function activateContest(
   page: Page,
@@ -219,12 +219,12 @@ async function fillContest(page: Page, contest: UpdateContest): Promise<void> {
     await page.locator('input[name="mainsiteurl"]').fill(contest.mainSiteUrl);
   }
 
-  if (contest.mainSiteNumber !== undefined) {
-    await page.locator('input[name="mainsite"]').fill(contest.mainSiteNumber);
+  if (contest.mainSiteId !== undefined) {
+    await page.locator('input[name="mainsite"]').fill(contest.mainSiteId);
   }
 
-  if (contest.localSiteNumber !== undefined) {
-    await page.locator('input[name="localsite"]').fill(contest.localSiteNumber);
+  if (contest.localSiteId !== undefined) {
+    await page.locator('input[name="localsite"]').fill(contest.localSiteId);
   }
 }
 
@@ -334,12 +334,12 @@ async function getContestForm(page: Page): Promise<Contest> {
       .inputValue();
   }
   if (await page.locator('input[name="mainsite"]').isVisible()) {
-    contest.mainSiteNumber = await page
+    contest.mainSiteId = await page
       .locator('input[name="mainsite"]')
       .inputValue();
   }
   if (await page.locator('input[name="localsite"]').isVisible()) {
-    contest.localSiteNumber = await page
+    contest.localSiteId = await page
       .locator('input[name="localsite"]')
       .inputValue();
   }

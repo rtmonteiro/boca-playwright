@@ -19,7 +19,7 @@
 // ========================================================================
 
 import { type Locator, type Page } from 'playwright';
-import { type Login } from '../data/login';
+import { type Login } from '../data/auth';
 import { type UserId, type User } from '../data/user';
 import { BASE_URL } from '../index';
 import { dialogHandler } from '../utils/handlers';
@@ -31,47 +31,47 @@ async function fillUser(page: Page, user: User, admin: Login): Promise<void> {
   await page.waitForLoadState('domcontentloaded');
   await page
     .locator('input[name="usersitenumber"]')
-    .fill(user.userSiteNumber?.toString() ?? '1');
-  await page.locator('input[name="usernumber"]').fill(user.userNumber);
-  await page.locator('input[name="username"]').fill(user.userName);
-  if (user.userIcpcId != null) {
-    await page.locator('input[name="usericpcid"]').fill(user.userIcpcId);
+    .fill(user.siteId?.toString() ?? '1');
+  await page.locator('input[name="usernumber"]').fill(user.id);
+  await page.locator('input[name="username"]').fill(user.username);
+  if (user.icpcId != null) {
+    await page.locator('input[name="usericpcid"]').fill(user.icpcId);
   }
-  if (user.userType !== undefined) {
+  if (user.type !== undefined) {
     await page
       .locator('select[name="usertype"]')
-      .selectOption({ label: user.userType });
+      .selectOption({ label: user.type });
   }
-  if (user.userEnabled !== undefined) {
+  if (user.isEnabled !== undefined) {
     await page
       .locator('select[name="userenabled"]')
-      .selectOption({ label: user.userEnabled });
+      .selectOption({ label: user.isEnabled });
   }
-  if (user.userMultiLogin !== undefined) {
+  if (user.isMultiLogin !== undefined) {
     await page
       .locator('select[name="usermultilogin"]')
-      .selectOption({ label: user.userMultiLogin });
+      .selectOption({ label: user.isMultiLogin });
   }
-  if (user.userFullName !== undefined) {
-    await page.locator('input[name="userfullname"]').fill(user.userFullName);
+  if (user.fullName !== undefined) {
+    await page.locator('input[name="userfullname"]').fill(user.fullName);
   }
-  if (user.userDesc !== undefined) {
-    await page.locator('input[name="userdesc"]').fill(user.userDesc);
+  if (user.description !== undefined) {
+    await page.locator('input[name="userdesc"]').fill(user.description);
   }
-  if (user.userIp !== undefined) {
-    await page.locator('input[name="userip"]').fill(user.userIp);
+  if (user.ip !== undefined) {
+    await page.locator('input[name="userip"]').fill(user.ip);
   }
   if (
     (await page.isVisible('input[name="passwordn1"]')) &&
-    user.userPassword !== undefined
+    user.password !== undefined
   ) {
-    await page.locator('input[name="passwordn1"]').fill(user.userPassword);
-    await page.locator('input[name="passwordn2"]').fill(user.userPassword);
+    await page.locator('input[name="passwordn1"]').fill(user.password);
+    await page.locator('input[name="passwordn2"]').fill(user.password);
   }
-  if (user.userChangePass !== undefined) {
+  if (user.allowPasswordChange !== undefined) {
     await page
       .locator('select[name="changepass"]')
-      .selectOption({ label: user.userChangePass });
+      .selectOption({ label: user.allowPasswordChange });
   }
   if (await page.isVisible('input[name="passwordo"]')) {
     await page.locator('input[name="passwordo"]').fill(admin.password);
@@ -90,53 +90,51 @@ async function getUserFromForm(page: Page): Promise<User> {
   await page.waitForLoadState('domcontentloaded');
 
   if (await page.locator('input[name="usersitenumber"]').isVisible()) {
-    user.userSiteNumber = await page
+    user.siteId = await page
       .locator('input[name="usersitenumber"]')
       .inputValue();
   }
   if (await page.locator('input[name="usernumber"]').isVisible()) {
-    user.userNumber = await page
-      .locator('input[name="usernumber"]')
-      .inputValue();
+    user.id = await page.locator('input[name="usernumber"]').inputValue();
   }
   if (await page.locator('input[name="username"]').isVisible()) {
-    user.userName = await page.locator('input[name="username"]').inputValue();
+    user.username = await page.locator('input[name="username"]').inputValue();
   }
   if (await page.locator('input[name="usericpcid"]').isVisible()) {
-    user.userIcpcId = await page
-      .locator('input[name="usericpcid"]')
-      .inputValue();
+    user.icpcId = await page.locator('input[name="usericpcid"]').inputValue();
   }
   if (await page.locator('select[name="usertype"]').isVisible()) {
-    user.userType = capitalize(
+    user.type = capitalize(
       (await page.locator('select[name="usertype"]').inputValue()) as string
-    ) as User['userType'];
+    ) as User['type'];
   }
   if (await page.locator('select[name="userenabled"]').isVisible()) {
-    user.userEnabled =
+    user.isEnabled =
       (await page.locator('select[name="userenabled"]').inputValue()) === 't'
         ? 'Yes'
         : 'No';
   }
   if (await page.locator('select[name="usermultilogin"]').isVisible()) {
-    user.userMultiLogin =
+    user.isMultiLogin =
       (await page.locator('select[name="usermultilogin"]').inputValue()) === 't'
         ? 'Yes'
         : 'No';
   }
   if (await page.locator('input[name="userfullname"]').isVisible()) {
-    user.userFullName = await page
+    user.fullName = await page
       .locator('input[name="userfullname"]')
       .inputValue();
   }
   if (await page.locator('input[name="userdesc"]').isVisible()) {
-    user.userDesc = await page.locator('input[name="userdesc"]').inputValue();
+    user.description = await page
+      .locator('input[name="userdesc"]')
+      .inputValue();
   }
   if (await page.locator('input[name="userip"]').isVisible()) {
-    user.userIp = await page.locator('input[name="userip"]').inputValue();
+    user.ip = await page.locator('input[name="userip"]').inputValue();
   }
   if (await page.locator('select[name="changepass"]').isVisible()) {
-    user.userChangePass =
+    user.allowPasswordChange =
       (await page.locator('select[name="changepass"]').inputValue()) === 't'
         ? 'Yes'
         : 'No';
@@ -146,24 +144,22 @@ async function getUserFromForm(page: Page): Promise<User> {
 
 async function getUserFromRow(row: Locator): Promise<User> {
   return {
-    userSiteNumber: (
-      await row.locator('td:nth-of-type(2)').textContent()
-    )?.trim(),
-    userNumber: (await row.locator('td:nth-of-type(1)').textContent())?.trim(),
-    userName: (await row.locator('td:nth-of-type(3)').textContent())?.trim(),
-    userIcpcId: (await row.locator('td:nth-of-type(4)').textContent())?.trim(),
-    userType: capitalize(
+    siteId: (await row.locator('td:nth-of-type(2)').textContent())?.trim(),
+    id: (await row.locator('td:nth-of-type(1)').textContent())?.trim(),
+    username: (await row.locator('td:nth-of-type(3)').textContent())?.trim(),
+    icpcId: (await row.locator('td:nth-of-type(4)').textContent())?.trim(),
+    type: capitalize(
       (await row.locator('td:nth-of-type(5)').textContent())?.trim()
     ),
-    userEnabled: (await row.locator('td:nth-of-type(9)').textContent())?.trim(),
-    userMultiLogin: (
+    isEnabled: (await row.locator('td:nth-of-type(9)').textContent())?.trim(),
+    isMultiLogin: (
       await row.locator('td:nth-of-type(10)').textContent()
     )?.trim(),
-    userFullName: (
-      await row.locator('td:nth-of-type(11)').textContent()
+    fullName: (await row.locator('td:nth-of-type(11)').textContent())?.trim(),
+    description: (
+      await row.locator('td:nth-of-type(12)').textContent()
     )?.trim(),
-    userDesc: (await row.locator('td:nth-of-type(12)').textContent())?.trim(),
-    userIp: (await row.locator('td:nth-of-type(6)').textContent())?.trim()
+    ip: (await row.locator('td:nth-of-type(6)').textContent())?.trim()
   } as User;
 }
 
@@ -186,7 +182,7 @@ export async function deleteUser(
   // Wait for load state
   await page.waitForLoadState('domcontentloaded');
 
-  const identifier = userId.userNumber;
+  const identifier = userId.id;
   const re = new RegExp(`^${identifier}$`);
 
   const loc1 = page.locator('td:nth-of-type(1)', {
@@ -196,7 +192,7 @@ export async function deleteUser(
 
   const loc2 = page.locator('td:nth-of-type(2)', {
     // eslint-disable-next-line no-useless-escape
-    hasText: userId.userSiteNumber
+    hasText: userId.siteId
   });
 
   const row = await page
@@ -221,7 +217,7 @@ export async function deleteUser(
   }
 
   const user = await getUser(page, userId);
-  user.userNumber = user.userNumber + '(inactive)';
+  user.id = user.id + '(inactive)';
   return user;
 }
 
@@ -232,12 +228,12 @@ export async function getUser(page: Page, userId: UserId): Promise<User> {
 
   const loc1 = page.locator('td:nth-of-type(1)', {
     // eslint-disable-next-line no-useless-escape
-    hasText: new RegExp(`^${userId.userNumber}[\(inactive\)]*$`)
+    hasText: new RegExp(`^${userId.id}[\(inactive\)]*$`)
   });
 
   const loc2 = page.locator('td:nth-of-type(2)', {
     // eslint-disable-next-line no-useless-escape
-    hasText: userId.userSiteNumber
+    hasText: userId.siteId
   });
 
   const row = await page
@@ -296,15 +292,4 @@ export async function importUsers(page: Page, path: string): Promise<void> {
   await page.locator('input[name="importfile"]').setInputFiles(path);
   page.once('dialog', dialogHandler);
   await page.getByRole('button', { name: 'Import' }).click();
-}
-
-export async function login(page: Page, login: Login): Promise<void> {
-  await page.goto(BASE_URL + '/');
-  // Wait for load state
-  await page.waitForLoadState('domcontentloaded');
-  await page.locator('input[name="name"]').click();
-  await page.locator('input[name="name"]').fill(login.username);
-  await page.locator('input[name="name"]').press('Tab');
-  await page.locator('input[name="password"]').fill(login.password);
-  await page.locator('input[name="password"]').press('Enter');
 }

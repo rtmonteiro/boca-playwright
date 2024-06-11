@@ -24,7 +24,7 @@ import { chromium } from 'playwright';
 import { exit } from 'process';
 import { ZodError } from 'zod';
 import { type CreateContest, type UpdateContest } from './data/contest';
-import { type Login } from './data/login';
+import { type Login } from './data/auth';
 import { type Problem } from './data/problem';
 import { setupSchema, type Setup } from './data/setup';
 import { type Site } from './data/site';
@@ -33,6 +33,7 @@ import { Validate } from './data/validate';
 import { ExitErrors, ReadMessages } from './errors/read_errors';
 import { Logger } from './logger';
 import { Output } from './output';
+import { login } from './scripts/auth';
 import {
   activateContest,
   createContest,
@@ -59,8 +60,7 @@ import {
   deleteUser,
   getUser,
   getUsers,
-  importUsers,
-  login
+  importUsers
 } from './scripts/user';
 
 const STEP_DURATION = 50;
@@ -506,13 +506,13 @@ async function shouldCreateUser(setup: Setup): Promise<void> {
   logger.logInfo('Logging in with admin user: %s', admin.username);
   await login(page, admin);
   await validate.checkLoginType(page, 'Admin');
-  logger.logInfo('Creating user: %s', user.userName);
+  logger.logInfo('Creating user: %s', user.username);
   await createUser(page, user, admin);
   const form = await getUser(page, user);
   // Dispose context once it's no longer needed.
   await context.close();
   await browser.close();
-  logger.logInfo('User created with id: %s', form.userNumber);
+  logger.logInfo('User created with id: %s', form.id);
   const output = Output.getInstance();
   output.setResult(form);
 }
@@ -543,11 +543,7 @@ async function shouldDeleteUser(setup: Setup): Promise<void> {
   // Dispose context once it's no longer needed.
   await context.close();
   await browser.close();
-  logger.logInfo(
-    'User deleted with site: %s and id: %s',
-    form.userSiteNumber,
-    form.userNumber
-  );
+  logger.logInfo('User deleted with site: %s and id: %s', form.siteId, form.id);
   const output = Output.getInstance();
   output.setResult(form);
 }
@@ -578,7 +574,7 @@ async function shouldGetUser(setup: Setup): Promise<void> {
   // Dispose context once it's no longer needed.
   await context.close();
   await browser.close();
-  logger.logInfo('User found with name: %s', form.userName);
+  logger.logInfo('User found with name: %s', form.username);
   const output = Output.getInstance();
   output.setResult(form);
 }

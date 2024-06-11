@@ -49,13 +49,13 @@ export const contestSchema = z.object({
     })
     .optional(),
   mainSiteUrl: z.string().optional(),
-  mainSiteNumber: z
+  mainSiteId: z
     .string()
     .refine((value) => parseInt(value), {
       message: TypeMessages.POSITIVE_NUMBER_REQUIRED
     })
     .optional(),
-  localSiteNumber: z
+  localSiteId: z
     .string()
     .refine((value) => parseInt(value), {
       message: TypeMessages.POSITIVE_NUMBER_REQUIRED

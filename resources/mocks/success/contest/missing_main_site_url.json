@@ -16,7 +16,7 @@
     "stopScoreboardDate": "2024-07-20 22:59",
     "penalty": "30",
     "maxFileSize": "1000",
-    "mainSiteNumber": "1",
-    "localSiteNumber": "1"
+    "mainSiteId": "1",
+    "localSiteId": "1"
   }
 }

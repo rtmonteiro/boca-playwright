@@ -77,11 +77,23 @@ TODO
 
 ## Lista de comandos
 
-- createUser
-- insertUsers
-- deleteUser
 - createContest
+- getContest
+- getContests
 - updateContest
+- createLanguage
+- deleteLanguage
+- getLanguage
+- getLanguages
+- createProblem
+- deleteProblem
+- getProblem
+- getProblems
+- createUser
+- deleteUser
+- getUser
+- getUsers
+- importUsers
 - createSite
 - createProblem
 - generateReport
@@ -105,7 +117,7 @@ docker run -it \
 - Cria usuário a partir do arquivo localizado na url da propriedade `setup.userPath`
 
     ```bash
-    npm start -- -p resources/setup.json -m insertUsers
+    npm start -- -p resources/setup.json -m importUsers
     ```
 
 - Deleta um usuário a partir do primeiro valor dentro do arquivo JSON na propriedade `user`

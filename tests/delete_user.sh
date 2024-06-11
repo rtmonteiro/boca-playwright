@@ -256,8 +256,8 @@ testDeleteValidUser() {
   assertEquals $RET_SUCCESS $ret_code
 
   # Check if the returned user has the same site and id of the configuration file
-  jsonIn=$(jq -S -r '.user | .userSiteNumber + " " + .userNumber' "../${config_file}")
-  jsonOut=$(jq -S -r '.userSiteNumber + " " + .userNumber' "../${file_path}")
+  jsonIn=$(jq -S -r '.user | .siteId + " " + .id' "../${config_file}")
+  jsonOut=$(jq -S -r '.siteId + " " + .id' "../${file_path}")
   [ "$jsonIn(inactive)" = "$jsonOut" ]
   ret_code=$?
   assertEquals $RET_SUCCESS $ret_code

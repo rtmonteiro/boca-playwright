@@ -16,7 +16,7 @@
     "penalty": "40",
     "maxFileSize": "200",
     "mainSiteUrl": null,
-    "mainSiteNumber": "1",
-    "localSiteNumber": "1"
+    "mainSiteId": "1",
+    "localSiteId": "1"
   }
 }

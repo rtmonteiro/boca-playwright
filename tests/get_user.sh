@@ -262,12 +262,12 @@ testGetValidUser() {
   assertEquals $RET_SUCCESS $ret_code
 
   # Check if the obtained user has a valid id
-  jq -e '.userSiteNumber != null and .userSiteNumber != "" and .userNumber != null and .userNumber != ""' "../${file_path}" >/dev/null 2>&1;
+  jq -e '.siteId != null and .siteId != "" and .id != null and .id != ""' "../${file_path}" >/dev/null 2>&1;
   ret_code=$?
   assertEquals $RET_SUCCESS $ret_code
 
   # Check if the returned user has the same id of the configuration file
-  jsonIn=$(jq -S '.user | del(.userPassword)' "../${config_file}")
+  jsonIn=$(jq -S '.user | del(.password)' "../${config_file}")
   jsonOut=$(jq -S '.' "../${file_path}")
   [ "$jsonIn" = "$jsonOut" ]
   ret_code=$?

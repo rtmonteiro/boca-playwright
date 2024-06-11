@@ -23,9 +23,12 @@ export enum ExitErrors {
   ARGS_VALIDATION = 1,
   CONFIG_VALIDATION = 12,
   CONTEST_ERROR = 13,
+  // ANSWER_ERROR = 19,
   LANGUAGE_ERROR = 14,
   PROBLEM_ERROR = 15,
+  // RUN_ERROR = 20,
   SITE_ERROR = 16,
+  // TASK_ERROR = ,
   USER_ERROR = 17,
   LOGIN_ERROR = 18
 }
@@ -39,6 +42,10 @@ export enum ReadMessages {
 
 export enum TypeMessages {
   POSITIVE_NUMBER_REQUIRED = 'Must be a positive integer number.'
+}
+
+export enum AuthMessages {
+  INVALID_TYPE = 'Invalid user type'
 }
 
 export enum ContestMessages {
@@ -66,18 +73,12 @@ export enum UserMessages {
   SITE_AND_ID_REQUIRED = 'Site and user number (id) should be provided.'
 }
 
-export enum LoginMessages {
-  INVALID_USER = 'Invalid user',
-  INVALID_PASSWORD = 'Invalid password',
-  INVALID_TYPE = 'Invalid type'
-}
-
 type ErrorMessages =
   | ReadMessages
   | TypeMessages
+  | AuthMessages
   | ContestMessages
   | LanguageMessages
-  | LoginMessages
   | ProblemMessages
   | UserMessages;
 
@@ -100,8 +101,8 @@ export class ErrorBase extends Error {
   }
 }
 
-export class LoginError extends ErrorBase {
-  constructor(message: LoginMessages, cause?: unknown) {
+export class AuthError extends ErrorBase {
+  constructor(message: AuthMessages, cause?: unknown) {
     super({ code: ExitErrors.CONFIG_VALIDATION, message, cause });
   }
 }

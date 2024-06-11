@@ -22,7 +22,7 @@ import { z } from 'zod';
 import * as fs from 'fs';
 import * as path from 'path';
 import { importUsersSchema, userSchema } from './user';
-import { loginSchema } from './login';
+import { loginSchema } from './auth';
 import { contestSchema } from './contest';
 import { siteSchema } from './site';
 import { languageSchema } from './language';

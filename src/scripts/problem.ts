@@ -119,15 +119,20 @@ export async function getProblems(page: Page): Promise<Problem[]> {
   // Wait for load state
   await page.waitForLoadState('domcontentloaded');
 
-  const rows = await page.locator('form[name=form0] > table > tbody > tr');
+  const re = new RegExp(`^(Problem #|0 \\(fake\\))$`);
+  const loc = page.locator('td:nth-of-type(1)', {
+    hasNotText: re
+  });
+
+  const rows = await page
+    .locator('form[name=form0] > table > tbody > tr')
+    .filter({ has: loc });
   const rowCount = await rows.count();
 
   const problems: Problem[] = [];
   for (let i = 0; i < rowCount; i++) {
     const row = rows.nth(i);
     const columns = await row.locator('td').all();
-    const id = await columns[0].innerText();
-    if (id === 'Problem #' || id === '0 (fake)') continue;
     const problem = {} as Problem;
     problem.id = await columns[0].innerText();
     problem.name = await columns[1].innerText();

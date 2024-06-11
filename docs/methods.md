@@ -16,8 +16,8 @@ Será necessário somente um login de nível system, pois o sistema BOCA já ger
 | penalty            | string (number)       | Penalidade de tempo para cada submissão incorreta             |
 | maxFileSize        | string (number)       | Tamanho máximo do arquivo                                     |
 | mainSiteUrl        | string (url)          | URL do site principal                                         |
-| mainSiteNumber     | string                | Número do site principal                                      |
-| localSiteNumber    | string                | Número do site local                                          |
+| mainSiteId     | string                | Número do site principal                                      |
+| localSiteId    | string                | Número do site local                                          |
 
 Exemplo de criação de um contest sem informações adicionais:
 
@@ -84,14 +84,14 @@ Será necessário um login de nível admin e as informações base de um usuári
 
 | Parâmetro      | Tipo                                   | Descrição                       |
 | -------------- | -------------------------------------- | ------------------------------- |
-| userSiteNumber | string                                 | Identificador do Site           |
-| userNumber     | string                                 | Número identificador do Usuário |
-| userName       | string                                 | Nome do Usuário                 |
-| userType       | Team, Judge, Admin, Staff, Score, Site | Tipo de Usuário                 |
-| userFullName   | string                                 | Nome completo do Usuário        |
-| userDesc       | string                                 | Descrição do Usuário            |
-| userPassword   | string                                 | Senha do Usuário                |
-| userChangePass | Yes, No                                | Necessidade de troca de senha   |
+| siteId | string                                 | Identificador do Site           |
+| id     | string                                 | Número identificador do Usuário |
+| username       | string                                 | Nome do Usuário                 |
+| type       | Team, Judge, Admin, Staff, Score, Site | Tipo de Usuário                 |
+| fullName   | string                                 | Nome completo do Usuário        |
+| description       | string                                 | Descrição do Usuário            |
+| password   | string                                 | Senha do Usuário                |
+| allowPasswordChange | Yes, No                                | Necessidade de troca de senha   |
 
 ```json
 {
@@ -103,14 +103,14 @@ Será necessário um login de nível admin e as informações base de um usuári
     "password": "boca"
   },
   "user": {
-    "userSiteNumber": 1,
-    "userNumber": "2019202359",
-    "userName": "ryanmonteiro",
-    "userType": "Team",
-    "userFullName": "Ryan Tavares Farias da Silva Monteiro",
-    "userDesc": "ryan.monteiro@aluno.ufes.br",
-    "userPassword": "boca",
-    "userChangePass": "Yes"
+    "siteId": 1,
+    "id": "2019202359",
+    "username": "ryanmonteiro",
+    "type": "Team",
+    "fullName": "Ryan Tavares Farias da Silva Monteiro",
+    "description": "ryan.monteiro@aluno.ufes.br",
+    "password": "boca",
+    "allowPasswordChange": "Yes"
   }
 }
 ```
@@ -146,7 +146,7 @@ Será necessário um login de nível admin e o nome do usuário a ser deletado.
     "password": "boca"
   },
   "user": {
-    "userName": "brucewayne"
+    "username": "brucewayne"
   }
 }
 ```

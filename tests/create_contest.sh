@@ -230,14 +230,14 @@ testCreateContestMissingMainSiteUrl() {
 }
 
 testCreateContestMissingMainSiteNumber() {
-  config_file="resources/mocks/success/contest/missing_main_site_number.json"
-  field="mainSiteNumber"
+  config_file="resources/mocks/success/contest/missing_main_site_id.json"
+  field="mainSiteId"
   testCreateValidContest $config_file $field
 }
 
 testCreateContestMissingLocalSiteNumber() {
-  config_file="resources/mocks/success/contest/missing_local_site_number.json"
-  field="localSiteNumber"
+  config_file="resources/mocks/success/contest/missing_local_site_id.json"
+  field="localSiteId"
   testCreateValidContest $config_file $field
 }
 
@@ -298,14 +298,14 @@ testCreateContestInvalidMainSiteUrl() {
 }
 
 testCreateContestInvalidMainSiteNumber() {
-  config_file="resources/mocks/fail/contest/invalid_main_site_number.json"
+  config_file="resources/mocks/fail/contest/invalid_main_site_id.json"
   npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1;
   ret_code=$?
   assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testCreateContestInvalidLocalSiteNumber() {
-  config_file="resources/mocks/fail/contest/invalid_local_site_number.json"
+  config_file="resources/mocks/fail/contest/invalid_local_site_id.json"
   npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1;
   ret_code=$?
   assertEquals $RET_CONFIG_VALIDATION $ret_code
@@ -350,14 +350,14 @@ testCreateContestIncorrectMaxFileSize() {
 }
 
 testCreateContestIncorrectMainSiteNumber() {
-  config_file="resources/mocks/fail/contest/incorrect_main_site_number.json"
+  config_file="resources/mocks/fail/contest/incorrect_main_site_id.json"
   npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1;
   ret_code=$?
   assertEquals $RET_CONFIG_VALIDATION $ret_code
 }
 
 testCreateContestIncorrectLocalSiteNumber() {
-  config_file="resources/mocks/fail/contest/incorrect_local_site_number.json"
+  config_file="resources/mocks/fail/contest/incorrect_local_site_id.json"
   npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1;
   ret_code=$?
   assertEquals $RET_CONFIG_VALIDATION $ret_code

@@ -97,18 +97,18 @@ export async function getLanguages(page: Page): Promise<Language[]> {
   // Wait for load state
   await page.waitForLoadState('domcontentloaded');
 
-  const loc = 'td:nth-of-type(1)';
+  const loc = page.locator('td:nth-of-type(1)', {
+    hasNotText: 'Language #'
+  });
 
   const rows = await page.locator('table:nth-of-type(3) > tbody > tr', {
-    has: page.locator(loc)
+    has: loc
   });
   const rowCount = await rows.count();
 
   const languages: Language[] = [];
   for (let i = 0; i < rowCount; i++) {
     const row = rows.nth(i);
-    if ((await row.locator('td:nth-of-type(1)').innerText()) === 'Language #')
-      continue;
     languages.push({
       id: await row.locator('td:nth-of-type(1)').innerText(),
       name: await row.locator('td:nth-of-type(2)').innerText(),

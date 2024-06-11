@@ -22,6 +22,7 @@
 export RET_SUCCESS=0
 export RET_ARGS_VALIDATION=1
 export RET_CONFIG_VALIDATION=12
+export RET_USER_ERROR=17
 
 # It will be called before the first test is run.
 oneTimeSetUp() {
@@ -200,7 +201,7 @@ testCreateUserMissingUserData() {
 
 testCreateUserMissingSite() {
   config_file="resources/mocks/success/user/missing_site.json"
-  field="userSiteNumber"
+  field="siteId"
   testCreateValidUser $config_file $field
 }
 
@@ -220,55 +221,55 @@ testCreateUserMissingUsername() {
 
 testCreateUserMissingIcpc() {
   config_file="resources/mocks/success/user/missing_icpc.json"
-  field="userIcpcId"
+  field="icpcId"
   testCreateValidUser $config_file $field
 }
 
 testCreateUserMissingType() {
   config_file="resources/mocks/success/user/missing_type.json"
-  field="userType"
+  field="type"
   testCreateValidUser $config_file $field
 }
 
 testCreateUserMissingEnabled() {
   config_file="resources/mocks/success/user/missing_enabled.json"
-  field="userEnabled"
+  field="isEnabled"
   testCreateValidUser $config_file $field
 }
 
 testCreateUserMissingMultilogin() {
   config_file="resources/mocks/success/user/missing_multilogin.json"
-  field="userMultiLogin"
+  field="isMultiLogin"
   testCreateValidUser $config_file $field
 }
 
 testCreateUserMissingFullname() {
   config_file="resources/mocks/success/user/missing_fullname.json"
-  field="userFullName"
+  field="fullName"
   testCreateValidUser $config_file $field
 }
 
 testCreateUserMissingDesc() {
   config_file="resources/mocks/success/user/missing_desc.json"
-  field="userDesc"
+  field="description"
   testCreateValidUser $config_file $field
 }
 
 testCreateUserMissingIP() {
   config_file="resources/mocks/success/user/missing_ip.json"
-  field="userIp"
+  field="ip"
   testCreateValidUser $config_file $field
 }
 
 testCreateUserMissingUserPassword() {
   config_file="resources/mocks/success/user/missing_password.json"
-  field="userPassword"
+  field="password"
   testCreateValidUser $config_file $field
 }
 
 testCreateUserMissingChangePass() {
   config_file="resources/mocks/success/user/missing_change_pass.json"
-  field="userChangePass"
+  field="allowPasswordChange"
   testCreateValidUser $config_file $field
 }
 
@@ -367,7 +368,7 @@ testCreateUserIncorrectId() {
   config_file="resources/mocks/fail/user/incorrect_id.json"
   npm run test:cli -- -p "${config_file}" -m createUser >/dev/null 2>&1;
   ret_code=$?
-  assertEquals $RET_CONFIG_VALIDATION $ret_code
+  assertEquals $RET_USER_ERROR $ret_code
 }
 
 testCreateUserIncorrectType() {
@@ -417,17 +418,17 @@ testCreateValidUser() {
   assertEquals $RET_SUCCESS $ret_code
 
   # Check if the created/updated user has a valid id
-  jq -e '.userSiteNumber != null and .userSiteNumber != "" and .userNumber != null and .userNumber != ""' "../${file_path}" >/dev/null 2>&1;
+  jq -e '.siteId != null and .siteId != "" and .id != null and .id != ""' "../${file_path}" >/dev/null 2>&1;
   ret_code=$?
   assertEquals $RET_SUCCESS $ret_code
 
   # Check if the user was created/updated according to the configuration file
   if [ -n "$2" ];
   then
-    jsonIn=$(jq -S --arg f "$2" '.user | del(.userPassword, .[$f])' "../${config_file}")
+    jsonIn=$(jq -S --arg f "$2" '.user | del(.password, .[$f])' "../${config_file}")
     jsonOut=$(jq -S --arg f "$2" 'del(.[$f])' "../${file_path}")
   else
-    jsonIn=$(jq -S '.user | del(.userPassword)' "../${config_file}")
+    jsonIn=$(jq -S '.user | del(.password)' "../${config_file}")
     jsonOut=$(jq -S '.' "../${file_path}")
   fi
   [ "$jsonIn" = "$jsonOut" ]

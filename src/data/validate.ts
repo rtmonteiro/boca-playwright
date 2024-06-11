@@ -21,7 +21,7 @@
 import { z } from 'zod';
 import { type Setup } from './setup';
 import { type User, userIdSchema, importUsersSchema, userSchema } from './user';
-import { loginSchema } from './login';
+import { loginSchema } from './auth';
 import { siteSchema } from './site';
 import { problemIdSchema, problemSchema } from './problem';
 import { languageIdSchema, languageSchema } from './language';
@@ -31,11 +31,30 @@ import {
   updateContestSchema
 } from './contest';
 import { reportSchema } from './report';
-import { LoginError, LoginMessages } from '../errors/read_errors';
+import { AuthError, AuthMessages } from '../errors/read_errors';
 import { type Page } from 'playwright';
 
 export class Validate {
   constructor(public setup: Setup) {}
+
+  async checkLoginType(
+    page: Page,
+    type: User['type'] | 'System'
+  ): Promise<void> {
+    // Wait for load state
+    await page.waitForLoadState('domcontentloaded');
+    // Get url from page
+    const url = await page.url();
+    // Get the type from the url
+    const typeUrl = url.split('/').at(-2) as unknown as User['type'];
+    // Compare the types
+    if (type && type.toLocaleLowerCase() !== typeUrl) {
+      throw new AuthError(
+        AuthMessages.INVALID_TYPE,
+        `Expected type ${type} but got ${typeUrl}`
+      );
+    }
+  }
 
   createContest(): z.infer<typeof setupType> {
     const setupType = z.object({
@@ -193,24 +212,5 @@ export class Validate {
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;
-  }
-
-  async checkLoginType(
-    page: Page,
-    type: User['userType'] | 'System'
-  ): Promise<void> {
-    // Wait for load state
-    await page.waitForLoadState('domcontentloaded');
-    // Get url from page
-    const url = await page.url();
-    // Get the type from the url
-    const typeUrl = url.split('/').at(-2) as unknown as User['userType'];
-    // Compare the types
-    if (type && type.toLocaleLowerCase() !== typeUrl) {
-      throw new LoginError(
-        LoginMessages.INVALID_TYPE,
-        `Expected type ${type} but got ${typeUrl}`
-      );
-    }
   }
 }

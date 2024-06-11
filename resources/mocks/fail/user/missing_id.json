@@ -8,16 +8,16 @@
     "password": "boca"
   },
   "user": {
-    "userSiteNumber": "1",
-    "userName": "ryanmonteiro",
-    "userIcpcId": "ryanmonteiro2",
-    "userType": "Team",
-    "userEnabled": "Yes",
-    "userMultiLogin": "Yes",
-    "userFullName": "Ryan Tavares Farias da Silva Monteiro",
-    "userDesc": "ryan.monteiro@aluno.ufes.br",
-    "userIp": "127.0.0.1",
-    "userPassword": "boca",
-    "userChangePass": "Yes"
+    "siteId": "1",
+    "username": "ryanmonteiro",
+    "icpcId": "ryanmonteiro2",
+    "type": "Team",
+    "isEnabled": "Yes",
+    "isMultiLogin": "Yes",
+    "fullName": "Ryan Tavares Farias da Silva Monteiro",
+    "description": "ryan.monteiro@aluno.ufes.br",
+    "ip": "127.0.0.1",
+    "password": "boca",
+    "allowPasswordChange": "Yes"
   }
 }

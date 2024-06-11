@@ -16,7 +16,7 @@
     "penalty": "40",
     "maxFileSize": "200",
     "mainSiteUrl": "localhost:8000/boca",
-    "mainSiteNumber": "1",
-    "localSiteNumber": "0"
+    "mainSiteId": "1",
+    "localSiteId": "0"
   }
 }
