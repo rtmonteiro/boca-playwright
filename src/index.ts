@@ -41,7 +41,12 @@ import {
   updateContest
 } from './scripts/contest';
 import { createLanguage, deleteLanguage } from './scripts/language';
-import { createProblem, deleteProblem, getProblem } from './scripts/problem';
+import {
+  createProblem,
+  deleteProblem,
+  getProblem,
+  getProblems
+} from './scripts/problem';
 import { retrieveFiles } from './scripts/report';
 import { createSite } from './scripts/site';
 import {
@@ -404,6 +409,31 @@ async function shouldGetProblem(setup: Setup): Promise<void> {
   const output = Output.getInstance();
   output.setResult(form);
 }
+
+async function shouldGetProblems(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Getting problem');
+
+  // validate setup file with zod
+  const validate = new Validate(setup);
+  const setupValidated = validate.getProblems();
+  const admin: Login = setupValidated.login;
+
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
+  const page = await browser.newPage();
+  page.setDefaultTimeout(TIMEOUT);
+  await login(page, admin);
+  await validate.checkLoginType(page, 'Admin');
+  const form = await getProblems(page);
+  await browser.close();
+  logger.logInfo('Problems found');
+  const output = Output.getInstance();
+  output.setResult(form);
+}
 //#endregion
 
 //#region Languages
@@ -502,6 +532,7 @@ const methods: Record<string, (setup: Setup) => Promise<void>> = {
   createProblem: shouldCreateProblem,
   deleteProblem: shouldDeleteProblem,
   getProblem: shouldGetProblem,
+  getProblems: shouldGetProblems,
   // Languages
   createLanguage: shouldCreateLanguage,
   deleteLanguage: shouldDeleteLanguage,

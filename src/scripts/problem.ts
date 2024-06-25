@@ -112,3 +112,31 @@ export async function getProblem(
     .inputValue();
   return problem;
 }
+
+export async function getProblems(page: Page): Promise<Problem[]> {
+  await page.goto(BASE_URL + '/admin/problem.php');
+  const problems: Problem[] = [];
+  const rows = await page
+    .locator('form[name=form0] > table > tbody > tr', {
+      has: page.locator('td', { hasText: /^\d+$/ })
+    })
+    .all();
+  for (const row of rows) {
+    const columns = await row
+      .locator('td')
+      .filter({ hasNot: page.locator('[for*="autojudge"], [id*="autojudge"]') }) // Filter out autojudge elements
+      .all();
+    const problem = {} as Required<Problem>;
+    problem.id = parseInt(await columns[0].innerText());
+    problem.name = await columns[1].innerText();
+    problem.filePath = (await columns[5].innerText()).trim();
+    problem.colorName = await columns[6]
+      .locator('input[type=text]:nth-child(2)')
+      .inputValue();
+    problem.colorCode = await columns[6]
+      .locator('input[type=text]:nth-child(3)')
+      .inputValue();
+    problems.push(problem);
+  }
+  return problems;
+}
