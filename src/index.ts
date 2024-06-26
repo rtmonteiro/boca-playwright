@@ -43,7 +43,8 @@ import {
 import {
   createLanguage,
   deleteLanguage,
-  getLanguage
+  getLanguage,
+  getLanguages
 } from './scripts/language';
 import { createProblem, deleteProblem, getProblem } from './scripts/problem';
 import { retrieveFiles } from './scripts/report';
@@ -485,6 +486,31 @@ async function shouldGetLanguage(setup: Setup): Promise<void> {
   const output = Output.getInstance();
   output.setResult(form);
 }
+
+async function shouldGetLanguages(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Getting languages');
+
+  // validate setup file with zod
+  const validate = new Validate(setup);
+  const setupValidated = validate.getLanguages();
+  const admin: Login = setupValidated.login;
+
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
+  const page = await browser.newPage();
+  page.setDefaultTimeout(TIMEOUT);
+  await login(page, admin);
+  await validate.checkLoginType(page, 'Admin');
+  const form = await getLanguages(page);
+  await browser.close();
+  logger.logInfo('Languages found');
+  const output = Output.getInstance();
+  output.setResult(form);
+}
 //#endregion
 
 //#region Reports
@@ -535,6 +561,7 @@ const methods: Record<string, (setup: Setup) => Promise<void>> = {
   createLanguage: shouldCreateLanguage,
   deleteLanguage: shouldDeleteLanguage,
   getLanguage: shouldGetLanguage,
+  getLanguages: shouldGetLanguages,
   // Reports
   generateReport: shouldGenerateReport
 };

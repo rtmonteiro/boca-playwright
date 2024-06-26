@@ -74,3 +74,24 @@ export async function getLanguage(
     extension: await row.locator('td:nth-of-type(3)').innerText()
   };
 }
+
+export async function getLanguages(page: Page): Promise<Language[]> {
+  await page.goto(BASE_URL + '/admin/language.php');
+
+  const rows = await page
+    .locator('table:nth-of-type(3) > tbody > tr', {
+      hasText: /\d+/
+    })
+    .all();
+
+  return Promise.all(
+    rows.map(
+      async (row) =>
+        ({
+          id: await row.locator('td:nth-of-type(1)').innerText(),
+          name: await row.locator('td:nth-of-type(2)').innerText(),
+          extension: await row.locator('td:nth-of-type(3)').innerText()
+        }) as Language
+    )
+  );
+}
