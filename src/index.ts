@@ -442,7 +442,7 @@ async function shouldDeleteLanguage(setup: Setup): Promise<void> {
   const validate = new Validate(setup);
   const setupValidated = validate.deleteLanguage();
   const admin: Login = setupValidated.login;
-  const language = setupValidated.language;
+  const languageId = setupValidated.language.id;
 
   const browser = await chromium.launch({
     headless: HEADLESS,
@@ -452,7 +452,7 @@ async function shouldDeleteLanguage(setup: Setup): Promise<void> {
   page.setDefaultTimeout(TIMEOUT);
   await login(page, admin);
   await validate.checkLoginType(page, 'Admin');
-  await deleteLanguage(page, language);
+  await deleteLanguage(page, languageId);
   await browser.close();
 }
 

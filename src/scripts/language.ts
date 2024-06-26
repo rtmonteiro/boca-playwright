@@ -19,7 +19,7 @@
 // ========================================================================
 
 import { BASE_URL } from '../index';
-import { type LanguageId, type Language } from '../data/language';
+import { type Language } from '../data/language';
 import { type Page } from 'playwright';
 import { dialogHandler } from '../utils/handlers';
 
@@ -38,19 +38,17 @@ export async function createLanguage(
 
   page.removeListener('dialog', dialogHandler);
 
-  return getLanguage(page, language);
+  return getLanguage(page, language.id);
 }
 
 export async function deleteLanguage(
   page: Page,
-  language: LanguageId
+  languageId: Language['id']
 ): Promise<void> {
   await page.goto(BASE_URL + '/admin/language.php');
 
-  const loc = language.id ? 'td:nth-of-type(1)' : 'td:nth-of-type(2)';
-
   const row = await page.locator('table:nth-of-type(3) > tbody > tr', {
-    has: page.locator(loc, { hasText: language.id ?? language.name })
+    has: page.locator('td:nth-of-type(1)', { hasText: languageId })
   });
 
   page.on('dialog', dialogHandler);
@@ -62,14 +60,12 @@ export async function deleteLanguage(
 
 export async function getLanguage(
   page: Page,
-  language: LanguageId
+  languageId: Language['id']
 ): Promise<Language> {
   await page.goto(BASE_URL + '/admin/language.php');
 
-  const loc = language.id ? 'td:nth-of-type(1)' : 'td:nth-of-type(2)';
-
   const row = await page.locator('table:nth-of-type(3) > tbody > tr', {
-    has: page.locator(loc, { hasText: language.id ?? language.name })
+    has: page.locator('td:nth-of-type(1)', { hasText: languageId })
   });
 
   return {
