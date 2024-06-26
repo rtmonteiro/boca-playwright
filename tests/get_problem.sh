@@ -252,10 +252,10 @@ SHELL=$(ps -p $$)
 echo "$SHELL"
 
 # Load and run shUnit2.
-if [ ! -d "../shunit2" ] || [ ! -f "../shunit2/shunit2" ];
+if [ ! -d "/opt/shunit2" ] || [ ! -f "/opt/shunit2/shunit2" ];
 then
   echo "Missing or noninstalled shUnit2 test framework."
   exit 1
 fi
 
-. ../shunit2/shunit2
+. /opt/shunit2/shunit2
