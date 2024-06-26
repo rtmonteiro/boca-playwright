@@ -150,7 +150,7 @@ export class Validate {
     return this.setup as z.infer<typeof setupType>;
   }
 
-  deleteLanguage(): z.infer<typeof setupType> {
+  getLanguage(): z.infer<typeof setupType> {
     const setupType = z.object({
       login: loginSchema,
       language: languageIdSchema

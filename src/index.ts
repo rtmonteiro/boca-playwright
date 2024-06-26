@@ -40,7 +40,11 @@ import {
   getContests,
   updateContest
 } from './scripts/contest';
-import { createLanguage, deleteLanguage } from './scripts/language';
+import {
+  createLanguage,
+  deleteLanguage,
+  getLanguage
+} from './scripts/language';
 import { createProblem, deleteProblem, getProblem } from './scripts/problem';
 import { retrieveFiles } from './scripts/report';
 import { createSite } from './scripts/site';
@@ -440,7 +444,7 @@ async function shouldDeleteLanguage(setup: Setup): Promise<void> {
 
   // validate setup file with zod
   const validate = new Validate(setup);
-  const setupValidated = validate.deleteLanguage();
+  const setupValidated = validate.getLanguage();
   const admin: Login = setupValidated.login;
   const languageId = setupValidated.language.id;
 
@@ -456,6 +460,31 @@ async function shouldDeleteLanguage(setup: Setup): Promise<void> {
   await browser.close();
 }
 
+async function shouldGetLanguage(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Getting language');
+
+  // validate setup file with zod
+  const validate = new Validate(setup);
+  const setupValidated = validate.getLanguage();
+  const admin: Login = setupValidated.login;
+  const languageId = setupValidated.language.id;
+
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
+  const page = await browser.newPage();
+  page.setDefaultTimeout(TIMEOUT);
+  await login(page, admin);
+  await validate.checkLoginType(page, 'Admin');
+  const form = await getLanguage(page, languageId);
+  await browser.close();
+  logger.logInfo('Language found with name: %s', form.name);
+  const output = Output.getInstance();
+  output.setResult(form);
+}
 //#endregion
 
 //#region Reports
@@ -505,9 +534,12 @@ const methods: Record<string, (setup: Setup) => Promise<void>> = {
   // Languages
   createLanguage: shouldCreateLanguage,
   deleteLanguage: shouldDeleteLanguage,
+  getLanguage: shouldGetLanguage,
   // Reports
   generateReport: shouldGenerateReport
 };
+
+//#region Main
 
 function main(): number {
   program
@@ -566,5 +598,7 @@ function main(): number {
 
   return ExitErrors.OK;
 }
+
+//#endregion
 
 main();
