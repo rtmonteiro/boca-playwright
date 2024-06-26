@@ -18,7 +18,7 @@ on:
     # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#onworkflow_callinputs
     inputs:
       images:
-        description: 
+        description:
           Matrix of images to scan (i.e., boca-playwright)
         required: true
         type: string
@@ -52,7 +52,7 @@ jobs:
       packages: read
       # for github/codeql-action/upload-sarif to upload SARIF results
       security-events: write
-      # only required for a private repository by 
+      # only required for a private repository by
       # github/codeql-action/upload-sarif to get the Action run status
       actions: read
     strategy:
@@ -67,7 +67,7 @@ jobs:
     steps:
       # Setting output parameters between steps, jobs and/or workflows
       # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions
-      - 
+      -
         name: Write variables to GITHUB_OUTPUT
         id: setup
         run: |
@@ -112,7 +112,7 @@ jobs:
 
       # Login to a Docker registry (except on PR)
       # https://github.com/docker/login-action
-      - 
+      -
         name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -130,7 +130,7 @@ jobs:
 
       # Run Trivy vulnerability scanner on image
       # https://github.com/aquasecurity/trivy-action
-      - 
+      -
         name: Run Trivy vulnerability scanner on image
         uses: aquasecurity/trivy-action@master
         with:
@@ -145,7 +145,7 @@ jobs:
       # Upload results to GitHub so they can be displayed in the repository'
       # security tab
       # https://github.com/github/codeql-action
-      # - 
+      # -
       #   name: Upload Trivy image scan results to GitHub Security tab
       #   uses: github/codeql-action/upload-sarif@v2
       #   with:

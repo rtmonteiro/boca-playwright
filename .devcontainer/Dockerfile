@@ -22,7 +22,23 @@ FROM mcr.microsoft.com/devcontainers/typescript-node:1-20
 
 LABEL authors="Ryan Tavares Farias da Silva Monteiro, Rodrigo Laiola Guimaraes"
 ENV CREATED_AT 2024-03-11
-ENV UPDATED_AT 2024-05-06
+ENV UPDATED_AT 2024-06-26
 
 # No interactive frontend during docker build
 ENV DEBIAN_FRONTEND noninteractive
+
+# Install dev dependencies
+# hadolint ignore=DL3008
+RUN apt-get -y update \
+    # Install hadolint (Dockerfile linter)
+    && wget -q -O /bin/hadolint \
+        https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64 \
+    && chmod +x /bin/hadolint \
+    && apt-get -y install --no-install-recommends \
+        # Install ShellCheck (shell script linter)
+        shellcheck \
+        # Install shfmt formatter (shell script, dockerfile etc.)
+        shfmt \
+        # Install yamllinter (YAML linter)
+        yamllint \
+    && rm -rf /var/lib/apt/lists/*

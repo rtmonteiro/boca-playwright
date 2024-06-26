@@ -53,7 +53,7 @@ jobs:
     steps:
       # Checkout a repository, so the workflow can access it
       # https://github.com/actions/checkout
-      - 
+      -
         name: Checkout repository (no ref input)
         uses: actions/checkout@v4
         if: ${{ inputs.ref == '' }}
@@ -62,7 +62,7 @@ jobs:
           # list of changed files within `super-linter`
           fetch-depth: 0
 
-      - 
+      -
         name: Checkout repository (with ref input)
         uses: actions/checkout@v4
         if: ${{ inputs.ref != '' }}
@@ -74,12 +74,12 @@ jobs:
 
       # Load environment variables before running the GitHub Actions job
       # https://github.com/super-linter/super-linter/blob/main/docs/run-linter-locally.md
-      - 
+      -
         run: cat .github/super-linter.env >> "$GITHUB_ENV"
 
       # Run Linter against code base
       # https://github.com/super-linter/super-linter
-      - 
+      -
         name: Run Super-Linter on code base
         #uses: github/super-linter@v5
         uses: super-linter/super-linter/slim@v6
