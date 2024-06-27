@@ -49,7 +49,6 @@
   "markdownlint.config": {
     "MD033": false
   },
-  "shellcheck.exclude": ["1090", "2034", "2248", "2250"],
   "linter.linters": {
     "brakeman": {
       "capabilities": [],
@@ -355,7 +354,7 @@
       },
       "capabilities": [],
       "command": ["shellcheck", "--format", "json", "--enable", "all", "-"],
-      "configFiles": [],
+      "configFiles": [".shellcheckrc"],
       "enabled": true,
       "languages": ["shellscript", "bash"],
       "name": "shellcheck",
