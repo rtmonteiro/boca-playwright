@@ -35,16 +35,15 @@ npm run build
 ./get_languages.sh
 ./update_language.sh
 
-# Testing problem methods (count: 157)
+# Testing problem methods (count: 210)
 ./create_problem.sh
 ./delete_problem.sh
-./download_problem_package.sh
+./download_problem_desc_file.sh
+./download_problem_pckg_file.sh
 ./get_problem.sh
 ./get_problems.sh
 ./restore_problem.sh
 ./update_problem.sh
-# TODO
-# ./download_problem_desc_file.sh
 
 # Testing user methods (count: 220)
 ./create_user.sh

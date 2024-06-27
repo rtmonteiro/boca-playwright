@@ -2,3 +2,4 @@ node_modules/
 build/
 shunit2/
 result.json
+*.zip
