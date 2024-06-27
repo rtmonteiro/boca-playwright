@@ -26,3 +26,6 @@ ENV UPDATED_AT 2024-05-06
 
 # No interactive frontend during docker build
 ENV DEBIAN_FRONTEND noninteractive
+
+# Clone the shunit2 repository to use in the tests
+RUN git clone https://github.com/kward/shunit2.git /opt/shunit2
