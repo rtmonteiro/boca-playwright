@@ -22,38 +22,38 @@
 npm run build
 
 # # Testing contest methods (count: 165)
-# ./activate_contest.sh
-# ./create_contest.sh
-# ./get_contest.sh
-# ./get_contests.sh
-# ./update_contest.sh
+./activate_contest.sh
+./create_contest.sh
+./get_contest.sh
+./get_contests.sh
+./update_contest.sh
 
 # # Testing language methods (count: 120)
-# ./create_language.sh
-# ./delete_language.sh
-# ./get_language.sh
-# ./get_languages.sh
-# ./update_language.sh
+./create_language.sh
+./delete_language.sh
+./get_language.sh
+./get_languages.sh
+./update_language.sh
 
 # # Testing problem methods (count: 157)
-# ./create_problem.sh
-# ./delete_problem.sh
-# ./get_problem.sh
-# ./get_problems.sh
-# ./restore_problem.sh
-# ./update_problem.sh
+./create_problem.sh
+./delete_problem.sh
+./get_problem.sh
+./get_problems.sh
+./restore_problem.sh
+./update_problem.sh
 # TODO
 # ./download_problem_package_file.sh
 # ./download_problem_desc_file.sh
 
 # Testing user methods (count: 220)
-# ./create_user.sh
-# ./delete_user.sh
-# ./get_user.sh
-# ./get_users.sh
-# ./import_users.sh
-# ./restore_user.sh
-# ./update_user.sh
+./create_user.sh
+./delete_user.sh
+./get_user.sh
+./get_users.sh
+./import_users.sh
+./restore_user.sh
+./update_user.sh
 
 # TODO
 # ./update_options.sh
