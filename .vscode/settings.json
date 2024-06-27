@@ -1,30 +1,55 @@
 {
-  "markdownlint.config": {
-    "MD033": false
+  "[dockercompose]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[dockerfile]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "ms-azuretools.vscode-docker"
+  },
+  "[dotenv]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "foxundermoon.shell-format"
+  },
+  "[gitignore]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "foxundermoon.shell-format"
+  },
+  "[ignore]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "foxundermoon.shell-format"
+  },
+  "[jsonc]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[markdown]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[shellscript]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "foxundermoon.shell-format"
   },
   "[typescript]": {
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "[jsonc]": {
+  "[yaml]": {
+    "editor.formatOnSave": true,
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "shellformat.effectLanguages": [
     "shellscript",
-    "dockerfile",
     "dotenv",
-    "hosts",
-    "jvmoptions",
     "ignore",
-    "gitignore",
-    "properties",
-    "spring-boot-properties",
-    "azcli",
-    "bats"
+    "gitignore"
   ],
   "editor.formatOnSave": false,
-  // "shellcheck.exclude": ["1090", "2034"],
-  "shellcheck.exclude": ["2248", "2250"],
+  "markdownlint.config": {
+    "MD033": false
+  },
+  "shellcheck.exclude": ["1090", "2034", "2248", "2250"],
   "linter.linters": {
     "brakeman": {
       "capabilities": [],
