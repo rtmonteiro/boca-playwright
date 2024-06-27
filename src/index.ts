@@ -51,6 +51,7 @@ import {
 import {
   createProblem,
   deleteProblem,
+  downloadProblemPackage,
   getProblem,
   getProblems,
   restoreProblem,
@@ -448,6 +449,35 @@ async function shouldDeleteProblem(setup: Setup): Promise<void> {
   logger.logInfo('Deleted problem with id: %s', form.id);
   const output = Output.getInstance();
   output.setResult(form);
+}
+
+async function shouldDownloadProblemPackage(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Downloading problem package');
+
+  // validate setup file with zod
+  const validate = new Validate(setup);
+  const setupValidated = validate.downloadProblem();
+  const admin: Auth = setupValidated.login;
+  const problem = setupValidated.problem;
+
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
+  // Create a new incognito browser context
+  const context = await browser.newContext();
+  // Create a new page inside context.
+  const page = await context.newPage();
+  page.setDefaultTimeout(TIMEOUT);
+  await authenticateUser(page, admin);
+  await validate.checkUserType(page, 'Admin');
+  await downloadProblemPackage(page, problem);
+  // Dispose context once it's no longer needed.
+  await context.close();
+  await browser.close();
+  logger.logInfo('Downloaded package of problem with id: %s', problem.id);
 }
 
 async function shouldGetProblem(setup: Setup): Promise<void> {
@@ -876,6 +906,7 @@ const methods: Record<string, (setup: Setup) => Promise<void>> = {
   // Problems
   createProblem: shouldCreateProblem,
   deleteProblem: shouldDeleteProblem,
+  downloadProblemPackage: shouldDownloadProblemPackage,
   getProblem: shouldGetProblem,
   getProblems: shouldGetProblems,
   restoreProblem: shouldRestoreProblem,

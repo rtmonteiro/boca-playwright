@@ -19,12 +19,19 @@
 // ========================================================================
 
 import * as fs from 'fs';
+import * as path from 'path';
 import { z } from 'zod';
-import { ProblemMessages, TypeMessages } from '../errors/read_errors';
+import {
+  ProblemMessages,
+  ReadMessages,
+  TypeMessages
+} from '../errors/read_errors';
 
 export type Problem = z.infer<typeof problemSchema>;
 
 export type CreateProblem = z.infer<typeof createProblemSchema>;
+
+export type DownloadProblem = z.infer<typeof downloadProblemSchema>;
 
 export type GetProblem = z.infer<typeof getProblemSchema>;
 
@@ -72,6 +79,31 @@ export const problemSchema = z.object({
 export const createProblemSchema = problemSchema.omit({
   isEnabled: true
 });
+
+const fileSchema = z
+  .string()
+  .optional()
+  .refine((filePath) => {
+    if (!filePath) return true;
+    const dirPath = path.dirname(filePath);
+    // Check if the path to file is writeable with fs.accessSync
+    try {
+      fs.accessSync(dirPath, fs.constants.W_OK);
+      return true;
+    } catch {
+      return false;
+    }
+  }, ReadMessages.FORBIDDEN_PATH);
+
+export const downloadProblemSchema = problemSchema
+  .pick({
+    id: true
+  })
+  .merge(
+    z.object({
+      downloadDir: fileSchema
+    })
+  );
 
 export const getProblemSchema = problemSchema.pick({
   id: true

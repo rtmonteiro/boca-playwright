@@ -29,6 +29,7 @@ import {
 import { languageSchema, getLanguageSchema } from './language';
 import {
   createProblemSchema,
+  downloadProblemSchema,
   getProblemSchema,
   updateProblemSchema
 } from './problem';
@@ -123,6 +124,15 @@ export class Validate {
     const setupType = z.object({
       login: authSchema,
       problem: createProblemSchema
+    });
+    setupType.parse(this.setup);
+    return this.setup as z.infer<typeof setupType>;
+  }
+
+  downloadProblem(): z.infer<typeof setupType> {
+    const setupType = z.object({
+      login: authSchema,
+      problem: downloadProblemSchema
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;

@@ -40,7 +40,7 @@ const resultSchema = z
     if (!filePath) return true;
     const output = Output.getInstance();
     const dirPath = path.dirname(filePath);
-    // Check if the path to file is writeble with fs.accessSync
+    // Check if the path to file is writeable with fs.accessSync
     try {
       fs.accessSync(dirPath, fs.constants.W_OK);
       return true;

@@ -22,6 +22,7 @@ import { type Locator, type Page } from 'playwright';
 import {
   type Problem,
   type CreateProblem,
+  type DownloadProblem,
   type UpdateProblem
 } from '../data/problem';
 import { ProblemError, ProblemMessages } from '../errors/read_errors';
@@ -64,6 +65,19 @@ export async function deleteProblem(
     page.removeListener('dialog', dialogHandler);
   }
   return await getProblem(page, id);
+}
+
+export async function downloadProblemPackage(
+  page: Page,
+  problem: DownloadProblem
+): Promise<void> {
+  await page.goto(BASE_URL + '/admin/problem.php');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
+
+  const row = await checkProblemExists(page, problem.id);
+  const link = await row.locator('td:nth-of-type(6) > a');
+  await downloadFile(page, problem.downloadDir, link);
 }
 
 export async function getProblem(
@@ -176,6 +190,23 @@ async function checkProblemNotExists(page: Page, id: string): Promise<Locator> {
     throw new ProblemError(ProblemMessages.ID_ALREADY_IN_USE);
   }
   return row;
+}
+
+async function downloadFile(
+  page: Page,
+  path: string | undefined,
+  link: Locator
+): Promise<void> {
+  // Start waiting for download before clicking. Note no await.
+  const downloadPromise = page.waitForEvent('download');
+  await link.click();
+  const download = await downloadPromise;
+
+  // Wait for the download process to complete and save the downloaded
+  // file somewhere.
+  const dir = path !== undefined ? path : './';
+  const filename = download.suggestedFilename();
+  await download.saveAs(`${dir}/${filename}`);
 }
 
 async function fillColorForm(

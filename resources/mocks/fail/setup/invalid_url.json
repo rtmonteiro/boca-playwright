@@ -1,6 +1,6 @@
 {
   "config": {
-    "url": "12345"
+    "url": true
   },
   "login": {
     "username": "system",

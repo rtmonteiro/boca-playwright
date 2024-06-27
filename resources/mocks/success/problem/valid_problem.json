@@ -12,6 +12,7 @@
     "name": "L1_1",
     "filePath": "resources/L1_1.zip",
     "colorName": "green",
-    "colorCode": "00FF00"
+    "colorCode": "00FF00",
+    "downloadDir": "./tests"
   }
 }
