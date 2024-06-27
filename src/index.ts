@@ -23,9 +23,9 @@ import * as fs from 'fs';
 import { chromium } from 'playwright';
 import { exit } from 'process';
 import { ZodError } from 'zod';
+import { type Auth } from './data/auth';
 import { type CreateContest, type UpdateContest } from './data/contest';
-import { type Login } from './data/auth';
-import { type Problem } from './data/problem';
+import { type CreateProblem, type UpdateProblem } from './data/problem';
 import { setupSchema, type Setup } from './data/setup';
 import { type Site } from './data/site';
 import { type User } from './data/user';
@@ -33,7 +33,7 @@ import { Validate } from './data/validate';
 import { ExitErrors, ReadMessages } from './errors/read_errors';
 import { Logger } from './logger';
 import { Output } from './output';
-import { login } from './scripts/auth';
+import { authenticateUser } from './scripts/auth';
 import {
   activateContest,
   createContest,
@@ -45,23 +45,28 @@ import {
   createLanguage,
   deleteLanguage,
   getLanguage,
-  getLanguages
+  getLanguages,
+  updateLanguage
 } from './scripts/language';
 import {
   createProblem,
   deleteProblem,
   getProblem,
-  getProblems
+  getProblems,
+  restoreProblem,
+  updateProblem
 } from './scripts/problem';
-import { retrieveFiles } from './scripts/report';
 import { createSite } from './scripts/site';
 import {
   createUser,
   deleteUser,
   getUser,
   getUsers,
-  importUsers
+  importUsers,
+  restoreUser,
+  updateUser
 } from './scripts/user';
+import { retrieveFiles } from './scripts/report';
 
 const STEP_DURATION = 50;
 const HEADLESS = true;
@@ -77,7 +82,7 @@ async function shouldActivateContest(setup: Setup): Promise<void> {
   // validate setup file with zod
   const validate = new Validate(setup);
   const setupValidated = validate.getContest();
-  const system: Login = setupValidated.login;
+  const system: Auth = setupValidated.login;
   const contest = setupValidated.contest;
 
   const browser = await chromium.launch({
@@ -89,14 +94,13 @@ async function shouldActivateContest(setup: Setup): Promise<void> {
   // Create a new page inside context.
   const page = await context.newPage();
   page.setDefaultTimeout(TIMEOUT);
-  logger.logInfo('Logging in with system user: %s', system.username);
-  await login(page, system);
-  await validate.checkLoginType(page, 'System');
+  await authenticateUser(page, system);
+  await validate.checkUserType(page, 'System');
   const form = await activateContest(page, contest.id, system);
   // Dispose context once it's no longer needed.
   await context.close();
   await browser.close();
-  logger.logInfo('Contest activated with id: %s', form.id);
+  logger.logInfo('Activated contest with id: %s', form.id);
   const output = Output.getInstance();
   output.setResult(form);
 }
@@ -109,7 +113,7 @@ async function shouldCreateContest(setup: Setup): Promise<void> {
   // validate setup file with zod
   const validate = new Validate(setup);
   const setupValidated = validate.createContest();
-  const system: Login = setupValidated.login;
+  const system: Auth = setupValidated.login;
   const contest: CreateContest | undefined = setupValidated.contest;
 
   // create contest
@@ -122,15 +126,13 @@ async function shouldCreateContest(setup: Setup): Promise<void> {
   // Create a new page inside context.
   const page = await context.newPage();
   page.setDefaultTimeout(TIMEOUT);
-  logger.logInfo('Logging in with system user: %s', system.username);
-  await login(page, system);
-  await validate.checkLoginType(page, 'System');
-  logger.logInfo('Creating contest');
+  await authenticateUser(page, system);
+  await validate.checkUserType(page, 'System');
   const form = await createContest(page, contest);
   // Dispose context once it's no longer needed.
   await context.close();
   await browser.close();
-  logger.logInfo('Contest created with id: %s', form.id);
+  logger.logInfo('Created contest with id: %s', form.id);
   const output = Output.getInstance();
   output.setResult(form);
 }
@@ -143,7 +145,7 @@ async function shouldGetContest(setup: Setup): Promise<void> {
   // validate setup file with zod
   const validate = new Validate(setup);
   const setupValidated = validate.getContest();
-  const system: Login = setupValidated.login;
+  const system: Auth = setupValidated.login;
   const contest = setupValidated.contest;
 
   const browser = await chromium.launch({
@@ -155,14 +157,13 @@ async function shouldGetContest(setup: Setup): Promise<void> {
   // Create a new page inside context.
   const page = await context.newPage();
   page.setDefaultTimeout(TIMEOUT);
-  logger.logInfo('Logging in with system user: %s', system.username);
-  await login(page, system);
-  await validate.checkLoginType(page, 'System');
+  await authenticateUser(page, system);
+  await validate.checkUserType(page, 'System');
   const form = await getContest(page, contest.id);
   // Dispose context once it's no longer needed.
   await context.close();
   await browser.close();
-  logger.logInfo('Contest found with id: %s', form.id);
+  logger.logInfo('Found contest with id: %s', form.id);
   const output = Output.getInstance();
   output.setResult(form);
 }
@@ -174,8 +175,8 @@ async function shouldGetContests(setup: Setup): Promise<void> {
 
   // validate setup file with zod
   const validate = new Validate(setup);
-  const setupValidated = validate.getContests();
-  const system: Login = setupValidated.login;
+  const setupValidated = validate.checkAuthentication();
+  const system: Auth = setupValidated.login;
 
   const browser = await chromium.launch({
     headless: HEADLESS,
@@ -186,9 +187,8 @@ async function shouldGetContests(setup: Setup): Promise<void> {
   // Create a new page inside context.
   const page = await context.newPage();
   page.setDefaultTimeout(TIMEOUT);
-  logger.logInfo('Logging in with system user: %s', system.username);
-  await login(page, system);
-  await validate.checkLoginType(page, 'System');
+  await authenticateUser(page, system);
+  await validate.checkUserType(page, 'System');
   const form = await getContests(page);
   // Dispose context once it's no longer needed.
   await context.close();
@@ -206,7 +206,7 @@ async function shouldUpdateContest(setup: Setup): Promise<void> {
   // validate setup file with zod
   const validate = new Validate(setup);
   const setupValidated = validate.updateContest();
-  const system: Login = setupValidated.login;
+  const system: Auth = setupValidated.login;
   const contest: UpdateContest = setupValidated.contest;
 
   // create contest
@@ -219,14 +219,13 @@ async function shouldUpdateContest(setup: Setup): Promise<void> {
   // Create a new page inside context.
   const page = await context.newPage();
   page.setDefaultTimeout(TIMEOUT);
-  logger.logInfo('Logging in with system user: %s', system.username);
-  await login(page, system);
-  await validate.checkLoginType(page, 'System');
+  await authenticateUser(page, system);
+  await validate.checkUserType(page, 'System');
   const form = await updateContest(page, contest);
   // Dispose context once it's no longer needed.
   await context.close();
   await browser.close();
-  logger.logInfo('Contest updated with id: %s', form.id);
+  logger.logInfo('Updated contest with id: %s', form.id);
   const output = Output.getInstance();
   output.setResult(form);
 }
@@ -236,12 +235,12 @@ async function shouldUpdateContest(setup: Setup): Promise<void> {
 async function shouldCreateLanguage(setup: Setup): Promise<void> {
   // instantiate logger
   const logger = Logger.getInstance();
-  logger.logInfo('Creating/Updating language');
+  logger.logInfo('Creating language');
 
   // validate setup file with zod
   const validate = new Validate(setup);
   const setupValidated = validate.createLanguage();
-  const admin: Login = setupValidated.login;
+  const admin: Auth = setupValidated.login;
   const language = setupValidated.language;
 
   const browser = await chromium.launch({
@@ -253,13 +252,13 @@ async function shouldCreateLanguage(setup: Setup): Promise<void> {
   // Create a new page inside context.
   const page = await context.newPage();
   page.setDefaultTimeout(TIMEOUT);
-  await login(page, admin);
-  await validate.checkLoginType(page, 'Admin');
+  await authenticateUser(page, admin);
+  await validate.checkUserType(page, 'Admin');
   const form = await createLanguage(page, language);
   // Dispose context once it's no longer needed.
   await context.close();
   await browser.close();
-  logger.logInfo('Language created/updated with id: %s', form.id);
+  logger.logInfo('Created language with id: %s', form.id);
   const output = Output.getInstance();
   output.setResult(form);
 }
@@ -272,7 +271,7 @@ async function shouldDeleteLanguage(setup: Setup): Promise<void> {
   // validate setup file with zod
   const validate = new Validate(setup);
   const setupValidated = validate.getLanguage();
-  const admin: Login = setupValidated.login;
+  const admin: Auth = setupValidated.login;
   const language = setupValidated.language;
 
   const browser = await chromium.launch({
@@ -284,13 +283,13 @@ async function shouldDeleteLanguage(setup: Setup): Promise<void> {
   // Create a new page inside context.
   const page = await context.newPage();
   page.setDefaultTimeout(TIMEOUT);
-  await login(page, admin);
-  await validate.checkLoginType(page, 'Admin');
-  const form = await deleteLanguage(page, language);
+  await authenticateUser(page, admin);
+  await validate.checkUserType(page, 'Admin');
+  const form = await deleteLanguage(page, language.id);
   // Dispose context once it's no longer needed.
   await context.close();
   await browser.close();
-  logger.logInfo('Language deleted with id: %s', form.id);
+  logger.logInfo('Deleted language with id: %s', form.id);
   const output = Output.getInstance();
   output.setResult(form);
 }
@@ -303,7 +302,7 @@ async function shouldGetLanguage(setup: Setup): Promise<void> {
   // validate setup file with zod
   const validate = new Validate(setup);
   const setupValidated = validate.getLanguage();
-  const admin: Login = setupValidated.login;
+  const admin: Auth = setupValidated.login;
   const language = setupValidated.language;
 
   const browser = await chromium.launch({
@@ -315,13 +314,13 @@ async function shouldGetLanguage(setup: Setup): Promise<void> {
   // Create a new page inside context.
   const page = await context.newPage();
   page.setDefaultTimeout(TIMEOUT);
-  await login(page, admin);
-  await validate.checkLoginType(page, 'Admin');
-  const form = await getLanguage(page, language);
+  await authenticateUser(page, admin);
+  await validate.checkUserType(page, 'Admin');
+  const form = await getLanguage(page, language.id);
   // Dispose context once it's no longer needed.
   await context.close();
   await browser.close();
-  logger.logInfo('Language found with id: %s', form.id);
+  logger.logInfo('Found language with id: %s', form.id);
   const output = Output.getInstance();
   output.setResult(form);
 }
@@ -333,8 +332,8 @@ async function shouldGetLanguages(setup: Setup): Promise<void> {
 
   // validate setup file with zod
   const validate = new Validate(setup);
-  const setupValidated = validate.getLanguages();
-  const admin: Login = setupValidated.login;
+  const setupValidated = validate.checkAuthentication();
+  const admin: Auth = setupValidated.login;
 
   const browser = await chromium.launch({
     headless: HEADLESS,
@@ -345,13 +344,44 @@ async function shouldGetLanguages(setup: Setup): Promise<void> {
   // Create a new page inside context.
   const page = await context.newPage();
   page.setDefaultTimeout(TIMEOUT);
-  await login(page, admin);
-  await validate.checkLoginType(page, 'Admin');
+  await authenticateUser(page, admin);
+  await validate.checkUserType(page, 'Admin');
   const form = await getLanguages(page);
   // Dispose context once it's no longer needed.
   await context.close();
   await browser.close();
   logger.logInfo('Found %s languages', form.length);
+  const output = Output.getInstance();
+  output.setResult(form);
+}
+
+async function shouldUpdateLanguage(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Updating language');
+
+  // validate setup file with zod
+  const validate = new Validate(setup);
+  const setupValidated = validate.createLanguage();
+  const admin: Auth = setupValidated.login;
+  const language = setupValidated.language;
+
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
+  // Create a new incognito browser context
+  const context = await browser.newContext();
+  // Create a new page inside context.
+  const page = await context.newPage();
+  page.setDefaultTimeout(TIMEOUT);
+  await authenticateUser(page, admin);
+  await validate.checkUserType(page, 'Admin');
+  const form = await updateLanguage(page, language);
+  // Dispose context once it's no longer needed.
+  await context.close();
+  await browser.close();
+  logger.logInfo('Updated language with id: %s', form.id);
   const output = Output.getInstance();
   output.setResult(form);
 }
@@ -361,13 +391,13 @@ async function shouldGetLanguages(setup: Setup): Promise<void> {
 async function shouldCreateProblem(setup: Setup): Promise<void> {
   // instantiate logger
   const logger = Logger.getInstance();
-  logger.logInfo('Creating/Updating problem');
+  logger.logInfo('Creating problem');
 
   // validate setup file with zod
   const validate = new Validate(setup);
   const setupValidated = validate.createProblem();
-  const admin: Login = setupValidated.login;
-  const problem: Problem = setupValidated.problem;
+  const admin: Auth = setupValidated.login;
+  const problem: CreateProblem = setupValidated.problem;
 
   const browser = await chromium.launch({
     headless: HEADLESS,
@@ -378,13 +408,13 @@ async function shouldCreateProblem(setup: Setup): Promise<void> {
   // Create a new page inside context.
   const page = await context.newPage();
   page.setDefaultTimeout(TIMEOUT);
-  await login(page, admin);
-  await validate.checkLoginType(page, 'Admin');
+  await authenticateUser(page, admin);
+  await validate.checkUserType(page, 'Admin');
   const form = await createProblem(page, problem);
   // Dispose context once it's no longer needed.
   await context.close();
   await browser.close();
-  logger.logInfo('Problem created/updated with id: %s', form.id);
+  logger.logInfo('Created problem with id: %s', form.id);
   const output = Output.getInstance();
   output.setResult(form);
 }
@@ -397,7 +427,7 @@ async function shouldDeleteProblem(setup: Setup): Promise<void> {
   // validate setup file with zod
   const validate = new Validate(setup);
   const setupValidated = validate.getProblem();
-  const admin: Login = setupValidated.login;
+  const admin: Auth = setupValidated.login;
   const problem = setupValidated.problem;
 
   const browser = await chromium.launch({
@@ -409,13 +439,13 @@ async function shouldDeleteProblem(setup: Setup): Promise<void> {
   // Create a new page inside context.
   const page = await context.newPage();
   page.setDefaultTimeout(TIMEOUT);
-  await login(page, admin);
-  await validate.checkLoginType(page, 'Admin');
-  const form = await deleteProblem(page, problem);
+  await authenticateUser(page, admin);
+  await validate.checkUserType(page, 'Admin');
+  const form = await deleteProblem(page, problem.id);
   // Dispose context once it's no longer needed.
   await context.close();
   await browser.close();
-  logger.logInfo('Problem deleted with id: %s', form.id);
+  logger.logInfo('Deleted problem with id: %s', form.id);
   const output = Output.getInstance();
   output.setResult(form);
 }
@@ -428,7 +458,7 @@ async function shouldGetProblem(setup: Setup): Promise<void> {
   // validate setup file with zod
   const validate = new Validate(setup);
   const setupValidated = validate.getProblem();
-  const admin: Login = setupValidated.login;
+  const admin: Auth = setupValidated.login;
   const problem = setupValidated.problem;
 
   const browser = await chromium.launch({
@@ -440,13 +470,13 @@ async function shouldGetProblem(setup: Setup): Promise<void> {
   // Create a new page inside context.
   const page = await context.newPage();
   page.setDefaultTimeout(TIMEOUT);
-  await login(page, admin);
-  await validate.checkLoginType(page, 'Admin');
-  const form = await getProblem(page, problem);
+  await authenticateUser(page, admin);
+  await validate.checkUserType(page, 'Admin');
+  const form = await getProblem(page, problem.id);
   // Dispose context once it's no longer needed.
   await context.close();
   await browser.close();
-  logger.logInfo('Problem found with name: %s', form.name);
+  logger.logInfo('Found problem with id: %s', form.id);
   const output = Output.getInstance();
   output.setResult(form);
 }
@@ -458,8 +488,8 @@ async function shouldGetProblems(setup: Setup): Promise<void> {
 
   // validate setup file with zod
   const validate = new Validate(setup);
-  const setupValidated = validate.getProblems();
-  const admin: Login = setupValidated.login;
+  const setupValidated = validate.checkAuthentication();
+  const admin: Auth = setupValidated.login;
 
   const browser = await chromium.launch({
     headless: HEADLESS,
@@ -470,13 +500,75 @@ async function shouldGetProblems(setup: Setup): Promise<void> {
   // Create a new page inside context.
   const page = await context.newPage();
   page.setDefaultTimeout(TIMEOUT);
-  await login(page, admin);
-  await validate.checkLoginType(page, 'Admin');
+  await authenticateUser(page, admin);
+  await validate.checkUserType(page, 'Admin');
   const form = await getProblems(page);
   // Dispose context once it's no longer needed.
   await context.close();
   await browser.close();
   logger.logInfo('Found %s problems', form.length);
+  const output = Output.getInstance();
+  output.setResult(form);
+}
+
+async function shouldRestoreProblem(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Restoring problem');
+
+  // validate setup file with zod
+  const validate = new Validate(setup);
+  const setupValidated = validate.getProblem();
+  const admin: Auth = setupValidated.login;
+  const problem = setupValidated.problem;
+
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
+  // Create a new incognito browser context
+  const context = await browser.newContext();
+  // Create a new page inside context.
+  const page = await context.newPage();
+  page.setDefaultTimeout(TIMEOUT);
+  await authenticateUser(page, admin);
+  await validate.checkUserType(page, 'Admin');
+  const form = await restoreProblem(page, problem.id);
+  // Dispose context once it's no longer needed.
+  await context.close();
+  await browser.close();
+  logger.logInfo('Restored problem with id: %s', form.id);
+  const output = Output.getInstance();
+  output.setResult(form);
+}
+
+async function shouldUpdateProblem(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Updating problem');
+
+  // validate setup file with zod
+  const validate = new Validate(setup);
+  const setupValidated = validate.updateProblem();
+  const admin: Auth = setupValidated.login;
+  const problem: UpdateProblem = setupValidated.problem;
+
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
+  // Create a new incognito browser context
+  const context = await browser.newContext();
+  // Create a new page inside context.
+  const page = await context.newPage();
+  page.setDefaultTimeout(TIMEOUT);
+  await authenticateUser(page, admin);
+  await validate.checkUserType(page, 'Admin');
+  const form = await updateProblem(page, problem);
+  // Dispose context once it's no longer needed.
+  await context.close();
+  await browser.close();
+  logger.logInfo('Updated problem with id: %s', form.id);
   const output = Output.getInstance();
   output.setResult(form);
 }
@@ -486,12 +578,12 @@ async function shouldGetProblems(setup: Setup): Promise<void> {
 async function shouldCreateUser(setup: Setup): Promise<void> {
   // instantiate logger
   const logger = Logger.getInstance();
-  logger.logInfo('Creating users');
+  logger.logInfo('Creating user');
 
   // validate setup file with zod
   const validate = new Validate(setup);
   const setupValidated = validate.createUser();
-  const admin: Login = setupValidated.login;
+  const admin: Auth = setupValidated.login;
   const user: User = setupValidated.user;
 
   const browser = await chromium.launch({
@@ -503,16 +595,13 @@ async function shouldCreateUser(setup: Setup): Promise<void> {
   // Create a new page inside context.
   const page = await context.newPage();
   page.setDefaultTimeout(TIMEOUT);
-  logger.logInfo('Logging in with admin user: %s', admin.username);
-  await login(page, admin);
-  await validate.checkLoginType(page, 'Admin');
-  logger.logInfo('Creating user: %s', user.username);
-  await createUser(page, user, admin);
-  const form = await getUser(page, user);
+  await authenticateUser(page, admin);
+  await validate.checkUserType(page, 'Admin');
+  const form = await createUser(page, user, admin);
   // Dispose context once it's no longer needed.
   await context.close();
   await browser.close();
-  logger.logInfo('User created with id: %s', form.id);
+  logger.logInfo('Created user with id/site: %s/%s', form.id, form.siteId);
   const output = Output.getInstance();
   output.setResult(form);
 }
@@ -520,12 +609,12 @@ async function shouldCreateUser(setup: Setup): Promise<void> {
 async function shouldDeleteUser(setup: Setup): Promise<void> {
   // instantiate logger
   const logger = Logger.getInstance();
-  logger.logInfo('Deleting users');
+  logger.logInfo('Deleting/Disabling user');
 
   // validate setup file with zod
   const validate = new Validate(setup);
   const setupValidated = validate.getUser();
-  const admin: Login = setupValidated.login;
+  const admin: Auth = setupValidated.login;
   const userId = setupValidated.user;
 
   const browser = await chromium.launch({
@@ -537,13 +626,17 @@ async function shouldDeleteUser(setup: Setup): Promise<void> {
   // Create a new page inside context.
   const page = await context.newPage();
   page.setDefaultTimeout(TIMEOUT);
-  await login(page, admin);
-  await validate.checkLoginType(page, 'Admin');
+  await authenticateUser(page, admin);
+  await validate.checkUserType(page, 'Admin');
   const form = await deleteUser(page, userId, admin);
   // Dispose context once it's no longer needed.
   await context.close();
   await browser.close();
-  logger.logInfo('User deleted with site: %s and id: %s', form.siteId, form.id);
+  logger.logInfo(
+    'Deleted/Disabled user with id/site: %s/%s',
+    form.id,
+    form.siteId
+  );
   const output = Output.getInstance();
   output.setResult(form);
 }
@@ -556,8 +649,8 @@ async function shouldGetUser(setup: Setup): Promise<void> {
   // validate setup file with zod
   const validate = new Validate(setup);
   const setupValidated = validate.getUser();
-  const admin: Login = setupValidated.login;
-  const userId = setupValidated.user;
+  const admin: Auth = setupValidated.login;
+  const user = setupValidated.user;
 
   const browser = await chromium.launch({
     headless: HEADLESS,
@@ -568,13 +661,13 @@ async function shouldGetUser(setup: Setup): Promise<void> {
   // Create a new page inside context.
   const page = await context.newPage();
   page.setDefaultTimeout(TIMEOUT);
-  await login(page, admin);
-  await validate.checkLoginType(page, 'Admin');
-  const form = await getUser(page, userId);
+  await authenticateUser(page, admin);
+  await validate.checkUserType(page, 'Admin');
+  const form = await getUser(page, user);
   // Dispose context once it's no longer needed.
   await context.close();
   await browser.close();
-  logger.logInfo('User found with name: %s', form.username);
+  logger.logInfo('User found with id/site: %s/%s', form.id, form.siteId);
   const output = Output.getInstance();
   output.setResult(form);
 }
@@ -586,8 +679,8 @@ async function shouldGetUsers(setup: Setup): Promise<void> {
 
   // validate setup file with zod
   const validate = new Validate(setup);
-  const setupValidated = validate.getUsers();
-  const admin: Login = setupValidated.login;
+  const setupValidated = validate.checkAuthentication();
+  const admin: Auth = setupValidated.login;
 
   const browser = await chromium.launch({
     headless: HEADLESS,
@@ -598,8 +691,8 @@ async function shouldGetUsers(setup: Setup): Promise<void> {
   // Create a new page inside context.
   const page = await context.newPage();
   page.setDefaultTimeout(TIMEOUT);
-  await login(page, admin);
-  await validate.checkLoginType(page, 'Admin');
+  await authenticateUser(page, admin);
+  await validate.checkUserType(page, 'Admin');
   const form = await getUsers(page);
   // Dispose context once it's no longer needed.
   await context.close();
@@ -618,7 +711,7 @@ async function shouldImportUsers(setup: Setup): Promise<void> {
   const validate = new Validate(setup);
   const setupValidated = validate.importUsers();
   const userPath = setupValidated.config.userPath;
-  const admin: Login = setupValidated.login;
+  const admin: Auth = setupValidated.login;
 
   const browser = await chromium.launch({
     headless: HEADLESS,
@@ -629,14 +722,80 @@ async function shouldImportUsers(setup: Setup): Promise<void> {
   // Create a new page inside context.
   const page = await context.newPage();
   page.setDefaultTimeout(TIMEOUT);
-  logger.logInfo('Logging in with admin user: %s', admin.username);
-  await login(page, admin);
-  await validate.checkLoginType(page, 'Admin');
+  logger.logInfo('Authenticating with admin user: %s', admin.username);
+  await authenticateUser(page, admin);
+  await validate.checkUserType(page, 'Admin');
   logger.logInfo('Importing users from file: %s', userPath);
   await importUsers(page, userPath);
   // Dispose context once it's no longer needed.
   await context.close();
   await browser.close();
+}
+
+async function shouldRestoreUser(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Restoring/Enabling user');
+
+  // validate setup file with zod
+  const validate = new Validate(setup);
+  const setupValidated = validate.getUser();
+  const admin: Auth = setupValidated.login;
+  const userId = setupValidated.user;
+
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
+  // Create a new incognito browser context
+  const context = await browser.newContext();
+  // Create a new page inside context.
+  const page = await context.newPage();
+  page.setDefaultTimeout(TIMEOUT);
+  await authenticateUser(page, admin);
+  await validate.checkUserType(page, 'Admin');
+  const form = await restoreUser(page, userId, admin);
+  // Dispose context once it's no longer needed.
+  await context.close();
+  await browser.close();
+  logger.logInfo(
+    'Restored/Enabled user with id/site: %s/%s',
+    form.id,
+    form.siteId
+  );
+  const output = Output.getInstance();
+  output.setResult(form);
+}
+
+async function shouldUpdateUser(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Updating user');
+
+  // validate setup file with zod
+  const validate = new Validate(setup);
+  const setupValidated = validate.createUser();
+  const admin: Auth = setupValidated.login;
+  const user: User = setupValidated.user;
+
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
+  // Create a new incognito browser context
+  const context = await browser.newContext();
+  // Create a new page inside context.
+  const page = await context.newPage();
+  page.setDefaultTimeout(TIMEOUT);
+  await authenticateUser(page, admin);
+  await validate.checkUserType(page, 'Admin');
+  const form = await updateUser(page, user, admin);
+  // Dispose context once it's no longer needed.
+  await context.close();
+  await browser.close();
+  logger.logInfo('Updated user with id/site: %s/%s', form.id, form.siteId);
+  const output = Output.getInstance();
+  output.setResult(form);
 }
 //#endregion
 
@@ -649,7 +808,7 @@ async function shouldCreateSite(setup: Setup): Promise<void> {
   // validate setup file with zod
   const validate = new Validate(setup);
   const setupValidated = validate.createSite();
-  const admin: Login = setupValidated.login;
+  const admin: Auth = setupValidated.login;
   const site: Site = setupValidated.site;
 
   const browser = await chromium.launch({
@@ -661,8 +820,8 @@ async function shouldCreateSite(setup: Setup): Promise<void> {
   // Create a new page inside context.
   const page = await context.newPage();
   page.setDefaultTimeout(TIMEOUT);
-  await login(page, admin);
-  await validate.checkLoginType(page, 'Admin');
+  await authenticateUser(page, admin);
+  await validate.checkUserType(page, 'Admin');
   await createSite(page, site);
   // Dispose context once it's no longer needed.
   await context.close();
@@ -679,7 +838,7 @@ async function shouldGenerateReport(setup: Setup): Promise<void> {
   // validate setup file with zod
   const validate = new Validate(setup);
   const setupValidated = validate.generateReport();
-  const admin: Login = setupValidated.login;
+  const admin: Auth = setupValidated.login;
   const outDir = setupValidated.config.outReportDir;
 
   const browser = await chromium.launch({
@@ -691,8 +850,8 @@ async function shouldGenerateReport(setup: Setup): Promise<void> {
   // Create a new page inside context.
   const page = await context.newPage();
   page.setDefaultTimeout(TIMEOUT);
-  await login(page, admin);
-  await validate.checkLoginType(page, 'Admin');
+  await authenticateUser(page, admin);
+  await validate.checkUserType(page, 'Admin');
   await retrieveFiles(page, outDir);
   // Dispose context once it's no longer needed.
   await context.close();
@@ -703,23 +862,24 @@ async function shouldGenerateReport(setup: Setup): Promise<void> {
 
 const methods: Record<string, (setup: Setup) => Promise<void>> = {
   // Contests
+  activateContest: shouldActivateContest,
   createContest: shouldCreateContest,
-  updateContest: shouldUpdateContest,
   getContest: shouldGetContest,
   getContests: shouldGetContests,
-  activateContest: shouldActivateContest,
+  updateContest: shouldUpdateContest,
   // Languages
   createLanguage: shouldCreateLanguage,
   deleteLanguage: shouldDeleteLanguage,
   getLanguage: shouldGetLanguage,
   getLanguages: shouldGetLanguages,
-  updateLanguage: shouldCreateLanguage,
+  updateLanguage: shouldUpdateLanguage,
   // Problems
   createProblem: shouldCreateProblem,
   deleteProblem: shouldDeleteProblem,
   getProblem: shouldGetProblem,
   getProblems: shouldGetProblems,
-  updateProblem: shouldCreateProblem,
+  restoreProblem: shouldRestoreProblem,
+  updateProblem: shouldUpdateProblem,
   // Sites
   createSite: shouldCreateSite,
   // Users
@@ -728,7 +888,8 @@ const methods: Record<string, (setup: Setup) => Promise<void>> = {
   getUser: shouldGetUser,
   getUsers: shouldGetUsers,
   importUsers: shouldImportUsers,
-  updateUser: shouldCreateUser,
+  restoreUser: shouldRestoreUser,
+  updateUser: shouldUpdateUser,
   // Reports
   generateReport: shouldGenerateReport
 };
@@ -744,7 +905,11 @@ function main(): number {
         .choices(Object.keys(methods))
         .makeOptionMandatory()
     )
-    .option('-t, --timeout <timeout>', 'timeout for playwright', '30000')
+    .option(
+      '-t, --timeout <timeout>',
+      'timeout for playwright',
+      TIMEOUT.toString()
+    )
     .option('-v, --verbose', 'verbose mode')
     .parse();
 
@@ -765,7 +930,7 @@ function main(): number {
     if (e instanceof ZodError) logger.logZodError(e);
     exit(ExitErrors.CONFIG_VALIDATION);
   } finally {
-    logger.logInfo('Using setup file: %s', path);
+    logger.logInfo('Using config file: %s', path);
   }
   BASE_URL = setup.config.url;
   TIMEOUT = parseInt(timeout);

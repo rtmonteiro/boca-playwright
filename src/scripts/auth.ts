@@ -19,16 +19,17 @@
 // ========================================================================
 
 import { type Page } from 'playwright';
-import { type Login } from '../data/auth';
+import { type Auth } from '../data/auth';
 import { BASE_URL } from '../index';
 
-export async function login(page: Page, login: Login): Promise<void> {
+export async function authenticateUser(page: Page, user: Auth): Promise<void> {
   await page.goto(BASE_URL + '/');
   // Wait for load state
   await page.waitForLoadState('domcontentloaded');
+
   await page.locator('input[name="name"]').click();
-  await page.locator('input[name="name"]').fill(login.username);
+  await page.locator('input[name="name"]').fill(user.username);
   await page.locator('input[name="name"]').press('Tab');
-  await page.locator('input[name="password"]').fill(login.password);
+  await page.locator('input[name="password"]').fill(user.password);
   await page.locator('input[name="password"]').press('Enter');
 }

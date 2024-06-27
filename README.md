@@ -77,23 +77,33 @@ TODO
 
 ## Lista de comandos
 
+- activateContest
 - createContest
 - getContest
 - getContests
 - updateContest
+
 - createLanguage
 - deleteLanguage
 - getLanguage
 - getLanguages
+- updateLanguage
+
 - createProblem
 - deleteProblem
 - getProblem
 - getProblems
+- restoreProblem
+- updateProblem
+
 - createUser
 - deleteUser
 - getUser
 - getUsers
 - importUsers
+- restoreUser
+- updateUser
+
 - createSite
 - createProblem
 - generateReport

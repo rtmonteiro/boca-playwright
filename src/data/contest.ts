@@ -19,18 +19,23 @@
 // ========================================================================
 
 import { z } from 'zod';
-import { TypeMessages, ContestMessages } from '../errors/read_errors';
-
-export type UpdateContest = z.infer<typeof updateContestSchema>;
-
-export type CreateContest = z.infer<typeof createContestSchema>;
+import { ContestMessages, TypeMessages } from '../errors/read_errors';
 
 export type Contest = z.infer<typeof contestSchema>;
 
+export type CreateContest = z.infer<typeof createContestSchema>;
+
+export type GetContest = z.infer<typeof getContestSchema>;
+
+export type UpdateContest = z.infer<typeof updateContestSchema>;
+
 export const contestSchema = z.object({
-  id: z.string().refine((value) => parseInt(value) > 0, {
-    message: TypeMessages.POSITIVE_NUMBER_REQUIRED
-  }),
+  id: z
+    .string()
+    .refine((value) => parseInt(value) > 0, {
+      message: TypeMessages.POSITIVE_NUMBER_REQUIRED
+    })
+    .refine((value) => value !== undefined, ContestMessages.ID_REQUIRED),
   name: z.string().optional(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
@@ -64,11 +69,13 @@ export const contestSchema = z.object({
   isActive: z.union([z.literal('Yes'), z.literal('No')])
 });
 
-export const updateContestSchema = contestSchema
-  .partial()
-  .omit({ isActive: true })
-  .refine((contest) => contest.id !== undefined, ContestMessages.ID_REQUIRED);
+export const createContestSchema = contestSchema.omit({
+  id: true,
+  isActive: true
+});
 
-export const createContestSchema = contestSchema
-  .partial()
-  .omit({ id: true, isActive: true });
+export const getContestSchema = contestSchema.pick({
+  id: true
+});
+
+export const updateContestSchema = contestSchema.omit({ isActive: true });

@@ -21,14 +21,13 @@
 import { z } from 'zod';
 import { userSchema } from './user';
 
-export type Login = z.infer<typeof loginSchema>;
+export type Auth = z.infer<typeof authSchema>;
 
-export const loginSchema = userSchema
+export const authSchema = userSchema
   .pick({
     username: true,
     password: true
   })
-  .partial()
   .required();
 
 export const optionsSchema = userSchema

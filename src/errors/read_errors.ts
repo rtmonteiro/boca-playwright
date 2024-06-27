@@ -22,15 +22,17 @@ export enum ExitErrors {
   OK = 0,
   ARGS_VALIDATION = 1,
   CONFIG_VALIDATION = 12,
-  CONTEST_ERROR = 13,
-  // ANSWER_ERROR = 19,
-  LANGUAGE_ERROR = 14,
-  PROBLEM_ERROR = 15,
+  AUTHENTICATION_ERROR = 13,
+  CONTEST_ERROR = 14,
+  // ANSWER_ERROR = 15,
+  // CLARIFICATION_ERROR = 16,
+  LANGUAGE_ERROR = 17,
+  // LOG_ERROR = 18,
+  PROBLEM_ERROR = 19,
   // RUN_ERROR = 20,
-  SITE_ERROR = 16,
-  // TASK_ERROR = ,
-  USER_ERROR = 17,
-  LOGIN_ERROR = 18
+  // TASK_ERROR = 21,
+  SITE_ERROR = 22,
+  USER_ERROR = 23
 }
 
 export enum ReadMessages {
@@ -55,22 +57,29 @@ export enum ContestMessages {
 }
 
 export enum LanguageMessages {
+  ID_ALREADY_IN_USE = 'Language number (id) already in use.',
   ID_REQUIRED = 'Language number (id) should be provided.',
+  NAME_REQUIRED = 'Language name should be provided.',
   NOT_FOUND = 'Language not found.'
 }
 
 export enum ProblemMessages {
-  ID_REQUIRED = 'Problem number (id) should be provided.',
   FILE_NOT_FOUND = 'Problem package (.zip) not found.',
+  ID_ALREADY_IN_USE = 'Problem number (id) already in use.',
+  ID_REQUIRED = 'Problem number (id) should be provided.',
   INVALID_COLOR_CODE = 'Invalid color code (e.g., 00FF00).',
   INVALID_FILE_EXTENSION = 'Invalid problem package extension (.zip).',
+  NAME_REQUIRED = 'Problem name should be provided.',
   NOT_FOUND = 'Problem not found.'
 }
 
 export enum UserMessages {
+  CANNOT_DISABLE = 'User cannot be deleted/disabled.',
   FILE_NOT_FOUND = 'File not found.',
+  ID_AND_SITE_REQUIRED = 'User and site number (id) should be provided.',
+  ID_AND_SITE_ALREADY_IN_USE = 'User number (id) already in use in this site.',
   NOT_FOUND = 'User not found.',
-  SITE_AND_ID_REQUIRED = 'Site and user number (id) should be provided.'
+  USERNAME_REQUIRED = 'Username should be provided.'
 }
 
 type ErrorMessages =

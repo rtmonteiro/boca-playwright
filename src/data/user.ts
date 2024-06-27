@@ -24,13 +24,13 @@ import { TypeMessages, UserMessages } from '../errors/read_errors';
 
 export type User = z.infer<typeof userSchema>;
 
-export type UserId = z.infer<typeof userIdSchema>;
+export type GetUser = z.infer<typeof getUserSchema>;
 
 export const importUsersSchema = z.object({
-  userPath: z.string().refine((path) => {
+  userPath: z.string().refine((value) => {
     // Check if the file exists with fs.accessSync
     try {
-      fs.accessSync(path, fs.constants.R_OK);
+      fs.accessSync(value, fs.constants.R_OK);
       return true;
     } catch {
       return false;
@@ -48,7 +48,12 @@ export const userSchema = z.object({
   id: z.string().refine((value) => parseInt(value) > 0, {
     message: TypeMessages.POSITIVE_NUMBER_REQUIRED
   }),
-  username: z.string(),
+  username: z
+    .string()
+    .refine(
+      (value) => value !== undefined && value !== '',
+      UserMessages.USERNAME_REQUIRED
+    ),
   icpcId: z.string().optional(),
   type: z
     .union([
@@ -69,12 +74,12 @@ export const userSchema = z.object({
   allowPasswordChange: z.union([z.literal('Yes'), z.literal('No')]).optional()
 });
 
-export const userIdSchema = userSchema
+export const getUserSchema = userSchema
   .pick({
     siteId: true,
     id: true
   })
   .refine(
     (user) => user.siteId !== undefined && user.id !== undefined,
-    UserMessages.SITE_AND_ID_REQUIRED
+    UserMessages.ID_AND_SITE_REQUIRED
   );

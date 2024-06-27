@@ -1,13 +1,14 @@
 {
   "config": {
     "url": "localhost:8000/boca",
-    "resultFilePath": "./resources/result.json"
+    "resultFilePath": "./tests/result.json"
   },
   "login": {
     "username": "admin",
     "password": "boca"
   },
-  "user": {
-    "id": "2019202359"
+  "problem": {
+    "id": "1001",
+    "colorName": "purple"
   }
 }

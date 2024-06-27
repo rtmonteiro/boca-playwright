@@ -19,26 +19,28 @@
 // ========================================================================
 
 import { z } from 'zod';
-import { TypeMessages, LanguageMessages } from '../errors/read_errors';
+import { LanguageMessages, TypeMessages } from '../errors/read_errors';
 
 export type Language = z.infer<typeof languageSchema>;
 
-export type LanguageId = z.infer<typeof languageIdSchema>;
+export type GetLanguage = z.infer<typeof getLanguageSchema>;
 
 export const languageSchema = z.object({
-  id: z.string().refine((value) => parseInt(value) > 0, {
-    message: TypeMessages.POSITIVE_NUMBER_REQUIRED
-  }),
-  name: z.string(),
+  id: z
+    .string()
+    .refine((value) => value !== undefined, LanguageMessages.ID_REQUIRED)
+    .refine((value) => parseInt(value) > 0, {
+      message: TypeMessages.POSITIVE_NUMBER_REQUIRED
+    }),
+  name: z
+    .string()
+    .refine(
+      (value) => value !== undefined && value !== '',
+      LanguageMessages.NAME_REQUIRED
+    ),
   extension: z.string().optional()
 });
 
-export const languageIdSchema = languageSchema
-  .pick({
-    id: true
-  })
-  .partial()
-  .refine(
-    (language) => language.id !== undefined,
-    LanguageMessages.ID_REQUIRED
-  );
+export const getLanguageSchema = languageSchema.pick({
+  id: true
+});

@@ -18,18 +18,18 @@
 //
 // ========================================================================
 
-import { z } from 'zod';
 import * as fs from 'fs';
 import * as path from 'path';
-import { importUsersSchema, userSchema } from './user';
-import { loginSchema } from './auth';
+import { z } from 'zod';
+import { authSchema } from './auth';
 import { contestSchema } from './contest';
-import { siteSchema } from './site';
 import { languageSchema } from './language';
 import { problemSchema } from './problem';
 import { reportSchema } from './report';
-import { Output } from '../output';
+import { siteSchema } from './site';
+import { importUsersSchema, userSchema } from './user';
 import { ReadMessages } from '../errors/read_errors';
+import { Output } from '../output';
 
 export type Setup = z.infer<typeof setupSchema>;
 
@@ -60,10 +60,10 @@ export const setupSchema = z.object({
     })
     .merge(reportSchema.partial())
     .merge(importUsersSchema.partial()),
-  login: loginSchema,
-  user: userSchema.partial().optional(),
+  login: authSchema,
   contest: contestSchema.partial().optional(),
-  site: siteSchema.partial().optional(),
   language: languageSchema.partial().optional(),
-  problem: problemSchema.partial().optional()
+  problem: problemSchema.partial().optional(),
+  site: siteSchema.partial().optional(),
+  user: userSchema.partial().optional()
 });

@@ -20,27 +20,39 @@
 
 import * as fs from 'fs';
 import { z } from 'zod';
-import { TypeMessages, ProblemMessages } from '../errors/read_errors';
+import { ProblemMessages, TypeMessages } from '../errors/read_errors';
 
 export type Problem = z.infer<typeof problemSchema>;
 
-export type ProblemId = z.infer<typeof problemIdSchema>;
+export type CreateProblem = z.infer<typeof createProblemSchema>;
+
+export type GetProblem = z.infer<typeof getProblemSchema>;
+
+export type UpdateProblem = z.infer<typeof updateProblemSchema>;
 
 export const problemSchema = z.object({
-  id: z.string().refine((value) => parseInt(value) > 0, {
-    message: TypeMessages.POSITIVE_NUMBER_REQUIRED
-  }),
-  name: z.string(),
+  id: z
+    .string()
+    .refine((value) => value !== undefined, ProblemMessages.ID_REQUIRED)
+    .refine((value) => parseInt(value) > 0, {
+      message: TypeMessages.POSITIVE_NUMBER_REQUIRED
+    }),
+  name: z
+    .string()
+    .refine(
+      (value) => value !== undefined && value !== '',
+      ProblemMessages.NAME_REQUIRED
+    ),
   filePath: z
     .string()
     .refine(
-      (path) => path.endsWith('.zip'),
+      (value) => value.endsWith('.zip'),
       ProblemMessages.INVALID_FILE_EXTENSION
     )
-    .refine((path) => {
+    .refine((value) => {
       // Check if the file exists with fs.accessSync
       try {
-        fs.accessSync(path, fs.constants.R_OK);
+        fs.accessSync(value, fs.constants.R_OK);
         return true;
       } catch {
         return false;
@@ -53,10 +65,27 @@ export const problemSchema = z.object({
       (value) => /^([0-9a-f]{3}){1,2}([0-9a-f]{2})?$/i.test(value),
       ProblemMessages.INVALID_COLOR_CODE
     )
-    .optional()
+    .optional(),
+  isEnabled: z.union([z.literal('Yes'), z.literal('No')])
 });
 
-export const problemIdSchema = problemSchema
-  .pick({ id: true })
+export const createProblemSchema = problemSchema.omit({
+  isEnabled: true
+});
+
+export const getProblemSchema = problemSchema.pick({
+  id: true
+});
+
+export const updateProblemSchema = createProblemSchema
   .partial()
-  .refine((problem) => problem.id !== undefined, ProblemMessages.ID_REQUIRED);
+  .refine((problem) => problem.id !== undefined, ProblemMessages.ID_REQUIRED)
+  .refine((problem) => parseInt(problem.id!) > 0, {
+    message: TypeMessages.POSITIVE_NUMBER_REQUIRED
+  })
+  .refine(
+    (problem) =>
+      problem.colorCode === undefined ||
+      /^([0-9a-f]{3}){1,2}([0-9a-f]{2})?$/i.test(problem.colorCode),
+    ProblemMessages.INVALID_COLOR_CODE
+  );

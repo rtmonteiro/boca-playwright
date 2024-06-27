@@ -18,31 +18,49 @@
 //
 // ========================================================================
 
+import { type Page } from 'playwright';
 import { z } from 'zod';
-import { type Setup } from './setup';
-import { type User, userIdSchema, importUsersSchema, userSchema } from './user';
-import { loginSchema } from './auth';
-import { siteSchema } from './site';
-import { problemIdSchema, problemSchema } from './problem';
-import { languageIdSchema, languageSchema } from './language';
+import { authSchema } from './auth';
 import {
-  contestSchema,
   createContestSchema,
+  getContestSchema,
   updateContestSchema
 } from './contest';
+import { languageSchema, getLanguageSchema } from './language';
+import {
+  createProblemSchema,
+  getProblemSchema,
+  updateProblemSchema
+} from './problem';
 import { reportSchema } from './report';
+import { type Setup } from './setup';
+import { siteSchema } from './site';
+import {
+  type User,
+  getUserSchema,
+  importUsersSchema,
+  userSchema
+} from './user';
 import { AuthError, AuthMessages } from '../errors/read_errors';
-import { type Page } from 'playwright';
 
 export class Validate {
   constructor(public setup: Setup) {}
 
-  async checkLoginType(
+  checkAuthentication(): z.infer<typeof setupType> {
+    const setupType = z.object({
+      login: authSchema
+    });
+    setupType.parse(this.setup);
+    return this.setup as z.infer<typeof setupType>;
+  }
+
+  async checkUserType(
     page: Page,
     type: User['type'] | 'System'
   ): Promise<void> {
     // Wait for load state
     await page.waitForLoadState('domcontentloaded');
+
     // Get url from page
     const url = await page.url();
     // Get the type from the url
@@ -58,7 +76,7 @@ export class Validate {
 
   createContest(): z.infer<typeof setupType> {
     const setupType = z.object({
-      login: loginSchema,
+      login: authSchema,
       contest: createContestSchema.optional()
     });
     setupType.parse(this.setup);
@@ -67,16 +85,8 @@ export class Validate {
 
   getContest(): z.infer<typeof setupType> {
     const setupType = z.object({
-      login: loginSchema,
-      contest: contestSchema.pick({ id: true })
-    });
-    setupType.parse(this.setup);
-    return this.setup as z.infer<typeof setupType>;
-  }
-
-  getContests(): z.infer<typeof setupType> {
-    const setupType = z.object({
-      login: loginSchema
+      login: authSchema,
+      contest: getContestSchema
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;
@@ -84,7 +94,7 @@ export class Validate {
 
   updateContest(): z.infer<typeof setupType> {
     const setupType = z.object({
-      login: loginSchema,
+      login: authSchema,
       contest: updateContestSchema
     });
     setupType.parse(this.setup);
@@ -93,7 +103,7 @@ export class Validate {
 
   createLanguage(): z.infer<typeof setupType> {
     const setupType = z.object({
-      login: loginSchema,
+      login: authSchema,
       language: languageSchema
     });
     setupType.parse(this.setup);
@@ -102,16 +112,8 @@ export class Validate {
 
   getLanguage(): z.infer<typeof setupType> {
     const setupType = z.object({
-      login: loginSchema,
-      language: languageIdSchema
-    });
-    setupType.parse(this.setup);
-    return this.setup as z.infer<typeof setupType>;
-  }
-
-  getLanguages(): z.infer<typeof setupType> {
-    const setupType = z.object({
-      login: loginSchema
+      login: authSchema,
+      language: getLanguageSchema
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;
@@ -119,34 +121,26 @@ export class Validate {
 
   createProblem(): z.infer<typeof setupType> {
     const setupType = z.object({
-      login: loginSchema,
-      problem: problemSchema
+      login: authSchema,
+      problem: createProblemSchema
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;
   }
 
-  deleteProblem(): z.infer<typeof setupType> {
+  getProblem(): z.infer<typeof setupType> {
     const setupType = z.object({
-      login: loginSchema,
-      problem: problemIdSchema
+      login: authSchema,
+      problem: getProblemSchema
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;
   }
 
-  getProblem() {
+  updateProblem(): z.infer<typeof setupType> {
     const setupType = z.object({
-      login: loginSchema,
-      problem: problemIdSchema
-    });
-    setupType.parse(this.setup);
-    return this.setup as z.infer<typeof setupType>;
-  }
-
-  getProblems(): z.infer<typeof setupType> {
-    const setupType = z.object({
-      login: loginSchema
+      login: authSchema,
+      problem: updateProblemSchema
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;
@@ -154,17 +148,8 @@ export class Validate {
 
   createUser(): z.infer<typeof setupType> {
     const setupType = z.object({
-      login: loginSchema,
+      login: authSchema,
       user: userSchema
-    });
-    setupType.parse(this.setup);
-    return this.setup as z.infer<typeof setupType>;
-  }
-
-  deleteUser(): z.infer<typeof setupType> {
-    const setupType = z.object({
-      login: loginSchema,
-      user: userIdSchema
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;
@@ -172,16 +157,8 @@ export class Validate {
 
   getUser(): z.infer<typeof setupType> {
     const setupType = z.object({
-      login: loginSchema,
-      user: userIdSchema
-    });
-    setupType.parse(this.setup);
-    return this.setup as z.infer<typeof setupType>;
-  }
-
-  getUsers(): z.infer<typeof setupType> {
-    const setupType = z.object({
-      login: loginSchema
+      login: authSchema,
+      user: getUserSchema
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;
@@ -189,7 +166,7 @@ export class Validate {
 
   importUsers(): z.infer<typeof setupType> {
     const setupType = z.object({
-      login: loginSchema,
+      login: authSchema,
       config: importUsersSchema
     });
     setupType.parse(this.setup);
@@ -198,7 +175,7 @@ export class Validate {
 
   createSite(): z.infer<typeof setupType> {
     const setupType = z.object({
-      login: loginSchema,
+      login: authSchema,
       site: siteSchema // TODO - Review if it should be optional
     });
     setupType.parse(this.setup);
@@ -207,7 +184,7 @@ export class Validate {
 
   generateReport(): z.infer<typeof setupType> {
     const setupType = z.object({
-      login: loginSchema,
+      login: authSchema,
       config: reportSchema
     });
     setupType.parse(this.setup);

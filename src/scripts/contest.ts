@@ -18,72 +18,72 @@
 //
 // ========================================================================
 
-import { type Page } from 'playwright';
 import { DateTime } from 'luxon';
-import { BASE_URL } from '../index';
-import { defineDuration, fillDateField } from '../utils/time';
+import { type Page } from 'playwright';
+import { authenticateUser } from './auth';
+import { Auth } from '../data/auth';
 import {
+  type Contest,
   type CreateContest,
-  type UpdateContest,
-  type Contest
+  type UpdateContest
 } from '../data/contest';
-import { dialogHandler } from '../utils/handlers';
 import { ContestError, ContestMessages } from '../errors/read_errors';
-import { login } from './auth';
-import { Login } from '../data/auth';
+import { BASE_URL } from '../index';
+import { dialogHandler } from '../utils/handlers';
+import { defineDuration, fillDateField } from '../utils/time';
 
 export async function activateContest(
   page: Page,
-  contestId: Contest['id'],
-  user: Login
+  id: Contest['id'],
+  user: Auth
 ): Promise<Contest> {
   await page.goto(BASE_URL + '/system/contest.php');
   // Wait for load state
   await page.waitForLoadState('domcontentloaded');
-  await selectContest(page, contestId);
 
+  await selectContest(page, id);
   page.on('dialog', dialogHandler);
   await page.getByRole('button', { name: 'Activate' }).click();
   page.removeListener('dialog', dialogHandler);
-
   // Because the activation of a contest logs out the user
-  await login(page, user);
-  return await getContest(page, contestId);
+  await authenticateUser(page, user);
+  return await getContest(page, id);
 }
 
 export async function createContest(
   page: Page,
   contest: CreateContest | undefined
 ): Promise<Contest> {
-  await page.goto(BASE_URL + '/system/');
+  await page.goto(BASE_URL + '/system/contest.php');
   // Wait for load state
   await page.waitForLoadState('domcontentloaded');
-  await page.getByRole('link', { name: 'Contest' }).click();
-  await selectContest(page, undefined);
 
+  await selectContest(page, undefined);
   if (contest !== undefined) {
-    await fillContest(page, contest);
+    await fillContestForm(page, contest);
+    page.once('dialog', dialogHandler);
+    await page.getByRole('button', { name: 'Send' }).click();
   }
-  page.once('dialog', dialogHandler);
-  await page.getByRole('button', { name: 'Send' }).click();
-  return await getContestForm(page);
+  return await getContestFromForm(page);
 }
 
 export async function getContest(
   page: Page,
-  contestId: Contest['id']
+  id: Contest['id']
 ): Promise<Contest> {
   await page.goto(BASE_URL + '/system/contest.php');
   // Wait for load state
   await page.waitForLoadState('domcontentloaded');
-  await selectContest(page, contestId);
-  return await getContestForm(page);
+
+  await selectContest(page, id);
+  return await getContestFromForm(page);
 }
 
 export async function getContests(page: Page): Promise<Contest[]> {
   await page.goto(BASE_URL + '/system/contest.php');
   // Wait for load state
   await page.waitForLoadState('domcontentloaded');
+
   const optionEls = await page.locator('select[name="contest"] option').all();
   const options = await Promise.all(
     optionEls.map(async (el) => el.textContent())
@@ -91,18 +91,16 @@ export async function getContests(page: Page): Promise<Contest[]> {
     // Remove the first option (empty) and the last option (new)
     options.filter((option) => option !== 'new' && option !== '0')
   );
-
-  if (options.some((option) => option === null) || options.length === 2) {
+  if (options.some((option) => option === undefined) || options.length === 2) {
     throw new ContestError(ContestMessages.NOT_FOUND);
   }
-
   const contests: Contest[] = [];
   for (const option of options) {
     await page.goto(BASE_URL + '/system/contest.php');
     // Wait for load state
     await page.waitForLoadState('domcontentloaded');
     await selectContest(page, option!);
-    const contest: Contest = await getContestForm(page);
+    const contest: Contest = await getContestFromForm(page);
     if (contest !== undefined && contest.id !== '0') {
       contests.push(contest);
     }
@@ -114,20 +112,33 @@ export async function updateContest(
   page: Page,
   contest: UpdateContest
 ): Promise<Contest> {
-  await page.goto(BASE_URL + '/system/');
+  await page.goto(BASE_URL + '/system/contest.php');
   // Wait for load state
   await page.waitForLoadState('domcontentloaded');
-  await page.getByRole('link', { name: 'Contest' }).click();
+
   await selectContest(page, contest.id);
-
-  await fillContest(page, contest);
-
+  await fillContestForm(page, contest);
   page.once('dialog', dialogHandler);
   await page.getByRole('button', { name: 'Send' }).click();
-  return await getContest(page, contest.id!);
+  return await getContest(page, contest.id);
 }
 
-async function fillContest(page: Page, contest: UpdateContest): Promise<void> {
+async function checkContestExists(page: Page, id: string) {
+  const optionEls = await page.locator('select[name="contest"] option').all();
+  const options = await Promise.all(
+    optionEls.map(async (el) => el.textContent())
+  );
+
+  const hasIdInOption = options.some((option) => option?.match(`^${id}\\*?$`));
+  if (!hasIdInOption) {
+    throw new ContestError(ContestMessages.NOT_FOUND);
+  }
+}
+
+async function fillContestForm(
+  page: Page,
+  contest: CreateContest
+): Promise<void> {
   if (contest.name !== undefined) {
     await page.locator('input[name="name"]').fill(contest.name);
   }
@@ -228,35 +239,11 @@ async function fillContest(page: Page, contest: UpdateContest): Promise<void> {
   }
 }
 
-async function selectContest(
-  page: Page,
-  id: UpdateContest['id'] | undefined
-): Promise<void> {
-  if (id !== undefined) {
-    await checkContestExist(page, id);
-    await page.locator('select[name="contest"]').selectOption(id);
-  } else {
-    await page.locator('select[name="contest"]').selectOption('new');
-  }
-}
-
-async function checkContestExist(page: Page, id: string) {
-  const optionEls = await page.locator('select[name="contest"] option').all();
-  const options = await Promise.all(
-    optionEls.map(async (el) => el.textContent())
-  );
-
-  const hasIdInOption = options.some((option) => option?.match(`^${id}\\*?$`));
-
-  if (!hasIdInOption) {
-    throw new ContestError(ContestMessages.NOT_FOUND);
-  }
-}
-
-async function getContestForm(page: Page): Promise<Contest> {
+async function getContestFromForm(page: Page): Promise<Contest> {
   const contest: Contest = {} as Contest;
   // Wait for load state
   await page.waitForLoadState('domcontentloaded');
+
   if (await page.locator('select[name="contest"]').isVisible()) {
     contest.id = (await page
       .locator('option[selected]')
@@ -344,4 +331,16 @@ async function getContestForm(page: Page): Promise<Contest> {
       .inputValue();
   }
   return contest;
+}
+
+async function selectContest(
+  page: Page,
+  id: Contest['id'] | undefined
+): Promise<void> {
+  if (id !== undefined) {
+    await checkContestExists(page, id);
+    await page.locator('select[name="contest"]').selectOption(id);
+  } else {
+    await page.locator('select[name="contest"]').selectOption('new');
+  }
 }

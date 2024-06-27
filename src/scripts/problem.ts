@@ -18,100 +18,63 @@
 //
 // ========================================================================
 
-import { type Page } from 'playwright';
-import { BASE_URL } from '../index';
-import { type ProblemId, type Problem } from '../data/problem';
-import { dialogHandler } from '../utils/handlers';
+import { type Locator, type Page } from 'playwright';
+import {
+  type Problem,
+  type CreateProblem,
+  type UpdateProblem
+} from '../data/problem';
 import { ProblemError, ProblemMessages } from '../errors/read_errors';
-
-async function fillProblem(page: Page, problem: Problem): Promise<void> {
-  await page.goto(BASE_URL + '/admin/');
-  // Wait for load state
-  await page.waitForLoadState('domcontentloaded');
-  await page.getByRole('link', { name: 'Problems' }).click();
-  await page.locator('input[name="problemnumber"]').fill(problem.id.toString());
-  await page.locator('input[name="problemname"]').fill(problem.name);
-  await page
-    .locator('input[name="probleminput"]')
-    .setInputFiles(problem.filePath);
-  if (problem.colorName != null) {
-    await page.locator('input[name="colorname"]').fill(problem.colorName);
-  }
-  if (problem.colorCode != null) {
-    await page.locator('input[name="color"]').fill(problem.colorCode);
-  }
-
-  await page.locator('center').filter({ hasText: 'Send' }).click();
-}
+import { BASE_URL } from '../index';
+import { dialogHandler } from '../utils/handlers';
 
 export async function createProblem(
   page: Page,
-  problem: Problem
+  problem: CreateProblem
 ): Promise<Problem> {
-  await fillProblem(page, problem);
+  await page.goto(BASE_URL + '/admin/problem.php');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
+
+  await checkProblemNotExists(page, problem.id);
+  await fillProblemForm(page, problem);
   page.once('dialog', dialogHandler);
   await page.getByRole('button', { name: 'Send' }).click();
-  return await getProblem(page, problem);
+  return await getProblem(page, problem.id);
 }
 
 export async function deleteProblem(
   page: Page,
-  problem: ProblemId
+  id: Problem['id']
 ): Promise<Problem> {
   await page.goto(BASE_URL + '/admin/problem.php');
   // Wait for load state
   await page.waitForLoadState('domcontentloaded');
 
-  const identifier = problem.id;
-  const re = new RegExp(`^${identifier}$`);
-
-  const row = await page.locator('form[name=form0] > table > tbody > tr', {
-    has: page.locator('td', { hasText: re })
-  });
-
-  // Soft delete only if it is active
-  if ((await row.count()) > 0) {
+  const row = await checkProblemExists(page, id);
+  // Hide only if it is visible (soft delete)
+  if (
+    (await row.locator('td:nth-of-type(1) > a').innerText()).indexOf(
+      '(deleted)'
+    ) === -1
+  ) {
     page.on('dialog', dialogHandler);
-
     // Click on the id link
-    await row.locator('td > a').first().click();
+    await row.locator('td:nth-of-type(1) > a').first().click();
     page.removeListener('dialog', dialogHandler);
   }
-
-  return await getProblem(page, problem);
+  return await getProblem(page, id);
 }
 
 export async function getProblem(
   page: Page,
-  problemId: ProblemId
+  id: Problem['id']
 ): Promise<Problem> {
   await page.goto(BASE_URL + '/admin/problem.php');
   // Wait for load state
   await page.waitForLoadState('domcontentloaded');
-  const problem = {} as Required<Problem>;
 
-  const identifier = problemId.id;
-  const re = new RegExp(`^${identifier}[\\(deleted\\)]*$`);
-
-  const row = await page.locator('form[name=form0] > table > tbody > tr', {
-    has: page.locator('td', { hasText: re })
-  });
-  if ((await row.count()) == 0)
-    throw new ProblemError(ProblemMessages.NOT_FOUND);
-  const columns = await row
-    .locator('td')
-    .filter({ hasNot: page.locator('[for*="autojudge"], [id*="autojudge"]') }) // Filter out autojudge elements
-    .all();
-  problem.id = await columns[0].innerText();
-  problem.name = await columns[1].innerText();
-  problem.filePath = (await columns[5].innerText()).trim();
-  problem.colorName = await columns[6]
-    .locator('input[type=text]:nth-child(2)')
-    .inputValue();
-  problem.colorCode = await columns[6]
-    .locator('input[type=text]:nth-child(3)')
-    .inputValue();
-  return problem;
+  return await getProblemFromRow(page, id);
 }
 
 export async function getProblems(page: Page): Promise<Problem[]> {
@@ -123,12 +86,10 @@ export async function getProblems(page: Page): Promise<Problem[]> {
   const loc = page.locator('td:nth-of-type(1)', {
     hasNotText: re
   });
-
   const rows = await page
     .locator('form[name=form0] > table > tbody > tr')
     .filter({ has: loc });
   const rowCount = await rows.count();
-
   const problems: Problem[] = [];
   for (let i = 0; i < rowCount; i++) {
     const row = rows.nth(i);
@@ -146,4 +107,136 @@ export async function getProblems(page: Page): Promise<Problem[]> {
     problems.push(problem);
   }
   return problems;
+}
+
+export async function restoreProblem(
+  page: Page,
+  id: Problem['id']
+): Promise<Problem> {
+  await page.goto(BASE_URL + '/admin/problem.php');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
+
+  const row = await checkProblemExists(page, id);
+  // Show only if it is hidden (soft delete)
+  if (
+    (await row.locator('td:nth-of-type(1) > a').innerText()).indexOf(
+      '(deleted)'
+    ) !== -1
+  ) {
+    page.on('dialog', dialogHandler);
+    // Click on the id link
+    await row.locator('td > a').first().click();
+    page.removeListener('dialog', dialogHandler);
+  }
+  return await getProblem(page, id);
+}
+
+export async function updateProblem(
+  page: Page,
+  problem: UpdateProblem
+): Promise<Problem> {
+  await page.goto(BASE_URL + '/admin/problem.php');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
+
+  const row = await checkProblemExists(page, problem.id!);
+  if (problem.name !== undefined || problem.filePath !== undefined) {
+    // Update using the form to create
+    await fillProblemForm(page, problem as CreateProblem);
+    page.once('dialog', dialogHandler);
+    await page.getByRole('button', { name: 'Send' }).click();
+  } else {
+    // Update using the inline color form
+    await fillColorForm(row, problem as CreateProblem);
+    await row.locator('input[name="SubmitProblem' + problem.id + '"]').click();
+  }
+  return await getProblem(page, problem.id!);
+}
+
+async function checkProblemExists(page: Page, id: string): Promise<Locator> {
+  const re = new RegExp(`^${id}[\\(deleted\\)]*$`);
+  const row = await page.locator('form[name=form0] > table > tbody > tr', {
+    has: page.locator('td:nth-of-type(1)', { hasText: re })
+  });
+  if ((await row.count()) === 0) {
+    throw new ProblemError(ProblemMessages.NOT_FOUND);
+  }
+  return row;
+}
+
+async function checkProblemNotExists(page: Page, id: string): Promise<Locator> {
+  // const re = new RegExp(`^${id}[\\(deleted\\)]*$`);
+  // Check if the id is being used by an active/enabled problem
+  const re = new RegExp(`^${id}$`);
+  const row = await page.locator('form[name=form0] > table > tbody > tr', {
+    has: page.locator('td:nth-of-type(1)', { hasText: re })
+  });
+  if ((await row.count()) > 0) {
+    throw new ProblemError(ProblemMessages.ID_ALREADY_IN_USE);
+  }
+  return row;
+}
+
+async function fillColorForm(
+  row: Locator,
+  problem: CreateProblem
+): Promise<void> {
+  if (problem.colorName != undefined) {
+    await row
+      .locator('input[name="colorname' + problem.id + '"]')
+      .fill(problem.colorName);
+  }
+  if (problem.colorCode != undefined) {
+    await row
+      .locator('input[name="color' + problem.id + '"]')
+      .fill(problem.colorCode);
+  }
+}
+
+async function fillProblemForm(
+  page: Page,
+  problem: CreateProblem
+): Promise<void> {
+  await page.locator('input[name="problemnumber"]').fill(problem.id.toString());
+  await page.locator('input[name="problemname"]').fill(problem.name);
+  await page
+    .locator('input[name="probleminput"]')
+    .setInputFiles(problem.filePath);
+  if (problem.colorName != undefined) {
+    await page.locator('input[name="colorname"]').fill(problem.colorName);
+  }
+  if (problem.colorCode != undefined) {
+    await page.locator('input[name="color"]').fill(problem.colorCode);
+  }
+}
+
+async function getProblemFromRow(
+  page: Page,
+  id: Problem['id']
+): Promise<Problem> {
+  const problem = {} as Required<Problem>;
+  const re = new RegExp(`^${id}[\\(deleted\\)]*$`);
+  const row = await page.locator('form[name=form0] > table > tbody > tr', {
+    has: page.locator('td:nth-of-type(1)', { hasText: re })
+  });
+  if ((await row.count()) == 0)
+    throw new ProblemError(ProblemMessages.NOT_FOUND);
+  const columns = await row
+    .locator('td')
+    .filter({ hasNot: page.locator('[for*="autojudge"], [id*="autojudge"]') }) // Filter out autojudge elements
+    .all();
+  problem.id = (await columns[0].innerText()).replace('(deleted)', '');
+  problem.name = await columns[1].innerText();
+  problem.filePath = (await columns[5].innerText()).trim();
+  problem.colorName = await columns[6]
+    .locator('input[type=text]:nth-child(2)')
+    .inputValue();
+  problem.colorCode = await columns[6]
+    .locator('input[type=text]:nth-child(3)')
+    .inputValue();
+  problem.isEnabled = (await columns[0].innerText()).endsWith('(deleted)')
+    ? 'No'
+    : 'Yes';
+  return problem;
 }
