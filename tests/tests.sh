@@ -28,12 +28,12 @@ npm run build
 ./get_contests.sh
 ./update_contest.sh
 
-# Testing answer methods (count: 96)
+# Testing answer methods (count: 126)
 ./create_answer.sh
 ./delete_answer.sh
 ./get_answer.sh
 ./get_answers.sh
-# ./update_answer.sh
+./update_answer.sh
 
 # Testing language methods (count: 120)
 ./create_language.sh

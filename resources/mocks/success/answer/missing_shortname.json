@@ -9,7 +9,7 @@
   },
   "answer": {
     "id": "40",
-    "description": "EXCELLENT - Total percentage score of 100%",
-    "type": "Yes"
+    "description": "INSUFFICIENT - Total percentage score of 45%",
+    "type": "No"
   }
 }

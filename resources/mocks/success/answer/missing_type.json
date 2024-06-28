@@ -9,7 +9,7 @@
   },
   "answer": {
     "id": "40",
-    "description": "EXCELLENT - Total percentage score of 100%",
-    "shortname": "YES100"
+    "description": "VERY POOR - Total percentage score of 0%",
+    "shortname": "NO0"
   }
 }
