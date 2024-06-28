@@ -8,6 +8,8 @@
     "password": "boca"
   },
   "problem": {
-    "id": "1001"
+    "id": "1001",
+    "downloadDescFile": "Yes",
+    "downloadPckgFile": "Yes"
   }
 }

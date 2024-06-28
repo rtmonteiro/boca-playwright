@@ -101,6 +101,8 @@ export const downloadProblemSchema = problemSchema
   })
   .merge(
     z.object({
+      downloadDescFile: z.union([z.literal('Yes'), z.literal('No')]).optional(),
+      downloadPckgFile: z.union([z.literal('Yes'), z.literal('No')]).optional(),
       downloadDir: fileSchema
     })
   );

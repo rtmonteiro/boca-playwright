@@ -73,14 +73,14 @@ export enum LanguageMessages {
 
 export enum ProblemMessages {
   DESC_FILE_UNAVAILABLE = 'Problem desc file unavailable.',
-  FILE_NOT_FOUND = 'Problem package (.zip) not found.',
+  FILE_NOT_FOUND = 'Problem package file (.zip) not found.',
   ID_ALREADY_IN_USE = 'Problem number (id) already in use.',
   ID_REQUIRED = 'Problem number (id) should be provided.',
   INVALID_COLOR_CODE = 'Invalid color code (e.g., 00FF00).',
-  INVALID_FILE_EXTENSION = 'Invalid problem package extension (.zip).',
+  INVALID_FILE_EXTENSION = 'Invalid package file extension (required: .zip).',
   NAME_REQUIRED = 'Problem name should be provided.',
   NOT_FOUND = 'Problem not found.',
-  PCKG_FILE_UNAVAILABLE = 'Problem package file unavailable.'
+  PCKG_FILE_UNAVAILABLE = 'Problem package file (.zip) unavailable.'
 }
 
 export enum UserMessages {

@@ -97,8 +97,7 @@ TODO
 
 - createProblem
 - deleteProblem
-- downloadProblemDescFile
-- downloadProblemPckgFile
+- downloadProblem
 - getProblem
 - getProblems
 - restoreProblem

@@ -12,6 +12,8 @@
     "filePath": "resources/L1_1.zip",
     "colorName": "green",
     "colorCode": "00FF00",
+    "downloadDescFile": "Yes",
+    "downloadPckgFile": "Yes",
     "downloadDir": "./tests"
   }
 }

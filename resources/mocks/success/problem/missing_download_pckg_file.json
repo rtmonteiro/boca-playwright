@@ -9,8 +9,11 @@
   },
   "problem": {
     "id": "1001",
-    "downloadDescFile": "Yes",
-    "downloadPckgFile": "Yes",
-    "downloadDir": "/bin"
+    "name": "L1_1",
+    "filePath": "resources/L1_1.zip",
+    "colorName": "green",
+    "colorCode": "00FF00",
+    "downloadDescFile": "No",
+    "downloadDir": "./tests"
   }
 }

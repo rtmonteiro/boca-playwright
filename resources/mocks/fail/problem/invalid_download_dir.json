@@ -9,6 +9,8 @@
   },
   "problem": {
     "id": "1001",
+    "downloadDescFile": "Yes",
+    "downloadPckgFile": "Yes",
     "downloadDir": true
   }
 }

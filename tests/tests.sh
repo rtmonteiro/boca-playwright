@@ -42,7 +42,7 @@ npm run build
 ./get_languages.sh
 ./update_language.sh
 
-# Testing problem methods (count: 210)
+# Testing problem methods (count: 216)
 ./create_problem.sh
 ./delete_problem.sh
 ./download_problem_desc_file.sh

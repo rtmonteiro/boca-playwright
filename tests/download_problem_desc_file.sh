@@ -70,7 +70,7 @@ oneTimeTearDown() {
 }
 
 testDownloadProblemDescFileMissingPathArgument() {
-    npm run test:cli -- -m downloadProblemDescFile >/dev/null 2>&1
+    npm run test:cli -- -m downloadProblem >/dev/null 2>&1
     ret_code=$?
     assertEquals "${RET_ARGS_VALIDATION}" "${ret_code}"
 }
@@ -84,49 +84,49 @@ testDownloadProblemDescFileMissingMethodArgument() {
 
 testDownloadProblemDescFileIncorrectPathArgument() {
     config_file="resources/mocks/fake.json"
-    npm run test:cli -- -p "${config_file}" -m downloadProblemDescFile >/dev/null 2>&1
+    npm run test:cli -- -p "${config_file}" -m downloadProblem >/dev/null 2>&1
     ret_code=$?
     assertEquals "${RET_ARGS_VALIDATION}" "${ret_code}"
 }
 
 testDownloadProblemDescFileIncorrectMethodArgument() {
     config_file="resources/mocks/success/problem/valid_problem.json"
-    npm run test:cli -- -p "${config_file}" -m downloadProblemDescFileFake >/dev/null 2>&1
+    npm run test:cli -- -p "${config_file}" -m downloadProblemFake >/dev/null 2>&1
     ret_code=$?
     assertEquals "${RET_ARGS_VALIDATION}" "${ret_code}"
 }
 
 testDownloadProblemDescFileMissingConfigData() {
     config_file="resources/mocks/fail/setup/missing_config.json"
-    npm run test:cli -- -p "${config_file}" -m downloadProblemDescFile >/dev/null 2>&1
+    npm run test:cli -- -p "${config_file}" -m downloadProblem >/dev/null 2>&1
     ret_code=$?
     assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testDownloadProblemDescFileMissingBocaUrl() {
     config_file="resources/mocks/fail/setup/missing_url.json"
-    npm run test:cli -- -p "${config_file}" -m downloadProblemDescFile >/dev/null 2>&1
+    npm run test:cli -- -p "${config_file}" -m downloadProblem >/dev/null 2>&1
     ret_code=$?
     assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testDownloadProblemDescFileMissingResultFilePath() {
     config_file="resources/mocks/success/setup/missing_result_file_path_admin.json"
-    npm run test:cli -- -p "${config_file}" -m downloadProblemDescFile >/dev/null 2>&1
+    npm run test:cli -- -p "${config_file}" -m downloadProblem >/dev/null 2>&1
     ret_code=$?
     assertEquals "${RET_SUCCESS}" "${ret_code}"
 }
 
 testDownloadProblemDescFileInvalidBocaUrl() {
     config_file="resources/mocks/fail/setup/invalid_url.json"
-    npm run test:cli -- -p "${config_file}" -m downloadProblemDescFile >/dev/null 2>&1
+    npm run test:cli -- -p "${config_file}" -m downloadProblem >/dev/null 2>&1
     ret_code=$?
     assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testDownloadProblemDescFileInvalidResultFilePath() {
     config_file="resources/mocks/fail/setup/invalid_result_file_path.json"
-    npm run test:cli -- -p "${config_file}" -m downloadProblemDescFile >/dev/null 2>&1
+    npm run test:cli -- -p "${config_file}" -m downloadProblem >/dev/null 2>&1
     ret_code=$?
     assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 
@@ -137,79 +137,84 @@ testDownloadProblemDescFileInvalidResultFilePath() {
 
 testDownloadProblemDescFileIncorrectBocaUrl() {
     config_file="resources/mocks/fail/setup/incorrect_url.json"
-    npm run test:cli -- -p "${config_file}" -m downloadProblemDescFile >/dev/null 2>&1
+    npm run test:cli -- -p "${config_file}" -m downloadProblem >/dev/null 2>&1
     ret_code=$?
     assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testDownloadProblemDescFileIncorrectResultFilePath() {
     config_file="resources/mocks/fail/setup/incorrect_result_file_path.json"
-    npm run test:cli -- -p "${config_file}" -m downloadProblemDescFile >/dev/null 2>&1
+    npm run test:cli -- -p "${config_file}" -m downloadProblem >/dev/null 2>&1
     ret_code=$?
     assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testDownloadProblemDescFileMissingLoginData() {
     config_file="resources/mocks/fail/login/missing_login.json"
-    npm run test:cli -- -p "${config_file}" -m downloadProblemDescFile >/dev/null 2>&1
+    npm run test:cli -- -p "${config_file}" -m downloadProblem >/dev/null 2>&1
     ret_code=$?
     assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testDownloadProblemDescFileMissingUsername() {
     config_file="resources/mocks/fail/login/missing_username.json"
-    npm run test:cli -- -p "${config_file}" -m downloadProblemDescFile >/dev/null 2>&1
+    npm run test:cli -- -p "${config_file}" -m downloadProblem >/dev/null 2>&1
     ret_code=$?
     assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testDownloadProblemDescFileMissingPassword() {
     config_file="resources/mocks/fail/login/missing_password.json"
-    npm run test:cli -- -p "${config_file}" -m downloadProblemDescFile >/dev/null 2>&1
+    npm run test:cli -- -p "${config_file}" -m downloadProblem >/dev/null 2>&1
     ret_code=$?
     assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testDownloadProblemDescFileInvalidUsername() {
     config_file="resources/mocks/fail/login/invalid_username.json"
-    npm run test:cli -- -p "${config_file}" -m downloadProblemDescFile >/dev/null 2>&1
+    npm run test:cli -- -p "${config_file}" -m downloadProblem >/dev/null 2>&1
     ret_code=$?
     assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testDownloadProblemDescFileInvalidPassword() {
     config_file="resources/mocks/fail/login/invalid_password.json"
-    npm run test:cli -- -p "${config_file}" -m downloadProblemDescFile >/dev/null 2>&1
+    npm run test:cli -- -p "${config_file}" -m downloadProblem >/dev/null 2>&1
     ret_code=$?
     assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testDownloadProblemDescFileIncorrectUsername() {
     config_file="resources/mocks/fail/login/incorrect_username.json"
-    npm run test:cli -- -p "${config_file}" -m downloadProblemDescFile >/dev/null 2>&1
+    npm run test:cli -- -p "${config_file}" -m downloadProblem >/dev/null 2>&1
     ret_code=$?
     assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testDownloadProblemDescFileIncorrectPassword() {
     config_file="resources/mocks/fail/login/incorrect_password.json"
-    npm run test:cli -- -p "${config_file}" -m downloadProblemDescFile >/dev/null 2>&1
+    npm run test:cli -- -p "${config_file}" -m downloadProblem >/dev/null 2>&1
     ret_code=$?
     assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testDownloadProblemDescFileMissingProblemData() {
     config_file="resources/mocks/fail/problem/missing_problem.json"
-    npm run test:cli -- -p "${config_file}" -m downloadProblemDescFile >/dev/null 2>&1
+    npm run test:cli -- -p "${config_file}" -m downloadProblem >/dev/null 2>&1
     ret_code=$?
     assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testDownloadProblemDescFileMissingId() {
     config_file="resources/mocks/fail/problem/missing_id.json"
-    npm run test:cli -- -p "${config_file}" -m downloadProblemDescFile >/dev/null 2>&1
+    npm run test:cli -- -p "${config_file}" -m downloadProblem >/dev/null 2>&1
     ret_code=$?
     assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
+}
+
+testDownloadProblemDescFileMissingDownloadDescFile() {
+    config_file="resources/mocks/success/problem/missing_download_desc_file.json"
+    testDownloadValidProblemDescFile "${config_file}"
 }
 
 testDownloadProblemDescFileMissingDownloadDir() {
@@ -219,28 +224,42 @@ testDownloadProblemDescFileMissingDownloadDir() {
 
 testDownloadProblemDescFileInvalidId() {
     config_file="resources/mocks/fail/problem/invalid_id.json"
-    npm run test:cli -- -p "${config_file}" -m downloadProblemDescFile >/dev/null 2>&1
+    npm run test:cli -- -p "${config_file}" -m downloadProblem >/dev/null 2>&1
+    ret_code=$?
+    assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
+}
+
+testDownloadProblemDescFileInvalidDownloadDescFile() {
+    config_file="resources/mocks/fail/problem/invalid_download_desc_file.json"
+    npm run test:cli -- -p "${config_file}" -m downloadProblem >/dev/null 2>&1
     ret_code=$?
     assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testDownloadProblemDescFileInvalidDownloadDir() {
     config_file="resources/mocks/fail/problem/invalid_download_dir.json"
-    npm run test:cli -- -p "${config_file}" -m downloadProblemDescFile >/dev/null 2>&1
+    npm run test:cli -- -p "${config_file}" -m downloadProblem >/dev/null 2>&1
     ret_code=$?
     assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testDownloadProblemDescFileIncorrectId() {
     config_file="resources/mocks/fail/problem/incorrect_id.json"
-    npm run test:cli -- -p "${config_file}" -m downloadProblemDescFile >/dev/null 2>&1
+    npm run test:cli -- -p "${config_file}" -m downloadProblem >/dev/null 2>&1
     ret_code=$?
     assertEquals "${RET_PROBLEM_ERROR}" "${ret_code}"
 }
 
-testDownloadProblemDescFileIncorrectDownloadFir() {
+testDownloadProblemDescFileIncorrectDownloadDescFile() {
+    config_file="resources/mocks/fail/problem/incorrect_download_desc_file.json"
+    npm run test:cli -- -p "${config_file}" -m downloadProblem >/dev/null 2>&1
+    ret_code=$?
+    assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
+}
+
+testDownloadProblemDescFileIncorrectDownloadDir() {
     config_file="resources/mocks/fail/problem/incorrect_download_dir.json"
-    npm run test:cli -- -p "${config_file}" -m downloadProblemDescFile >/dev/null 2>&1
+    npm run test:cli -- -p "${config_file}" -m downloadProblem >/dev/null 2>&1
     ret_code=$?
     assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
@@ -248,7 +267,7 @@ testDownloadProblemDescFileIncorrectDownloadFir() {
 testDownloadProblemDescFileUnavailable() {
     config_file="resources/mocks/success/problem/valid_problem.json"
     npm run test:cli -- -p "${config_file}" -m deleteProblem >/dev/null 2>&1
-    npm run test:cli -- -p "${config_file}" -m downloadProblemDescFile >/dev/null 2>&1
+    npm run test:cli -- -p "${config_file}" -m downloadProblem >/dev/null 2>&1
     ret_code=$?
     assertEquals "${RET_PROBLEM_ERROR}" "${ret_code}"
     npm run test:cli -- -p "${config_file}" -m restoreProblem >/dev/null 2>&1
@@ -263,7 +282,7 @@ testDownloadValidProblemDescFile() {
         config_file="resources/mocks/success/problem/valid_problem.json"
     fi
 
-    npm run test:cli -- -p "${config_file}" -m downloadProblemDescFile >/dev/null 2>&1
+    npm run test:cli -- -p "${config_file}" -m downloadProblem >/dev/null 2>&1
     ret_code=$?
     assertEquals "${RET_SUCCESS}" "${ret_code}"
 }

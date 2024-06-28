@@ -67,7 +67,7 @@ export async function deleteProblem(
   return await getProblem(page, id);
 }
 
-export async function downloadProblemDescFile(
+export async function downloadProblem(
   page: Page,
   problem: DownloadProblem
 ): Promise<void> {
@@ -76,25 +76,19 @@ export async function downloadProblemDescFile(
   await page.waitForLoadState('domcontentloaded');
 
   const row = await checkProblemExists(page, problem.id);
-  const link = await row.locator('td:nth-of-type(5) > a');
-  if ((await link.count()) === 0)
-    throw new ProblemError(ProblemMessages.DESC_FILE_UNAVAILABLE);
-  await downloadFile(page, problem.downloadDir, link);
-}
+  if (problem.downloadDescFile !== 'No') {
+    const link = await row.locator('td:nth-of-type(5) > a');
+    if ((await link.count()) === 0)
+      throw new ProblemError(ProblemMessages.DESC_FILE_UNAVAILABLE);
+    await downloadFile(page, problem.downloadDir, link);
+  }
 
-export async function downloadProblemPckgFile(
-  page: Page,
-  problem: DownloadProblem
-): Promise<void> {
-  await page.goto(BASE_URL + '/admin/problem.php');
-  // Wait for load state
-  await page.waitForLoadState('domcontentloaded');
-
-  const row = await checkProblemExists(page, problem.id);
-  const link = await row.locator('td:nth-of-type(6) > a');
-  if ((await link.count()) === 0)
-    throw new ProblemError(ProblemMessages.PCKG_FILE_UNAVAILABLE);
-  await downloadFile(page, problem.downloadDir, link);
+  if (problem.downloadPckgFile !== 'No') {
+    const link = await row.locator('td:nth-of-type(6) > a');
+    if ((await link.count()) === 0)
+      throw new ProblemError(ProblemMessages.PCKG_FILE_UNAVAILABLE);
+    await downloadFile(page, problem.downloadDir, link);
+  }
 }
 
 export async function getProblem(

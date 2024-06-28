@@ -58,8 +58,7 @@ import {
 import {
   createProblem,
   deleteProblem,
-  downloadProblemDescFile,
-  downloadProblemPckgFile,
+  downloadProblem,
   getProblem,
   getProblems,
   restoreProblem,
@@ -615,10 +614,10 @@ async function shouldDeleteProblem(setup: Setup): Promise<void> {
   output.setResult(form);
 }
 
-async function shouldDownloadProblemDescFile(setup: Setup): Promise<void> {
+async function shouldDownloadProblem(setup: Setup): Promise<void> {
   // instantiate logger
   const logger = Logger.getInstance();
-  logger.logInfo('Downloading problem desc file');
+  logger.logInfo('Downloading problem file(s)');
 
   // validate setup file with zod
   const validate = new Validate(setup);
@@ -637,40 +636,11 @@ async function shouldDownloadProblemDescFile(setup: Setup): Promise<void> {
   page.setDefaultTimeout(TIMEOUT);
   await authenticateUser(page, admin);
   await validate.checkUserType(page, 'Admin');
-  await downloadProblemDescFile(page, problem);
+  await downloadProblem(page, problem);
   // Dispose context once it's no longer needed.
   await context.close();
   await browser.close();
-  logger.logInfo('Downloaded desc file of problem with id: %s', problem.id);
-}
-
-async function shouldDownloadProblemPckgFile(setup: Setup): Promise<void> {
-  // instantiate logger
-  const logger = Logger.getInstance();
-  logger.logInfo('Downloading problem pckg file');
-
-  // validate setup file with zod
-  const validate = new Validate(setup);
-  const setupValidated = validate.downloadProblem();
-  const admin: Auth = setupValidated.login;
-  const problem = setupValidated.problem;
-
-  const browser = await chromium.launch({
-    headless: HEADLESS,
-    slowMo: STEP_DURATION
-  });
-  // Create a new incognito browser context
-  const context = await browser.newContext();
-  // Create a new page inside context.
-  const page = await context.newPage();
-  page.setDefaultTimeout(TIMEOUT);
-  await authenticateUser(page, admin);
-  await validate.checkUserType(page, 'Admin');
-  await downloadProblemPckgFile(page, problem);
-  // Dispose context once it's no longer needed.
-  await context.close();
-  await browser.close();
-  logger.logInfo('Downloaded pckg file of problem with id: %s', problem.id);
+  logger.logInfo('Downloaded file(s) of problem with id: %s', problem.id);
 }
 
 async function shouldGetProblem(setup: Setup): Promise<void> {
@@ -1106,8 +1076,7 @@ const methods: Record<string, (setup: Setup) => Promise<void>> = {
   createProblem: shouldCreateProblem,
   deleteProblem: shouldDeleteProblem,
   disableProblem: shouldDeleteProblem,
-  downloadProblemDescFile: shouldDownloadProblemDescFile,
-  downloadProblemPckgFile: shouldDownloadProblemPckgFile,
+  downloadProblem: shouldDownloadProblem,
   enableProblem: shouldRestoreProblem,
   getProblem: shouldGetProblem,
   getProblems: shouldGetProblems,
