@@ -20,6 +20,7 @@
 
 import * as fs from 'fs';
 import { type Contest } from './data/contest';
+import { type Answer } from './data/answer';
 import { type Language } from './data/language';
 import { type Problem } from './data/problem';
 import { type User } from './data/user';
@@ -45,6 +46,8 @@ export class Output {
     result:
       | Contest
       | Contest[]
+      | Answer
+      | Answer[]
       | Language
       | Language[]
       | Problem

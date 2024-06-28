@@ -7,6 +7,12 @@
     "username": "admin",
     "password": "boca"
   },
+  "answer": {
+    "id": "40",
+    "description": "EXCELLENT - Total percentage score of 100%",
+    "shortname": "YES100",
+    "type": "Yes"
+  },
   "language": {
     "id": "11",
     "name": "Relational_Algebra",

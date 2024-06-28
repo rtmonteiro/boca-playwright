@@ -24,7 +24,7 @@ export enum ExitErrors {
   CONFIG_VALIDATION = 12,
   AUTHENTICATION_ERROR = 13,
   CONTEST_ERROR = 14,
-  // ANSWER_ERROR = 15,
+  ANSWER_ERROR = 15,
   // CLARIFICATION_ERROR = 16,
   LANGUAGE_ERROR = 17,
   // LOG_ERROR = 18,
@@ -54,6 +54,13 @@ export enum ContestMessages {
   ID_REQUIRED = 'Contest number (id) should be provided.',
   NOT_FOUND = 'Contest not found.',
   NEGATIVE_DURATION = 'The end date must be greater than the start date.'
+}
+
+export enum AnswerMessages {
+  ID_ALREADY_IN_USE = 'Answer number (id) already in use.',
+  ID_REQUIRED = 'Answer number (id) should be provided.',
+  DESC_REQUIRED = 'Answer description should be provided.',
+  NOT_FOUND = 'Answer not found.'
 }
 
 export enum LanguageMessages {
@@ -89,6 +96,7 @@ type ErrorMessages =
   | TypeMessages
   | AuthMessages
   | ContestMessages
+  | AnswerMessages
   | LanguageMessages
   | ProblemMessages
   | UserMessages;
@@ -121,6 +129,12 @@ export class AuthError extends ErrorBase {
 export class ContestError extends ErrorBase {
   constructor(message: ContestMessages, cause?: unknown) {
     super({ code: ExitErrors.CONTEST_ERROR, message, cause });
+  }
+}
+
+export class AnswerError extends ErrorBase {
+  constructor(message: AnswerMessages, cause?: unknown) {
+    super({ code: ExitErrors.ANSWER_ERROR, message, cause });
   }
 }
 

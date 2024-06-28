@@ -26,6 +26,7 @@ import {
   getContestSchema,
   updateContestSchema
 } from './contest';
+import { answerSchema, getAnswerSchema } from './answer';
 import { languageSchema, getLanguageSchema } from './language';
 import {
   createProblemSchema,
@@ -97,6 +98,24 @@ export class Validate {
     const setupType = z.object({
       login: authSchema,
       contest: updateContestSchema
+    });
+    setupType.parse(this.setup);
+    return this.setup as z.infer<typeof setupType>;
+  }
+
+  createAnswer(): z.infer<typeof setupType> {
+    const setupType = z.object({
+      login: authSchema,
+      answer: answerSchema
+    });
+    setupType.parse(this.setup);
+    return this.setup as z.infer<typeof setupType>;
+  }
+
+  getAnswer(): z.infer<typeof setupType> {
+    const setupType = z.object({
+      login: authSchema,
+      answer: getAnswerSchema
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;

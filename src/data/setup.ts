@@ -23,6 +23,7 @@ import * as path from 'path';
 import { z } from 'zod';
 import { authSchema } from './auth';
 import { contestSchema } from './contest';
+import { answerSchema } from './answer';
 import { languageSchema } from './language';
 import { problemSchema } from './problem';
 import { reportSchema } from './report';
@@ -62,6 +63,7 @@ export const setupSchema = z.object({
     .merge(importUsersSchema.partial()),
   login: authSchema,
   contest: contestSchema.partial().optional(),
+  answer: answerSchema.partial().optional(),
   language: languageSchema.partial().optional(),
   problem: problemSchema.partial().optional(),
   site: siteSchema.partial().optional(),

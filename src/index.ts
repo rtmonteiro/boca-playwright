@@ -42,6 +42,13 @@ import {
   updateContest
 } from './scripts/contest';
 import {
+  createAnswer,
+  deleteAnswer,
+  getAnswer,
+  getAnswers,
+  updateAnswer
+} from './scripts/answer';
+import {
   createLanguage,
   deleteLanguage,
   getLanguage,
@@ -228,6 +235,162 @@ async function shouldUpdateContest(setup: Setup): Promise<void> {
   await context.close();
   await browser.close();
   logger.logInfo('Updated contest with id: %s', form.id);
+  const output = Output.getInstance();
+  output.setResult(form);
+}
+//#endregion
+
+//#region Answers
+async function shouldCreateAnswer(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Creating answer');
+
+  // validate setup file with zod
+  const validate = new Validate(setup);
+  const setupValidated = validate.createAnswer();
+  const admin: Auth = setupValidated.login;
+  const answer = setupValidated.answer;
+
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
+  // Create a new incognito browser context
+  const context = await browser.newContext();
+  // Create a new page inside context.
+  const page = await context.newPage();
+  page.setDefaultTimeout(TIMEOUT);
+  await authenticateUser(page, admin);
+  await validate.checkUserType(page, 'Admin');
+  const form = await createAnswer(page, answer);
+  // Dispose context once it's no longer needed.
+  await context.close();
+  await browser.close();
+  logger.logInfo('Created answer with id: %s', form.id);
+  const output = Output.getInstance();
+  output.setResult(form);
+}
+
+async function shouldDeleteAnswer(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Deleting answer');
+
+  // validate setup file with zod
+  const validate = new Validate(setup);
+  const setupValidated = validate.getAnswer();
+  const admin: Auth = setupValidated.login;
+  const answer = setupValidated.answer;
+
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
+  // Create a new incognito browser context
+  const context = await browser.newContext();
+  // Create a new page inside context.
+  const page = await context.newPage();
+  page.setDefaultTimeout(TIMEOUT);
+  await authenticateUser(page, admin);
+  await validate.checkUserType(page, 'Admin');
+  const form = await deleteAnswer(page, answer.id);
+  // Dispose context once it's no longer needed.
+  await context.close();
+  await browser.close();
+  logger.logInfo('Deleted answer with id: %s', form.id);
+  const output = Output.getInstance();
+  output.setResult(form);
+}
+
+async function shouldGetAnswer(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Getting answer');
+
+  // validate setup file with zod
+  const validate = new Validate(setup);
+  const setupValidated = validate.getAnswer();
+  const admin: Auth = setupValidated.login;
+  const answer = setupValidated.answer;
+
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
+  // Create a new incognito browser context
+  const context = await browser.newContext();
+  // Create a new page inside context.
+  const page = await context.newPage();
+  page.setDefaultTimeout(TIMEOUT);
+  await authenticateUser(page, admin);
+  await validate.checkUserType(page, 'Admin');
+  const form = await getAnswer(page, answer.id);
+  // Dispose context once it's no longer needed.
+  await context.close();
+  await browser.close();
+  logger.logInfo('Found answer with id: %s', form.id);
+  const output = Output.getInstance();
+  output.setResult(form);
+}
+
+async function shouldGetAnswers(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Getting answers');
+
+  // validate setup file with zod
+  const validate = new Validate(setup);
+  const setupValidated = validate.checkAuthentication();
+  const admin: Auth = setupValidated.login;
+
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
+  // Create a new incognito browser context
+  const context = await browser.newContext();
+  // Create a new page inside context.
+  const page = await context.newPage();
+  page.setDefaultTimeout(TIMEOUT);
+  await authenticateUser(page, admin);
+  await validate.checkUserType(page, 'Admin');
+  const form = await getAnswers(page);
+  // Dispose context once it's no longer needed.
+  await context.close();
+  await browser.close();
+  logger.logInfo('Found %s answers', form.length);
+  const output = Output.getInstance();
+  output.setResult(form);
+}
+
+async function shouldUpdateAnswer(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Updating answer');
+
+  // validate setup file with zod
+  const validate = new Validate(setup);
+  const setupValidated = validate.createAnswer();
+  const admin: Auth = setupValidated.login;
+  const answer = setupValidated.answer;
+
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
+  // Create a new incognito browser context
+  const context = await browser.newContext();
+  // Create a new page inside context.
+  const page = await context.newPage();
+  page.setDefaultTimeout(TIMEOUT);
+  await authenticateUser(page, admin);
+  await validate.checkUserType(page, 'Admin');
+  const form = await updateAnswer(page, answer);
+  // Dispose context once it's no longer needed.
+  await context.close();
+  await browser.close();
+  logger.logInfo('Updated answer with id: %s', form.id);
   const output = Output.getInstance();
   output.setResult(form);
 }
@@ -927,6 +1090,12 @@ const methods: Record<string, (setup: Setup) => Promise<void>> = {
   getContest: shouldGetContest,
   getContests: shouldGetContests,
   updateContest: shouldUpdateContest,
+  // Answers
+  createAnswer: shouldCreateAnswer,
+  deleteAnswer: shouldDeleteAnswer,
+  getAnswer: shouldGetAnswer,
+  getAnswers: shouldGetAnswers,
+  updateAnswer: shouldUpdateAnswer,
   // Languages
   createLanguage: shouldCreateLanguage,
   deleteLanguage: shouldDeleteLanguage,
@@ -936,8 +1105,10 @@ const methods: Record<string, (setup: Setup) => Promise<void>> = {
   // Problems
   createProblem: shouldCreateProblem,
   deleteProblem: shouldDeleteProblem,
+  disableProblem: shouldDeleteProblem,
   downloadProblemDescFile: shouldDownloadProblemDescFile,
   downloadProblemPckgFile: shouldDownloadProblemPckgFile,
+  enableProblem: shouldRestoreProblem,
   getProblem: shouldGetProblem,
   getProblems: shouldGetProblems,
   restoreProblem: shouldRestoreProblem,
@@ -947,6 +1118,8 @@ const methods: Record<string, (setup: Setup) => Promise<void>> = {
   // Users
   createUser: shouldCreateUser,
   deleteUser: shouldDeleteUser,
+  disableUser: shouldDeleteUser,
+  enableUser: shouldRestoreUser,
   getUser: shouldGetUser,
   getUsers: shouldGetUsers,
   importUsers: shouldImportUsers,
