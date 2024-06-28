@@ -71,7 +71,7 @@ export async function deleteUser(
     }
     return await getUser(page, user);
   } else {
-    throw new UserError(UserMessages.CANNOT_DISABLE);
+    throw new UserError(UserMessages.CANNOT_DELETE);
   }
 }
 

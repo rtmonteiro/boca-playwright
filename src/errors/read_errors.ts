@@ -57,6 +57,7 @@ export enum ContestMessages {
 }
 
 export enum AnswerMessages {
+  CANNOT_DELETE = 'Answer cannot be deleted.',
   ID_ALREADY_IN_USE = 'Answer number (id) already in use.',
   ID_REQUIRED = 'Answer number (id) should be provided.',
   DESC_REQUIRED = 'Answer description should be provided.',
@@ -83,7 +84,7 @@ export enum ProblemMessages {
 }
 
 export enum UserMessages {
-  CANNOT_DISABLE = 'User cannot be deleted/disabled.',
+  CANNOT_DELETE = 'User cannot be deleted/disabled.',
   FILE_NOT_FOUND = 'File not found.',
   ID_AND_SITE_REQUIRED = 'User and site number (id) should be provided.',
   ID_AND_SITE_ALREADY_IN_USE = 'User number (id) already in use in this site.',

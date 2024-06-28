@@ -49,9 +49,12 @@ export async function deleteAnswer(
   await page.waitForLoadState('domcontentloaded');
 
   const row = await checkAnswerExists(page, id);
+  const link = await row.locator('td:nth-of-type(1) > a');
+  if ((await link.count()) === 0)
+    throw new AnswerError(AnswerMessages.CANNOT_DELETE);
   const answer: Answer = await getAnswerFromRow(page, id);
   page.on('dialog', dialogHandler);
-  await row.locator('td:nth-of-type(1) a').click();
+  await link.click();
   page.removeListener('dialog', dialogHandler);
   return answer;
 }
