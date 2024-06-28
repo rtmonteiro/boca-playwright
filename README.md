@@ -83,6 +83,12 @@ TODO
 - getContests
 - updateContest
 
+- createAnswer
+- deleteAnswer
+- getAnswer
+- getAnswers
+- updateAnswer
+
 - createLanguage
 - deleteLanguage
 - getLanguage
