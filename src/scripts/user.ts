@@ -51,8 +51,8 @@ export async function deleteUser(
   await page.waitForLoadState('domcontentloaded');
 
   const row = await checkUserExists(page, user);
-  if (await row.locator('td:nth-of-type(1) a').isVisible()) {
-    await row.locator('td:nth-of-type(1) a').click();
+  if (await row.locator('td:nth-of-type(1) > a').isVisible()) {
+    await row.locator('td:nth-of-type(1) > a').click();
     // Wait for load state
     await page.waitForLoadState('domcontentloaded');
 
