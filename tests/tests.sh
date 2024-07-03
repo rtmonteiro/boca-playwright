@@ -21,7 +21,7 @@
 
 # Build library
 npm run build
-# Define library command
+# Define command to run tests
 cmd="npm run test:cli"
 
 # Testing contest methods (count: 165)
