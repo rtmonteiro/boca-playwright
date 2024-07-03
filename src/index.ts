@@ -1084,6 +1084,9 @@ const methods: Record<string, (setup: Setup) => Promise<void>> = {
   updateProblem: shouldUpdateProblem,
   // Sites
   createSite: shouldCreateSite,
+  // getSite: shouldGetSite,
+  // getSites: shouldGetSites,
+  // updateSite: shouldUpdateSite,
   // Users
   createUser: shouldCreateUser,
   deleteUser: shouldDeleteUser,
@@ -1111,7 +1114,7 @@ function main(): number {
     )
     .option(
       '-t, --timeout <timeout>',
-      'timeout for playwright',
+      'timeout for each test, hook and/or fixture (in milliseconds)',
       TIMEOUT.toString()
     )
     .option('-v, --verbose', 'verbose mode')
