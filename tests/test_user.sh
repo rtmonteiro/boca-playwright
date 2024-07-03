@@ -19,17 +19,11 @@
 #
 #========================================================================
 
-# Build library
-npm run build
-# Define command to run tests
-unset cmd
-export cmd="npm run test:cli"
-
-./test_contest.sh
-./test_answer.sh
-./test_language.sh
-./test_problem.sh
-./test_user.sh
-
-# TODO
-# ./update_options.sh
+# Testing user methods (count: 220)
+./user/create_user.sh
+./user/delete_user.sh
+./user/get_user.sh
+./user/get_users.sh
+./user/import_users.sh
+./user/restore_user.sh
+./user/update_user.sh

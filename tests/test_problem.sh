@@ -19,17 +19,12 @@
 #
 #========================================================================
 
-# Build library
-npm run build
-# Define command to run tests
-unset cmd
-export cmd="npm run test:cli"
-
-./test_contest.sh
-./test_answer.sh
-./test_language.sh
-./test_problem.sh
-./test_user.sh
-
-# TODO
-# ./update_options.sh
+# Testing problem methods (count: 216)
+./problem/create_problem.sh
+./problem/delete_problem.sh
+./problem/download_problem_desc_file.sh
+./problem/download_problem_pckg_file.sh
+./problem/get_problem.sh
+./problem/get_problems.sh
+./problem/restore_problem.sh
+./problem/update_problem.sh

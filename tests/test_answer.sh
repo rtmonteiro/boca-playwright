@@ -19,17 +19,9 @@
 #
 #========================================================================
 
-# Build library
-npm run build
-# Define command to run tests
-unset cmd
-export cmd="npm run test:cli"
-
-./test_contest.sh
-./test_answer.sh
-./test_language.sh
-./test_problem.sh
-./test_user.sh
-
-# TODO
-# ./update_options.sh
+# Testing answer methods (count: 126)
+./answer/create_answer.sh
+./answer/delete_answer.sh
+./answer/get_answer.sh
+./answer/get_answers.sh
+./answer/update_answer.sh

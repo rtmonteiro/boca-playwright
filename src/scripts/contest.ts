@@ -343,4 +343,7 @@ async function selectContest(
   } else {
     await page.locator('select[name="contest"]').selectOption('new');
   }
+
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
 }
