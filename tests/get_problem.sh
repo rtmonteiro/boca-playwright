@@ -24,28 +24,33 @@ export RET_ARGS_VALIDATION=1
 export RET_CONFIG_VALIDATION=12
 export RET_PROBLEM_ERROR=19
 
+# Check if library command to run tests has been defined.
+if [ -z ${cmd+x} ]; then
+  cmd="npm run test:cli"
+fi
+
 # It will be called before the first test is run.
 oneTimeSetUp() {
   # Check if contest exists. If not, create it.
   config_file="resources/mocks/success/contest/valid_contest.json"
-  npm run test:cli -- -p "${config_file}" -m getContest >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getContest >/dev/null 2>&1
   ret_code=$?
   if [ "${ret_code}" != "${RET_SUCCESS}" ]; then
-    npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1
+    $cmd -- -p "${config_file}" -m createContest >/dev/null 2>&1
     ret_code=$?
   fi
   # Activate contest.
   if [ "${ret_code}" = "${RET_SUCCESS}" ]; then
-    npm run test:cli -- -p "${config_file}" -m activateContest >/dev/null 2>&1
+    $cmd -- -p "${config_file}" -m activateContest >/dev/null 2>&1
     ret_code=$?
   fi
   # Check if problem exists. If it does not, create it.
   if [ "${ret_code}" = "${RET_SUCCESS}" ]; then
     config_file="resources/mocks/success/problem/valid_problem.json"
-    npm run test:cli -- -p "${config_file}" -m getProblem >/dev/null 2>&1
+    $cmd -- -p "${config_file}" -m getProblem >/dev/null 2>&1
     ret_code=$?
     if [ "${ret_code}" != "${RET_SUCCESS}" ]; then
-      npm run test:cli -- -p "${config_file}" -m createProblem >/dev/null 2>&1
+      $cmd -- -p "${config_file}" -m createProblem >/dev/null 2>&1
       ret_code=$?
     fi
   fi
@@ -70,63 +75,63 @@ oneTimeTearDown() {
 }
 
 testGetProblemMissingPathArgument() {
-  npm run test:cli -- -m getProblem >/dev/null 2>&1
+  $cmd -- -m getProblem >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_ARGS_VALIDATION}" "${ret_code}"
 }
 
 testGetProblemMissingMethodArgument() {
   config_file="resources/mocks/success/problem/valid_problem.json"
-  npm run test:cli -- -p "${config_file}" >/dev/null 2>&1
+  $cmd -- -p "${config_file}" >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_ARGS_VALIDATION}" "${ret_code}"
 }
 
 testGetProblemIncorrectPathArgument() {
   config_file="resources/mocks/fake.json"
-  npm run test:cli -- -p "${config_file}" -m getProblem >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getProblem >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_ARGS_VALIDATION}" "${ret_code}"
 }
 
 testGetProblemIncorrectMethodArgument() {
   config_file="resources/mocks/success/problem/valid_problem.json"
-  npm run test:cli -- -p "${config_file}" -m getProblemFake >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getProblemFake >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_ARGS_VALIDATION}" "${ret_code}"
 }
 
 testGetProblemMissingConfigData() {
   config_file="resources/mocks/fail/setup/missing_config.json"
-  npm run test:cli -- -p "${config_file}" -m getProblem >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getProblem >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testGetProblemMissingBocaUrl() {
   config_file="resources/mocks/fail/setup/missing_url.json"
-  npm run test:cli -- -p "${config_file}" -m getProblem >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getProblem >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testGetProblemMissingResultFilePath() {
   config_file="resources/mocks/success/setup/missing_result_file_path_admin.json"
-  npm run test:cli -- -p "${config_file}" -m getProblem >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getProblem >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_SUCCESS}" "${ret_code}"
 }
 
 testGetProblemInvalidBocaUrl() {
   config_file="resources/mocks/fail/setup/invalid_url.json"
-  npm run test:cli -- -p "${config_file}" -m getProblem >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getProblem >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testGetProblemInvalidResultFilePath() {
   config_file="resources/mocks/fail/setup/invalid_result_file_path.json"
-  npm run test:cli -- -p "${config_file}" -m getProblem >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getProblem >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 
@@ -137,98 +142,98 @@ testGetProblemInvalidResultFilePath() {
 
 testGetProblemIncorrectBocaUrl() {
   config_file="resources/mocks/fail/setup/incorrect_url.json"
-  npm run test:cli -- -p "${config_file}" -m getProblem >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getProblem >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testGetProblemIncorrectResultFilePath() {
   config_file="resources/mocks/fail/setup/incorrect_result_file_path.json"
-  npm run test:cli -- -p "${config_file}" -m getProblem >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getProblem >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testGetProblemMissingLoginData() {
   config_file="resources/mocks/fail/login/missing_login.json"
-  npm run test:cli -- -p "${config_file}" -m getProblem >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getProblem >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testGetProblemMissingUsername() {
   config_file="resources/mocks/fail/login/missing_username.json"
-  npm run test:cli -- -p "${config_file}" -m getProblem >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getProblem >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testGetProblemMissingPassword() {
   config_file="resources/mocks/fail/login/missing_password.json"
-  npm run test:cli -- -p "${config_file}" -m getProblem >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getProblem >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testGetProblemInvalidUsername() {
   config_file="resources/mocks/fail/login/invalid_username.json"
-  npm run test:cli -- -p "${config_file}" -m getProblem >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getProblem >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testGetProblemInvalidPassword() {
   config_file="resources/mocks/fail/login/invalid_password.json"
-  npm run test:cli -- -p "${config_file}" -m getProblem >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getProblem >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testGetProblemIncorrectUsername() {
   config_file="resources/mocks/fail/login/incorrect_username.json"
-  npm run test:cli -- -p "${config_file}" -m getProblem >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getProblem >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testGetProblemIncorrectPassword() {
   config_file="resources/mocks/fail/login/incorrect_password.json"
-  npm run test:cli -- -p "${config_file}" -m getProblem >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getProblem >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testGetProblemMissingProblemData() {
   config_file="resources/mocks/fail/problem/missing_problem.json"
-  npm run test:cli -- -p "${config_file}" -m getProblem >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getProblem >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testGetProblemMissingId() {
   config_file="resources/mocks/fail/problem/missing_id.json"
-  npm run test:cli -- -p "${config_file}" -m getProblem >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getProblem >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testGetProblemInvalidId() {
   config_file="resources/mocks/fail/problem/invalid_id.json"
-  npm run test:cli -- -p "${config_file}" -m getProblem >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getProblem >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testGetProblemIncorrectId() {
   config_file="resources/mocks/fail/problem/incorrect_id.json"
-  npm run test:cli -- -p "${config_file}" -m getProblem >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getProblem >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_PROBLEM_ERROR}" "${ret_code}"
 }
 
 testGetValidProblem() {
   config_file="resources/mocks/success/problem/valid_problem.json"
-  npm run test:cli -- -p "${config_file}" -m getProblem >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getProblem >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_SUCCESS}" "${ret_code}"
 

@@ -23,19 +23,24 @@ export RET_SUCCESS=0
 export RET_ARGS_VALIDATION=1
 export RET_CONFIG_VALIDATION=12
 
+# Check if library command to run tests has been defined.
+if [ -z ${cmd+x} ]; then
+  cmd="npm run test:cli"
+fi
+
 # It will be called before the first test is run.
 oneTimeSetUp() {
   # Check if contest exists. If not, create it.
   config_file="resources/mocks/success/contest/valid_contest.json"
-  npm run test:cli -- -p "${config_file}" -m getContest >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getContest >/dev/null 2>&1
   ret_code=$?
   if [ "${ret_code}" != "${RET_SUCCESS}" ]; then
-    npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1
+    $cmd -- -p "${config_file}" -m createContest >/dev/null 2>&1
     ret_code=$?
   fi
   # Activate contest.
   if [ "${ret_code}" = "${RET_SUCCESS}" ]; then
-    npm run test:cli -- -p "${config_file}" -m activateContest >/dev/null 2>&1
+    $cmd -- -p "${config_file}" -m activateContest >/dev/null 2>&1
     ret_code=$?
   fi
   # Check if site exists. If not, create it.
@@ -61,63 +66,63 @@ oneTimeTearDown() {
 }
 
 testGetUsersMissingPathArgument() {
-  npm run test:cli -- -m getUsers >/dev/null 2>&1
+  $cmd -- -m getUsers >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_ARGS_VALIDATION}" "${ret_code}"
 }
 
 testGetUsersMissingMethodArgument() {
   config_file="resources/mocks/success/user/valid_user.json"
-  npm run test:cli -- -p "${config_file}" >/dev/null 2>&1
+  $cmd -- -p "${config_file}" >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_ARGS_VALIDATION}" "${ret_code}"
 }
 
 testGetUsersIncorrectPathArgument() {
   config_file="resources/mocks/fake.json"
-  npm run test:cli -- -p "${config_file}" -m getUsers >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getUsers >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_ARGS_VALIDATION}" "${ret_code}"
 }
 
 testGetUsersIncorrectMethodArgument() {
   config_file="resources/mocks/success/user/valid_user.json"
-  npm run test:cli -- -p "${config_file}" -m getUsersFake >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getUsersFake >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_ARGS_VALIDATION}" "${ret_code}"
 }
 
 testGetUsersMissingConfigData() {
   config_file="resources/mocks/fail/setup/missing_config.json"
-  npm run test:cli -- -p "${config_file}" -m getUsers >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getUsers >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testGetUsersMissingBocaUrl() {
   config_file="resources/mocks/fail/setup/missing_url.json"
-  npm run test:cli -- -p "${config_file}" -m getUsers >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getUsers >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testGetUsersMissingResultFilePath() {
   config_file="resources/mocks/success/setup/missing_result_file_path_admin.json"
-  npm run test:cli -- -p "${config_file}" -m getUsers >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getUsers >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_SUCCESS}" "${ret_code}"
 }
 
 testGetUsersInvalidBocaUrl() {
   config_file="resources/mocks/fail/setup/invalid_url.json"
-  npm run test:cli -- -p "${config_file}" -m getUsers >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getUsers >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testGetUsersInvalidResultFilePath() {
   config_file="resources/mocks/fail/setup/invalid_result_file_path.json"
-  npm run test:cli -- -p "${config_file}" -m getUsers >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getUsers >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 
@@ -128,63 +133,63 @@ testGetUsersInvalidResultFilePath() {
 
 testGetUsersIncorrectBocaUrl() {
   config_file="resources/mocks/fail/setup/incorrect_url.json"
-  npm run test:cli -- -p "${config_file}" -m getUsers >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getUsers >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testGetUsersIncorrectResultFilePath() {
   config_file="resources/mocks/fail/setup/incorrect_result_file_path.json"
-  npm run test:cli -- -p "${config_file}" -m getUsers >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getUsers >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testGetUsersMissingLoginData() {
   config_file="resources/mocks/fail/login/missing_login.json"
-  npm run test:cli -- -p "${config_file}" -m getUsers >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getUsers >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testGetUsersMissingUsername() {
   config_file="resources/mocks/fail/login/missing_username.json"
-  npm run test:cli -- -p "${config_file}" -m getUsers >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getUsers >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testGetUsersMissingPassword() {
   config_file="resources/mocks/fail/login/missing_password.json"
-  npm run test:cli -- -p "${config_file}" -m getUsers >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getUsers >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testGetUsersInvalidUsername() {
   config_file="resources/mocks/fail/login/invalid_username.json"
-  npm run test:cli -- -p "${config_file}" -m getUsers >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getUsers >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testGetUsersInvalidPassword() {
   config_file="resources/mocks/fail/login/invalid_password.json"
-  npm run test:cli -- -p "${config_file}" -m getUsers >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getUsers >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testGetUsersIncorrectUsername() {
   config_file="resources/mocks/fail/login/incorrect_username.json"
-  npm run test:cli -- -p "${config_file}" -m getUsers >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getUsers >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testGetUsersIncorrectPassword() {
   config_file="resources/mocks/fail/login/incorrect_password.json"
-  npm run test:cli -- -p "${config_file}" -m getUsers >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getUsers >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
@@ -201,7 +206,7 @@ testGetValidUsers() {
     config_file="resources/mocks/success/user/valid_user.json"
   fi
 
-  npm run test:cli -- -p "${config_file}" -m getUsers >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getUsers >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_SUCCESS}" "${ret_code}"
 

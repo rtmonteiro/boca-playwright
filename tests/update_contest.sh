@@ -24,14 +24,19 @@ export RET_ARGS_VALIDATION=1
 export RET_CONFIG_VALIDATION=12
 export RET_CONTEST_ERROR=14
 
+# Check if library command to run tests has been defined.
+if [ -z ${cmd+x} ]; then
+  cmd="npm run test:cli"
+fi
+
 # It will be called before the first test is run.
 oneTimeSetUp() {
   # Check if contest exists. If not, create it.
   config_file="resources/mocks/success/contest/valid_contest.json"
-  npm run test:cli -- -p "${config_file}" -m getContest >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getContest >/dev/null 2>&1
   ret_code=$?
   if [ "${ret_code}" != "${RET_SUCCESS}" ]; then
-    npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1
+    $cmd -- -p "${config_file}" -m createContest >/dev/null 2>&1
     ret_code=$?
   fi
   return "${ret_code}"
@@ -55,63 +60,63 @@ oneTimeTearDown() {
 }
 
 testUpdateContestMissingPathArgument() {
-  npm run test:cli -- -m updateContest >/dev/null 2>&1
+  $cmd -- -m updateContest >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_ARGS_VALIDATION}" "${ret_code}"
 }
 
 testUpdateContestMissingMethodArgument() {
   config_file="resources/mocks/success/contest/valid_contest.json"
-  npm run test:cli -- -p "${config_file}" >/dev/null 2>&1
+  $cmd -- -p "${config_file}" >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_ARGS_VALIDATION}" "${ret_code}"
 }
 
 testUpdateContestIncorrectPathArgument() {
   config_file="resources/mocks/fake.json"
-  npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateContest >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_ARGS_VALIDATION}" "${ret_code}"
 }
 
 testUpdateContestIncorrectMethodArgument() {
   config_file="resources/mocks/success/contest/valid_contest.json"
-  npm run test:cli -- -p "${config_file}" -m updateContestFake >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateContestFake >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_ARGS_VALIDATION}" "${ret_code}"
 }
 
 testUpdateContestMissingConfigData() {
   config_file="resources/mocks/fail/setup/missing_config.json"
-  npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateContest >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateContestMissingBocaUrl() {
   config_file="resources/mocks/fail/setup/missing_url.json"
-  npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateContest >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateContestMissingResultFilePath() {
   config_file="resources/mocks/success/setup/missing_result_file_path_system.json"
-  npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateContest >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_SUCCESS}" "${ret_code}"
 }
 
 testUpdateContestInvalidBocaUrl() {
   config_file="resources/mocks/fail/setup/invalid_url.json"
-  npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateContest >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateContestInvalidResultFilePath() {
   config_file="resources/mocks/fail/setup/invalid_result_file_path.json"
-  npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateContest >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 
@@ -122,77 +127,77 @@ testUpdateContestInvalidResultFilePath() {
 
 testUpdateContestIncorrectBocaUrl() {
   config_file="resources/mocks/fail/setup/incorrect_url.json"
-  npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateContest >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateContestIncorrectResultFilePath() {
   config_file="resources/mocks/fail/setup/incorrect_result_file_path.json"
-  npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateContest >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateContestMissingLoginData() {
   config_file="resources/mocks/fail/login/missing_login.json"
-  npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateContest >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateContestMissingUsername() {
   config_file="resources/mocks/fail/login/missing_username.json"
-  npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateContest >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateContestMissingPassword() {
   config_file="resources/mocks/fail/login/missing_password.json"
-  npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateContest >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateContestInvalidUsername() {
   config_file="resources/mocks/fail/login/invalid_username.json"
-  npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateContest >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateContestInvalidPassword() {
   config_file="resources/mocks/fail/login/invalid_password.json"
-  npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateContest >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateContestIncorrectUsername() {
   config_file="resources/mocks/fail/login/incorrect_username.json"
-  npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateContest >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateContestIncorrectPassword() {
   config_file="resources/mocks/fail/login/incorrect_password.json"
-  npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateContest >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateContestMissingContestData() {
   config_file="resources/mocks/fail/contest/missing_contest.json"
-  npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateContest >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateContestMissingId() {
   config_file="resources/mocks/fail/contest/missing_id.json"
-  npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateContest >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
@@ -259,84 +264,84 @@ testUpdateContestMissingLocalSiteId() {
 
 testUpdateContestInvalidId() {
   config_file="resources/mocks/fail/contest/invalid_id.json"
-  npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateContest >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateContestInvalidName() {
   config_file="resources/mocks/fail/contest/invalid_name.json"
-  npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateContest >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateContestInvalidStartDate() {
   config_file="resources/mocks/fail/contest/invalid_start_date.json"
-  npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateContest >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateContestInvalidEndDate() {
   config_file="resources/mocks/fail/contest/invalid_end_date.json"
-  npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateContest >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateContestInvalidStopAnsweringDate() {
   config_file="resources/mocks/fail/contest/invalid_stop_answering_date.json"
-  npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateContest >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateContestInvalidStopScoreboardDate() {
   config_file="resources/mocks/fail/contest/invalid_stop_scoreboard_date.json"
-  npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateContest >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateContestInvalidPenalty() {
   config_file="resources/mocks/fail/contest/invalid_penalty.json"
-  npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateContest >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateContestInvalidMaxFileSize() {
   config_file="resources/mocks/fail/contest/invalid_max_file_size.json"
-  npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateContest >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateContestInvalidMainSiteUrl() {
   config_file="resources/mocks/fail/contest/invalid_main_site_url.json"
-  npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateContest >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateContestInvalidMainSiteId() {
   config_file="resources/mocks/fail/contest/invalid_main_site_id.json"
-  npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateContest >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateContestInvalidLocalSiteId() {
   config_file="resources/mocks/fail/contest/invalid_local_site_id.json"
-  npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateContest >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateContestIncorrectId() {
   config_file="resources/mocks/fail/contest/incorrect_id.json"
-  npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateContest >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONTEST_ERROR}" "${ret_code}"
 }
@@ -367,28 +372,28 @@ testUpdateContestIncorrectStopScoreboardDate() {
 
 testUpdateContestIncorrectPenalty() {
   config_file="resources/mocks/fail/contest/incorrect_penalty.json"
-  npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateContest >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateContestIncorrectMaxFileSize() {
   config_file="resources/mocks/fail/contest/incorrect_max_file_size.json"
-  npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateContest >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateContestIncorrectMainSiteId() {
   config_file="resources/mocks/fail/contest/incorrect_main_site_id.json"
-  npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateContest >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateContestIncorrectLocalSiteId() {
   config_file="resources/mocks/fail/contest/incorrect_local_site_id.json"
-  npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateContest >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
@@ -400,7 +405,7 @@ testUpdateValidContest() {
     config_file="resources/mocks/success/contest/valid_contest.json"
   fi
 
-  npm run test:cli -- -p "${config_file}" -m updateContest >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateContest >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_SUCCESS}" "${ret_code}"
 

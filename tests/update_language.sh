@@ -24,27 +24,32 @@ export RET_ARGS_VALIDATION=1
 export RET_CONFIG_VALIDATION=12
 export RET_LANGUAGE_ERROR=17
 
+# Check if library command to run tests has been defined.
+if [ -z ${cmd+x} ]; then
+  cmd="npm run test:cli"
+fi
+
 # It will be called before the first test is run.
 oneTimeSetUp() {
   # Check if contest exists. If not, create it.
   config_file="resources/mocks/success/contest/valid_contest.json"
-  npm run test:cli -- -p "${config_file}" -m getContest >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getContest >/dev/null 2>&1
   ret_code=$?
   if [ "${ret_code}" != "${RET_SUCCESS}" ]; then
-    npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1
+    $cmd -- -p "${config_file}" -m createContest >/dev/null 2>&1
     ret_code=$?
   fi
   # Activate contest.
   if [ "${ret_code}" = "${RET_SUCCESS}" ]; then
-    npm run test:cli -- -p "${config_file}" -m activateContest >/dev/null 2>&1
+    $cmd -- -p "${config_file}" -m activateContest >/dev/null 2>&1
     ret_code=$?
   fi
   # Check if language exists. If not, create it.
   config_file="resources/mocks/success/language/valid_language.json"
-  npm run test:cli -- -p "${config_file}" -m getLanguage >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getLanguage >/dev/null 2>&1
   ret_code=$?
   if [ "${ret_code}" != "${RET_SUCCESS}" ]; then
-    npm run test:cli -- -p "${config_file}" -m createLanguage >/dev/null 2>&1
+    $cmd -- -p "${config_file}" -m createLanguage >/dev/null 2>&1
     ret_code=$?
   else
     ret_code="${RET_SUCCESS}"
@@ -70,63 +75,63 @@ oneTimeTearDown() {
 }
 
 testUpdateLanguageMissingPathArgument() {
-  npm run test:cli -- -m updateLanguage >/dev/null 2>&1
+  $cmd -- -m updateLanguage >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_ARGS_VALIDATION}" "${ret_code}"
 }
 
 testUpdateLanguageMissingMethodArgument() {
   config_file="resources/mocks/success/language/valid_language.json"
-  npm run test:cli -- -p "${config_file}" >/dev/null 2>&1
+  $cmd -- -p "${config_file}" >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_ARGS_VALIDATION}" "${ret_code}"
 }
 
 testUpdateLanguageIncorrectPathArgument() {
   config_file="resources/mocks/fake.json"
-  npm run test:cli -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_ARGS_VALIDATION}" "${ret_code}"
 }
 
 testUpdateLanguageIncorrectMethodArgument() {
   config_file="resources/mocks/success/language/valid_language.json"
-  npm run test:cli -- -p "${config_file}" -m updateLanguageFake >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateLanguageFake >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_ARGS_VALIDATION}" "${ret_code}"
 }
 
 testUpdateLanguageMissingConfigData() {
   config_file="resources/mocks/fail/setup/missing_config.json"
-  npm run test:cli -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateLanguageMissingBocaUrl() {
   config_file="resources/mocks/fail/setup/missing_url.json"
-  npm run test:cli -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateLanguageMissingResultFilePath() {
   config_file="resources/mocks/success/setup/missing_result_file_path_admin.json"
-  npm run test:cli -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_SUCCESS}" "${ret_code}"
 }
 
 testUpdateLanguageInvalidBocaUrl() {
   config_file="resources/mocks/fail/setup/invalid_url.json"
-  npm run test:cli -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateLanguageInvalidResultFilePath() {
   config_file="resources/mocks/fail/setup/invalid_result_file_path.json"
-  npm run test:cli -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 
@@ -137,84 +142,84 @@ testUpdateLanguageInvalidResultFilePath() {
 
 testUpdateLanguageIncorrectBocaUrl() {
   config_file="resources/mocks/fail/setup/incorrect_url.json"
-  npm run test:cli -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateLanguageIncorrectResultFilePath() {
   config_file="resources/mocks/fail/setup/incorrect_result_file_path.json"
-  npm run test:cli -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateLanguageMissingLoginData() {
   config_file="resources/mocks/fail/login/missing_login.json"
-  npm run test:cli -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateLanguageMissingUsername() {
   config_file="resources/mocks/fail/login/missing_username.json"
-  npm run test:cli -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateLanguageMissingPassword() {
   config_file="resources/mocks/fail/login/missing_password.json"
-  npm run test:cli -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateLanguageInvalidUsername() {
   config_file="resources/mocks/fail/login/invalid_username.json"
-  npm run test:cli -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateLanguageInvalidPassword() {
   config_file="resources/mocks/fail/login/invalid_password.json"
-  npm run test:cli -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateLanguageIncorrectUsername() {
   config_file="resources/mocks/fail/login/incorrect_username.json"
-  npm run test:cli -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateLanguageIncorrectPassword() {
   config_file="resources/mocks/fail/login/incorrect_password.json"
-  npm run test:cli -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateLanguageMissingLanguageData() {
   config_file="resources/mocks/fail/language/missing_language.json"
-  npm run test:cli -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateLanguageMissingId() {
   config_file="resources/mocks/fail/language/missing_id.json"
-  npm run test:cli -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateLanguageMissingName() {
   config_file="resources/mocks/fail/language/missing_name.json"
-  npm run test:cli -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
@@ -227,28 +232,28 @@ testUpdateLanguageMissingExtension() {
 
 testUpdateLanguageInvalidId() {
   config_file="resources/mocks/fail/language/invalid_id.json"
-  npm run test:cli -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateLanguageInvalidName() {
   config_file="resources/mocks/fail/language/invalid_name.json"
-  npm run test:cli -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateLanguageInvalidExtension() {
   config_file="resources/mocks/fail/language/invalid_extension.json"
-  npm run test:cli -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testUpdateLanguageIncorrectId() {
   config_file="resources/mocks/fail/language/incorrect_id.json"
-  npm run test:cli -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_LANGUAGE_ERROR}" "${ret_code}"
 }
@@ -260,7 +265,7 @@ testUpdateValidLanguage() {
     config_file="resources/mocks/success/language/valid_language.json"
   fi
 
-  npm run test:cli -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m updateLanguage >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_SUCCESS}" "${ret_code}"
 

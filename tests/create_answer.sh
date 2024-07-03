@@ -24,19 +24,24 @@ export RET_ARGS_VALIDATION=1
 export RET_CONFIG_VALIDATION=12
 export RET_ANSWER_ERROR=15
 
+# Check if library command to run tests has been defined.
+if [ -z ${cmd+x} ]; then
+  cmd="npm run test:cli"
+fi
+
 # It will be called before the first test is run.
 oneTimeSetUp() {
   # Check if contest exists. If not, create it.
   config_file="resources/mocks/success/contest/valid_contest.json"
-  npm run test:cli -- -p "${config_file}" -m getContest >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getContest >/dev/null 2>&1
   ret_code=$?
   if [ "${ret_code}" != "${RET_SUCCESS}" ]; then
-    npm run test:cli -- -p "${config_file}" -m createContest >/dev/null 2>&1
+    $cmd -- -p "${config_file}" -m createContest >/dev/null 2>&1
     ret_code=$?
   fi
   # Activate contest.
   if [ "${ret_code}" = "${RET_SUCCESS}" ]; then
-    npm run test:cli -- -p "${config_file}" -m activateContest >/dev/null 2>&1
+    $cmd -- -p "${config_file}" -m activateContest >/dev/null 2>&1
     ret_code=$?
   fi
   return "${ret_code}"
@@ -46,10 +51,10 @@ oneTimeSetUp() {
 setUp() {
   # Check if answer exists. If it does, delete it.
   config_file="resources/mocks/success/answer/valid_answer.json"
-  npm run test:cli -- -p "${config_file}" -m getAnswer >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m getAnswer >/dev/null 2>&1
   ret_code=$?
   if [ "${ret_code}" = "${RET_SUCCESS}" ]; then
-    npm run test:cli -- -p "${config_file}" -m deleteAnswer >/dev/null 2>&1
+    $cmd -- -p "${config_file}" -m deleteAnswer >/dev/null 2>&1
     ret_code=$?
   else
     ret_code="${RET_SUCCESS}"
@@ -70,63 +75,63 @@ oneTimeTearDown() {
 }
 
 testCreateAnswerMissingPathArgument() {
-  npm run test:cli -- -m createAnswer >/dev/null 2>&1
+  $cmd -- -m createAnswer >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_ARGS_VALIDATION}" "${ret_code}"
 }
 
 testCreateAnswerMissingMethodArgument() {
   config_file="resources/mocks/success/answer/valid_answer.json"
-  npm run test:cli -- -p "${config_file}" >/dev/null 2>&1
+  $cmd -- -p "${config_file}" >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_ARGS_VALIDATION}" "${ret_code}"
 }
 
 testCreateAnswerIncorrectPathArgument() {
   config_file="resources/mocks/fake.json"
-  npm run test:cli -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_ARGS_VALIDATION}" "${ret_code}"
 }
 
 testCreateAnswerIncorrectMethodArgument() {
   config_file="resources/mocks/success/answer/valid_answer.json"
-  npm run test:cli -- -p "${config_file}" -m createAnswerFake >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m createAnswerFake >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_ARGS_VALIDATION}" "${ret_code}"
 }
 
 testCreateAnswerMissingConfigData() {
   config_file="resources/mocks/fail/setup/missing_config.json"
-  npm run test:cli -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testCreateAnswerMissingBocaUrl() {
   config_file="resources/mocks/fail/setup/missing_url.json"
-  npm run test:cli -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testCreateAnswerMissingResultFilePath() {
   config_file="resources/mocks/success/setup/missing_result_file_path_admin.json"
-  npm run test:cli -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_SUCCESS}" "${ret_code}"
 }
 
 testCreateAnswerInvalidBocaUrl() {
   config_file="resources/mocks/fail/setup/invalid_url.json"
-  npm run test:cli -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testCreateAnswerInvalidResultFilePath() {
   config_file="resources/mocks/fail/setup/invalid_result_file_path.json"
-  npm run test:cli -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 
@@ -137,84 +142,84 @@ testCreateAnswerInvalidResultFilePath() {
 
 testCreateAnswerIncorrectBocaUrl() {
   config_file="resources/mocks/fail/setup/incorrect_url.json"
-  npm run test:cli -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testCreateAnswerIncorrectResultFilePath() {
   config_file="resources/mocks/fail/setup/incorrect_result_file_path.json"
-  npm run test:cli -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testCreateAnswerMissingLoginData() {
   config_file="resources/mocks/fail/login/missing_login.json"
-  npm run test:cli -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testCreateAnswerMissingUsername() {
   config_file="resources/mocks/fail/login/missing_username.json"
-  npm run test:cli -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testCreateAnswerMissingPassword() {
   config_file="resources/mocks/fail/login/missing_password.json"
-  npm run test:cli -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testCreateAnswerInvalidUsername() {
   config_file="resources/mocks/fail/login/invalid_username.json"
-  npm run test:cli -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testCreateAnswerInvalidPassword() {
   config_file="resources/mocks/fail/login/invalid_password.json"
-  npm run test:cli -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testCreateAnswerIncorrectUsername() {
   config_file="resources/mocks/fail/login/incorrect_username.json"
-  npm run test:cli -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testCreateAnswerIncorrectPassword() {
   config_file="resources/mocks/fail/login/incorrect_password.json"
-  npm run test:cli -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testCreateAnswerMissingAnswerData() {
   config_file="resources/mocks/fail/answer/missing_answer.json"
-  npm run test:cli -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testCreateAnswerMissingId() {
   config_file="resources/mocks/fail/answer/missing_id.json"
-  npm run test:cli -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testCreateAnswerMissingDescription() {
   config_file="resources/mocks/fail/answer/missing_description.json"
-  npm run test:cli -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
@@ -233,44 +238,44 @@ testCreateAnswerMissingType() {
 
 testCreateAnswerInvalidId() {
   config_file="resources/mocks/fail/answer/invalid_id.json"
-  npm run test:cli -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testCreateAnswerInvalidDescription() {
   config_file="resources/mocks/fail/answer/invalid_description.json"
-  npm run test:cli -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testCreateAnswerInvalidShortname() {
   config_file="resources/mocks/fail/answer/invalid_shortname.json"
-  npm run test:cli -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testCreateAnswerInvalidType() {
   config_file="resources/mocks/fail/answer/invalid_type.json"
-  npm run test:cli -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
 testCreateAnswerIncorrectId() {
   config_file="resources/mocks/success/answer/valid_answer.json"
-  npm run test:cli -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
   # ID already in use
-  npm run test:cli -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_ANSWER_ERROR}" "${ret_code}"
 }
 
 testCreateAnswerIncorrectType() {
   config_file="resources/mocks/fail/answer/incorrect_type.json"
-  npm run test:cli -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
@@ -282,7 +287,7 @@ testCreateValidAnswer() {
     config_file="resources/mocks/success/answer/valid_answer.json"
   fi
 
-  npm run test:cli -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_SUCCESS}" "${ret_code}"
 

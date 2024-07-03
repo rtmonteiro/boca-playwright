@@ -19,7 +19,10 @@
 #
 #========================================================================
 
+# Build library
 npm run build
+# Define library command
+cmd="npm run test:cli"
 
 # Testing contest methods (count: 165)
 ./activate_contest.sh
