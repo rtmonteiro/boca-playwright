@@ -34,7 +34,7 @@ export async function createSite(page: Page, site: Site): Promise<Site> {
   await checkSiteNotExists(page, site.id);
   await selectSite(page, undefined);
   await page.locator('input[name="Number"]').fill(site.id);
-  await page.getByRole('button', { name: 'Go' }).click();
+  await page.getByRole('button', { name: 'Go', exact: true }).click();
   // Wait for load state
   await page.waitForLoadState('domcontentloaded');
   await fillSiteForm(page, site);
@@ -362,7 +362,7 @@ async function selectSite(
 ): Promise<void> {
   if (id !== undefined) {
     await checkSiteExists(page, id);
-    await page.locator('select[name="contest"]').selectOption(id);
+    await page.locator('select[name="site"]').selectOption(id);
   } else {
     await page.locator('select[name="site"]').selectOption('new');
   }

@@ -19,18 +19,8 @@
 #
 #========================================================================
 
-# Build library
-npm run build
-# Define command to run tests
-unset cmd
-export cmd="npm run test:cli"
-
-./test_contest.sh
-./test_answer.sh
-./test_language.sh
-./test_problem.sh
-./test_site.sh
-./test_user.sh
-
-# TODO
-# ./update_options.sh
+# Testing site methods (count: 43)
+# ./site/create_site.sh
+./site/get_site.sh
+./site/get_sites.sh
+# ./site/update_site.sh
