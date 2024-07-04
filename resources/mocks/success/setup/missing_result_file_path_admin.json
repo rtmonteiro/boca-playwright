@@ -27,7 +27,7 @@
     "downloadDir": "./tests"
   },
   "site": {
-    "id": "2",
+    "id": "1",
     "name": "Ufes",
     "startDate": "2024-07-08 13:00",
     "endDate": "2024-10-08 23:59",

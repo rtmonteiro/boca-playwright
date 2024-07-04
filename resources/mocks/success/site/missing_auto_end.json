@@ -19,7 +19,6 @@
     "globalScoreSiteIds": "1,2,4",
     "chiefUsername": "johndoe",
     "isActive": "No",
-    "enableAutoEnd": "No",
     "enableAutoJudge": "Yes",
     "scoreLevel": "4"
   }

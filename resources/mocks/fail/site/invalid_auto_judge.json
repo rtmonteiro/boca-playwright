@@ -20,7 +20,7 @@
     "chiefUsername": "johndoe",
     "isActive": "No",
     "enableAutoEnd": "No",
-    "enableAutoJudge": "Yes",
+    "enableAutoJudge": true,
     "scoreLevel": "4"
   }
 }

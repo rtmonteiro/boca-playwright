@@ -19,8 +19,8 @@
 #
 #========================================================================
 
-# Testing site methods (count: 43)
-# ./site/create_site.sh
+# Testing site methods (count: 100)
+./site/create_site.sh
 ./site/get_site.sh
 ./site/get_sites.sh
 # ./site/update_site.sh

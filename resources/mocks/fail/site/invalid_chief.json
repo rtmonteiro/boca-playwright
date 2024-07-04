@@ -17,7 +17,7 @@
     "runsClarsSiteIds": "1,2",
     "tasksSiteIds": "1,2,3",
     "globalScoreSiteIds": "1,2,4",
-    "chiefUsername": "johndoe",
+    "chiefUsername": true,
     "isActive": "No",
     "enableAutoEnd": "No",
     "enableAutoJudge": "Yes",

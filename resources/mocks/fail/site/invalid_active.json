@@ -18,7 +18,7 @@
     "tasksSiteIds": "1,2,3",
     "globalScoreSiteIds": "1,2,4",
     "chiefUsername": "johndoe",
-    "isActive": "No",
+    "isActive": false,
     "enableAutoEnd": "No",
     "enableAutoJudge": "Yes",
     "scoreLevel": "4"

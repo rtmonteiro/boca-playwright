@@ -41,10 +41,10 @@ export const siteSchema = z.object({
   runsClarsSiteIds: z.string().optional(),
   tasksSiteIds: z.string().optional(),
   globalScoreSiteIds: z.string().optional(),
-  chiefUsername: z.string(),
-  isActive: z.union([z.literal('Yes'), z.literal('No')]),
-  enableAutoEnd: z.union([z.literal('Yes'), z.literal('No')]),
-  enableAutoJudge: z.union([z.literal('Yes'), z.literal('No')]),
+  chiefUsername: z.string().optional(),
+  isActive: z.union([z.literal('Yes'), z.literal('No')]).optional(),
+  enableAutoEnd: z.union([z.literal('Yes'), z.literal('No')]).optional(),
+  enableAutoJudge: z.union([z.literal('Yes'), z.literal('No')]).optional(),
   scoreLevel: z
     .union([
       z.literal('-4'),
