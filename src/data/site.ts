@@ -19,24 +19,47 @@
 // ========================================================================
 
 import { z } from 'zod';
+import { SiteMessages, TypeMessages } from '../errors/read_errors';
 
 export type Site = z.infer<typeof siteSchema>;
 
+export type GetSite = z.infer<typeof getSiteSchema>;
+
 // TODO - Test which fields are required, if any
 export const siteSchema = z.object({
-  id: z.number().optional(),
-  name: z.string(),
-  startDate: z.string(),
-  endDate: z.string(),
-  stopAnsweringDate: z.string(),
-  stopScoreboardDate: z.string(),
-  runs: z.number(),
-  tasks: z.number(),
+  id: z
+    .string()
+    .refine((value) => parseInt(value) > 0, {
+      message: TypeMessages.POSITIVE_NUMBER_REQUIRED
+    })
+    .refine((value) => value !== undefined, SiteMessages.ID_REQUIRED),
+  name: z.string().optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+  stopAnsweringDate: z.string().optional(),
+  stopScoreboardDate: z.string().optional(),
+  runsClarsSiteIds: z.string().optional(),
+  tasksSiteIds: z.string().optional(),
+  globalScoreSiteIds: z.string().optional(),
   chiefUsername: z.string(),
-  active: z.boolean(),
-  autoEnd: z.boolean(),
-  globalScore: z.number().optional(),
-  autoJudge: z.boolean().optional(),
-  scoreLevel: z.number().optional(),
-  globalScoreboard: z.number().optional()
+  isActive: z.union([z.literal('Yes'), z.literal('No')]),
+  enableAutoEnd: z.union([z.literal('Yes'), z.literal('No')]),
+  enableAutoJudge: z.union([z.literal('Yes'), z.literal('No')]),
+  scoreLevel: z
+    .union([
+      z.literal('-4'),
+      z.literal('-3'),
+      z.literal('-2'),
+      z.literal('-1'),
+      z.literal('0'),
+      z.literal('1'),
+      z.literal('2'),
+      z.literal('3'),
+      z.literal('4')
+    ])
+    .optional()
+});
+
+export const getSiteSchema = siteSchema.pick({
+  id: true
 });

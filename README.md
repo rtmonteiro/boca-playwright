@@ -103,6 +103,11 @@ TODO
 - restoreProblem
 - updateProblem
 
+- createSite
+- getSite
+- getSites
+- updateSite
+
 - createUser
 - deleteUser
 - getUser
@@ -111,8 +116,6 @@ TODO
 - restoreUser
 - updateUser
 
-- createSite
-- createProblem
 - generateReport
 
 ### Exemplos

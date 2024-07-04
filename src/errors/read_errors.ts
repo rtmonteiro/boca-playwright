@@ -83,6 +83,13 @@ export enum ProblemMessages {
   PCKG_FILE_UNAVAILABLE = 'Problem package file (.zip) unavailable.'
 }
 
+export enum SiteMessages {
+  ID_ALREADY_IN_USE = 'Site number (id) already in use.',
+  ID_REQUIRED = 'Site number (id) should be provided.',
+  NOT_FOUND = 'Site not found.',
+  NEGATIVE_DURATION = 'The end date must be greater than the start date.'
+}
+
 export enum UserMessages {
   CANNOT_DELETE = 'User cannot be deleted/disabled.',
   FILE_NOT_FOUND = 'File not found.',
@@ -100,6 +107,7 @@ type ErrorMessages =
   | AnswerMessages
   | LanguageMessages
   | ProblemMessages
+  | SiteMessages
   | UserMessages;
 
 export class ErrorBase extends Error {
@@ -148,6 +156,12 @@ export class LanguageError extends ErrorBase {
 export class ProblemError extends ErrorBase {
   constructor(message: ProblemMessages, cause?: unknown) {
     super({ code: ExitErrors.PROBLEM_ERROR, message, cause });
+  }
+}
+
+export class SiteError extends ErrorBase {
+  constructor(message: SiteMessages, cause?: unknown) {
+    super({ code: ExitErrors.SITE_ERROR, message, cause });
   }
 }
 

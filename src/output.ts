@@ -23,6 +23,7 @@ import { type Contest } from './data/contest';
 import { type Answer } from './data/answer';
 import { type Language } from './data/language';
 import { type Problem } from './data/problem';
+import { type Site } from './data/site';
 import { type User } from './data/user';
 
 export class Output {
@@ -52,6 +53,8 @@ export class Output {
       | Language[]
       | Problem
       | Problem[]
+      | Site
+      | Site[]
       | User
       | User[]
   ) {

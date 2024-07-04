@@ -36,7 +36,7 @@ import {
 } from './problem';
 import { reportSchema } from './report';
 import { type Setup } from './setup';
-import { siteSchema } from './site';
+import { getSiteSchema, siteSchema } from './site';
 import {
   type User,
   getUserSchema,
@@ -175,6 +175,24 @@ export class Validate {
     return this.setup as z.infer<typeof setupType>;
   }
 
+  createSite(): z.infer<typeof setupType> {
+    const setupType = z.object({
+      login: authSchema,
+      site: siteSchema
+    });
+    setupType.parse(this.setup);
+    return this.setup as z.infer<typeof setupType>;
+  }
+
+  getSite(): z.infer<typeof setupType> {
+    const setupType = z.object({
+      login: authSchema,
+      site: getSiteSchema
+    });
+    setupType.parse(this.setup);
+    return this.setup as z.infer<typeof setupType>;
+  }
+
   createUser(): z.infer<typeof setupType> {
     const setupType = z.object({
       login: authSchema,
@@ -197,15 +215,6 @@ export class Validate {
     const setupType = z.object({
       login: authSchema,
       config: importUsersSchema
-    });
-    setupType.parse(this.setup);
-    return this.setup as z.infer<typeof setupType>;
-  }
-
-  createSite(): z.infer<typeof setupType> {
-    const setupType = z.object({
-      login: authSchema,
-      site: siteSchema // TODO - Review if it should be optional
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;
