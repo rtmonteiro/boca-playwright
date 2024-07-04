@@ -43,26 +43,26 @@ export const contestSchema = z.object({
   stopScoreboardDate: z.string().optional(),
   penalty: z
     .string()
-    .refine((value) => parseInt(value), {
+    .refine((value) => parseInt(value) > 0, {
       message: TypeMessages.POSITIVE_NUMBER_REQUIRED
     })
     .optional(),
   maxFileSize: z
     .string()
-    .refine((value) => parseInt(value), {
+    .refine((value) => parseInt(value) > 0, {
       message: TypeMessages.POSITIVE_NUMBER_REQUIRED
     })
     .optional(),
   mainSiteUrl: z.string().optional(),
   mainSiteId: z
     .string()
-    .refine((value) => parseInt(value), {
+    .refine((value) => parseInt(value) > 0, {
       message: TypeMessages.POSITIVE_NUMBER_REQUIRED
     })
     .optional(),
   localSiteId: z
     .string()
-    .refine((value) => parseInt(value), {
+    .refine((value) => parseInt(value) > 0, {
       message: TypeMessages.POSITIVE_NUMBER_REQUIRED
     })
     .optional(),
