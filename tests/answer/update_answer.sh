@@ -44,15 +44,15 @@ oneTimeSetUp() {
     $cmd -- -p "${config_file}" -m activateContest >/dev/null 2>&1
     ret_code=$?
   fi
-  # Check if answer exists. If not, create it.
-  config_file="resources/mocks/success/answer/valid_answer.json"
-  $cmd -- -p "${config_file}" -m getAnswer >/dev/null 2>&1
-  ret_code=$?
-  if [ "${ret_code}" != "${RET_SUCCESS}" ]; then
-    $cmd -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
+  # Check if answer exists. If it does not, create it.
+  if [ "${ret_code}" = "${RET_SUCCESS}" ]; then
+    config_file="resources/mocks/success/answer/valid_answer.json"
+    $cmd -- -p "${config_file}" -m getAnswer >/dev/null 2>&1
     ret_code=$?
-  else
-    ret_code="${RET_SUCCESS}"
+    if [ "${ret_code}" != "${RET_SUCCESS}" ]; then
+      $cmd -- -p "${config_file}" -m createAnswer >/dev/null 2>&1
+      ret_code=$?
+    fi
   fi
   return "${ret_code}"
 }

@@ -44,16 +44,27 @@ oneTimeSetUp() {
     $cmd -- -p "${config_file}" -m activateContest >/dev/null 2>&1
     ret_code=$?
   fi
-  # Check if site exists. If not, create it.
-  # TODO
-  config_file="resources/mocks/success/user/valid_user.json"
-  $cmd -- -p "${config_file}" -m getUser >/dev/null 2>&1
-  ret_code=$?
-  if [ "${ret_code}" != "${RET_SUCCESS}" ]; then
-    $cmd -- -p "${config_file}" -m createUser >/dev/null 2>&1
+  # Check if site exists. If it does not, create it.
+  if [ "${ret_code}" = "${RET_SUCCESS}" ]; then
+    config_file="resources/mocks/success/site/valid_site.json"
+    $cmd -- -p "${config_file}" -m getSite >/dev/null 2>&1
     ret_code=$?
-  else
-    ret_code="${RET_SUCCESS}"
+    if [ "${ret_code}" != "${RET_SUCCESS}" ]; then
+      $cmd -- -p "${config_file}" -m createSite >/dev/null 2>&1
+      ret_code=$?
+    fi
+  fi
+  # Check if user exists. If it does not, create it.
+  if [ "${ret_code}" = "${RET_SUCCESS}" ]; then
+    config_file="resources/mocks/success/user/valid_user.json"
+    $cmd -- -p "${config_file}" -m getUser >/dev/null 2>&1
+    ret_code=$?
+    if [ "${ret_code}" != "${RET_SUCCESS}" ]; then
+      $cmd -- -p "${config_file}" -m createUser >/dev/null 2>&1
+      ret_code=$?
+    else
+      ret_code="${RET_SUCCESS}"
+    fi
   fi
   return "${ret_code}"
 }
