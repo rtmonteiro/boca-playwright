@@ -194,12 +194,12 @@ testImportUsersIncorrectPassword() {
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
-# testImportUsersMissingUserData() {
-#   config_file="resources/mocks/fail/user/missing_user.json"
-#   $cmd -- -p "${config_file}" -m importUsers >/dev/null 2>&1;
-#   ret_code=$?
-#   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
-# }
+testImportUsersMissingUserData() {
+  config_file="resources/mocks/fail/user/missing_user.json"
+  $cmd -- -p "${config_file}" -m importUsers >/dev/null 2>&1;
+  ret_code=$?
+  assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
+}
 
 testImportUsersMissingUserFilePath() {
   config_file="resources/mocks/fail/user/missing_user_file_path.json"
