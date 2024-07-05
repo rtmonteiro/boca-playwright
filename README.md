@@ -104,6 +104,9 @@ TODO
 - updateProblem
 
 - createSite
+- disableLoginSite
+- enableLoginSite
+- forceLogoffSite
 - getSite
 - getSites
 - updateSite
