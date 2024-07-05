@@ -81,6 +81,19 @@ export async function getSites(page: Page): Promise<Site[]> {
   return sites;
 }
 
+export async function logoffUsersSite(
+  page: Page,
+  id: Site['id']
+): Promise<void> {
+  await page.goto(BASE_URL + '/admin/site.php');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
+
+  await selectSite(page, id);
+  page.once('dialog', dialogHandler);
+  await page.getByRole('button', { name: 'Logoff' }).click();
+}
+
 export async function updateSite(page: Page, site: Site): Promise<Site> {
   await page.goto(BASE_URL + '/admin/site.php');
   // Wait for load state

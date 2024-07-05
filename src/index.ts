@@ -64,7 +64,13 @@ import {
   restoreProblem,
   updateProblem
 } from './scripts/problem';
-import { createSite, getSite, getSites, updateSite } from './scripts/site';
+import {
+  createSite,
+  getSite,
+  getSites,
+  logoffUsersSite,
+  updateSite
+} from './scripts/site';
 import {
   createUser,
   deleteUser,
@@ -805,7 +811,7 @@ async function shouldGetSite(setup: Setup): Promise<void> {
   // validate setup file with zod
   const validate = new Validate(setup);
   const setupValidated = validate.getSite();
-  const system: Auth = setupValidated.login;
+  const admin: Auth = setupValidated.login;
   const site = setupValidated.site;
 
   const browser = await chromium.launch({
@@ -817,7 +823,7 @@ async function shouldGetSite(setup: Setup): Promise<void> {
   // Create a new page inside context.
   const page = await context.newPage();
   page.setDefaultTimeout(TIMEOUT);
-  await authenticateUser(page, system);
+  await authenticateUser(page, admin);
   await validate.checkUserType(page, 'Admin');
   const form = await getSite(page, site.id);
   // Dispose context once it's no longer needed.
@@ -836,7 +842,7 @@ async function shouldGetSites(setup: Setup): Promise<void> {
   // validate setup file with zod
   const validate = new Validate(setup);
   const setupValidated = validate.checkAuthentication();
-  const system: Auth = setupValidated.login;
+  const admin: Auth = setupValidated.login;
 
   const browser = await chromium.launch({
     headless: HEADLESS,
@@ -847,7 +853,7 @@ async function shouldGetSites(setup: Setup): Promise<void> {
   // Create a new page inside context.
   const page = await context.newPage();
   page.setDefaultTimeout(TIMEOUT);
-  await authenticateUser(page, system);
+  await authenticateUser(page, admin);
   await validate.checkUserType(page, 'Admin');
   const form = await getSites(page);
   // Dispose context once it's no longer needed.
@@ -858,6 +864,35 @@ async function shouldGetSites(setup: Setup): Promise<void> {
   output.setResult(form);
 }
 
+async function shouldLogoffUsersSite(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Logging off site users');
+
+  // validate setup file with zod
+  const validate = new Validate(setup);
+  const setupValidated = validate.getSite();
+  const admin: Auth = setupValidated.login;
+  const site = setupValidated.site;
+
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
+  // Create a new incognito browser context
+  const context = await browser.newContext();
+  // Create a new page inside context.
+  const page = await context.newPage();
+  page.setDefaultTimeout(TIMEOUT);
+  await authenticateUser(page, admin);
+  await validate.checkUserType(page, 'Admin');
+  await logoffUsersSite(page, site.id);
+  // Dispose context once it's no longer needed.
+  await context.close();
+  await browser.close();
+  logger.logInfo('Logged off users from site with id: %s', site.id);
+}
+
 async function shouldUpdateSite(setup: Setup): Promise<void> {
   // instantiate logger
   const logger = Logger.getInstance();
@@ -866,7 +901,7 @@ async function shouldUpdateSite(setup: Setup): Promise<void> {
   // validate setup file with zod
   const validate = new Validate(setup);
   const setupValidated = validate.createSite();
-  const system: Auth = setupValidated.login;
+  const admin: Auth = setupValidated.login;
   const site: Site = setupValidated.site;
 
   const browser = await chromium.launch({
@@ -878,7 +913,7 @@ async function shouldUpdateSite(setup: Setup): Promise<void> {
   // Create a new page inside context.
   const page = await context.newPage();
   page.setDefaultTimeout(TIMEOUT);
-  await authenticateUser(page, system);
+  await authenticateUser(page, admin);
   await validate.checkUserType(page, 'Admin');
   const form = await updateSite(page, site);
   // Dispose context once it's no longer needed.
@@ -1021,7 +1056,7 @@ async function shouldGetUsers(setup: Setup): Promise<void> {
 async function shouldImportUsers(setup: Setup): Promise<void> {
   // instantiate logger
   const logger = Logger.getInstance();
-  logger.logInfo('Creating users');
+  logger.logInfo('Importing users from file');
 
   // validate setup file with zod
   const validate = new Validate(setup);
@@ -1046,6 +1081,7 @@ async function shouldImportUsers(setup: Setup): Promise<void> {
   // Dispose context once it's no longer needed.
   await context.close();
   await browser.close();
+  logger.logInfo('Imported users from file');
 }
 
 async function shouldRestoreUser(setup: Setup): Promise<void> {
@@ -1179,6 +1215,7 @@ const methods: Record<string, (setup: Setup) => Promise<void>> = {
   createSite: shouldCreateSite,
   getSite: shouldGetSite,
   getSites: shouldGetSites,
+  logoffUsersSite: shouldLogoffUsersSite,
   updateSite: shouldUpdateSite,
   // Users
   createUser: shouldCreateUser,
