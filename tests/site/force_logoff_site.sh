@@ -74,64 +74,64 @@ oneTimeTearDown() {
   return 0
 }
 
-testLogoffUsersSiteMissingPathArgument() {
-  $cmd -- -m logoffUsersSite >/dev/null 2>&1
+testForceLogoffSiteMissingPathArgument() {
+  $cmd -- -m forceLogoffSite >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_ARGS_VALIDATION}" "${ret_code}"
 }
 
-testLogoffUsersSiteMissingMethodArgument() {
+testForceLogoffSiteMissingMethodArgument() {
   config_file="resources/mocks/success/site/valid_site.json"
   $cmd -- -p "${config_file}" >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_ARGS_VALIDATION}" "${ret_code}"
 }
 
-testLogoffUsersSiteIncorrectPathArgument() {
+testForceLogoffSiteIncorrectPathArgument() {
   config_file="resources/mocks/fake.json"
-  $cmd -- -p "${config_file}" -m logoffUsersSite >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m forceLogoffSite >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_ARGS_VALIDATION}" "${ret_code}"
 }
 
-testLogoffUsersSiteIncorrectMethodArgument() {
+testForceLogoffSiteIncorrectMethodArgument() {
   config_file="resources/mocks/success/site/valid_site.json"
-  $cmd -- -p "${config_file}" -m logoffUsersSiteFake >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m forceLogoffSiteFake >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_ARGS_VALIDATION}" "${ret_code}"
 }
 
-testLogoffUsersSiteMissingConfigData() {
+testForceLogoffSiteMissingConfigData() {
   config_file="resources/mocks/fail/setup/missing_config.json"
-  $cmd -- -p "${config_file}" -m logoffUsersSite >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m forceLogoffSite >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
-testLogoffUsersSiteMissingBocaUrl() {
+testForceLogoffSiteMissingBocaUrl() {
   config_file="resources/mocks/fail/setup/missing_url.json"
-  $cmd -- -p "${config_file}" -m logoffUsersSite >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m forceLogoffSite >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
-testLogoffUsersSiteMissingResultFilePath() {
+testForceLogoffSiteMissingResultFilePath() {
   config_file="resources/mocks/success/setup/missing_result_file_path_admin.json"
-  $cmd -- -p "${config_file}" -m logoffUsersSite >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m forceLogoffSite >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_SUCCESS}" "${ret_code}"
 }
 
-testLogoffUsersSiteInvalidBocaUrl() {
+testForceLogoffSiteInvalidBocaUrl() {
   config_file="resources/mocks/fail/setup/invalid_url.json"
-  $cmd -- -p "${config_file}" -m logoffUsersSite >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m forceLogoffSite >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
-testLogoffUsersSiteInvalidResultFilePath() {
+testForceLogoffSiteInvalidResultFilePath() {
   config_file="resources/mocks/fail/setup/invalid_result_file_path.json"
-  $cmd -- -p "${config_file}" -m logoffUsersSite >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m forceLogoffSite >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 
@@ -140,100 +140,100 @@ testLogoffUsersSiteInvalidResultFilePath() {
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
-testLogoffUsersSiteIncorrectBocaUrl() {
+testForceLogoffSiteIncorrectBocaUrl() {
   config_file="resources/mocks/fail/setup/incorrect_url.json"
-  $cmd -- -p "${config_file}" -m logoffUsersSite >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m forceLogoffSite >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
-testLogoffUsersSiteIncorrectResultFilePath() {
+testForceLogoffSiteIncorrectResultFilePath() {
   config_file="resources/mocks/fail/setup/incorrect_result_file_path.json"
-  $cmd -- -p "${config_file}" -m logoffUsersSite >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m forceLogoffSite >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
-testLogoffUsersSiteMissingLoginData() {
+testForceLogoffSiteMissingLoginData() {
   config_file="resources/mocks/fail/login/missing_login.json"
-  $cmd -- -p "${config_file}" -m logoffUsersSite >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m forceLogoffSite >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
-testLogoffUsersSiteMissingUsername() {
+testForceLogoffSiteMissingUsername() {
   config_file="resources/mocks/fail/login/missing_username.json"
-  $cmd -- -p "${config_file}" -m logoffUsersSite >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m forceLogoffSite >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
-testLogoffUsersSiteMissingPassword() {
+testForceLogoffSiteMissingPassword() {
   config_file="resources/mocks/fail/login/missing_password.json"
-  $cmd -- -p "${config_file}" -m logoffUsersSite >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m forceLogoffSite >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
-testLogoffUsersSiteInvalidUsername() {
+testForceLogoffSiteInvalidUsername() {
   config_file="resources/mocks/fail/login/invalid_username.json"
-  $cmd -- -p "${config_file}" -m logoffUsersSite >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m forceLogoffSite >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
-testLogoffUsersSiteInvalidPassword() {
+testForceLogoffSiteInvalidPassword() {
   config_file="resources/mocks/fail/login/invalid_password.json"
-  $cmd -- -p "${config_file}" -m logoffUsersSite >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m forceLogoffSite >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
-testLogoffUsersSiteIncorrectUsername() {
+testForceLogoffSiteIncorrectUsername() {
   config_file="resources/mocks/fail/login/incorrect_username.json"
-  $cmd -- -p "${config_file}" -m logoffUsersSite >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m forceLogoffSite >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
-testLogoffUsersSiteIncorrectPassword() {
+testForceLogoffSiteIncorrectPassword() {
   config_file="resources/mocks/fail/login/incorrect_password.json"
-  $cmd -- -p "${config_file}" -m logoffUsersSite >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m forceLogoffSite >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
-testLogoffUsersSiteMissingSiteData() {
+testForceLogoffSiteMissingSiteData() {
   config_file="resources/mocks/fail/site/missing_site.json"
-  $cmd -- -p "${config_file}" -m logoffUsersSite >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m forceLogoffSite >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
-testLogoffUsersSiteMissingId() {
+testForceLogoffSiteMissingId() {
   config_file="resources/mocks/fail/site/missing_id.json"
-  $cmd -- -p "${config_file}" -m logoffUsersSite >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m forceLogoffSite >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
-testLogoffUsersSiteInvalidId() {
+testForceLogoffSiteInvalidId() {
   config_file="resources/mocks/fail/site/invalid_id.json"
-  $cmd -- -p "${config_file}" -m logoffUsersSite >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m forceLogoffSite >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
 
-testLogoffUsersSiteIncorrectId() {
+testForceLogoffSiteIncorrectId() {
   config_file="resources/mocks/fail/site/incorrect_id.json"
-  $cmd -- -p "${config_file}" -m logoffUsersSite >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m forceLogoffSite >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_SITE_ERROR}" "${ret_code}"
 }
 
-testLogoffUsersValidSite() {
+testForceLogoffValidSite() {
   config_file="resources/mocks/success/site/valid_site.json"
-  $cmd -- -p "${config_file}" -m logoffUsersSite >/dev/null 2>&1
+  $cmd -- -p "${config_file}" -m forceLogoffSite >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_SUCCESS}" "${ret_code}"
 }

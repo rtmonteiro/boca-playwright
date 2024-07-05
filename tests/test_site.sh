@@ -19,9 +19,11 @@
 #
 #========================================================================
 
-# Testing site methods (count: 180)
+# Testing site methods (count: 226)
 ./site/create_site.sh
+./site/disable_login_site.sh
+./site/enable_login_site.sh
+./site/force_logoff_site.sh
 ./site/get_site.sh
 ./site/get_sites.sh
-./site/logoff_users_site.sh
 ./site/update_site.sh

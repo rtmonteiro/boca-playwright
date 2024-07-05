@@ -66,9 +66,11 @@ import {
 } from './scripts/problem';
 import {
   createSite,
+  disableLoginSite,
+  enableLoginSite,
+  forceLogoffSite,
   getSite,
   getSites,
-  logoffUsersSite,
   updateSite
 } from './scripts/site';
 import {
@@ -803,6 +805,93 @@ async function shouldCreateSite(setup: Setup): Promise<void> {
   output.setResult(form);
 }
 
+async function shouldDisableLoginSite(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Disabling user login in site');
+
+  // validate setup file with zod
+  const validate = new Validate(setup);
+  const setupValidated = validate.getSite();
+  const admin: Auth = setupValidated.login;
+  const site = setupValidated.site;
+
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
+  // Create a new incognito browser context
+  const context = await browser.newContext();
+  // Create a new page inside context.
+  const page = await context.newPage();
+  page.setDefaultTimeout(TIMEOUT);
+  await authenticateUser(page, admin);
+  await validate.checkUserType(page, 'Admin');
+  await disableLoginSite(page, site.id);
+  // Dispose context once it's no longer needed.
+  await context.close();
+  await browser.close();
+  logger.logInfo('Disabled user login in site with id: %s', site.id);
+}
+
+async function shouldEnableLoginSite(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Enabling user login in site');
+
+  // validate setup file with zod
+  const validate = new Validate(setup);
+  const setupValidated = validate.getSite();
+  const admin: Auth = setupValidated.login;
+  const site = setupValidated.site;
+
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
+  // Create a new incognito browser context
+  const context = await browser.newContext();
+  // Create a new page inside context.
+  const page = await context.newPage();
+  page.setDefaultTimeout(TIMEOUT);
+  await authenticateUser(page, admin);
+  await validate.checkUserType(page, 'Admin');
+  await enableLoginSite(page, site.id);
+  // Dispose context once it's no longer needed.
+  await context.close();
+  await browser.close();
+  logger.logInfo('Enabled user login in site with id: %s', site.id);
+}
+
+async function shouldForceLogoffSite(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Forcing user logoff from site');
+
+  // validate setup file with zod
+  const validate = new Validate(setup);
+  const setupValidated = validate.getSite();
+  const admin: Auth = setupValidated.login;
+  const site = setupValidated.site;
+
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
+  // Create a new incognito browser context
+  const context = await browser.newContext();
+  // Create a new page inside context.
+  const page = await context.newPage();
+  page.setDefaultTimeout(TIMEOUT);
+  await authenticateUser(page, admin);
+  await validate.checkUserType(page, 'Admin');
+  await forceLogoffSite(page, site.id);
+  // Dispose context once it's no longer needed.
+  await context.close();
+  await browser.close();
+  logger.logInfo('Forced user logoff from site with id: %s', site.id);
+}
+
 async function shouldGetSite(setup: Setup): Promise<void> {
   // instantiate logger
   const logger = Logger.getInstance();
@@ -862,35 +951,6 @@ async function shouldGetSites(setup: Setup): Promise<void> {
   logger.logInfo('Found %s sites', form.length);
   const output = Output.getInstance();
   output.setResult(form);
-}
-
-async function shouldLogoffUsersSite(setup: Setup): Promise<void> {
-  // instantiate logger
-  const logger = Logger.getInstance();
-  logger.logInfo('Logging off site users');
-
-  // validate setup file with zod
-  const validate = new Validate(setup);
-  const setupValidated = validate.getSite();
-  const admin: Auth = setupValidated.login;
-  const site = setupValidated.site;
-
-  const browser = await chromium.launch({
-    headless: HEADLESS,
-    slowMo: STEP_DURATION
-  });
-  // Create a new incognito browser context
-  const context = await browser.newContext();
-  // Create a new page inside context.
-  const page = await context.newPage();
-  page.setDefaultTimeout(TIMEOUT);
-  await authenticateUser(page, admin);
-  await validate.checkUserType(page, 'Admin');
-  await logoffUsersSite(page, site.id);
-  // Dispose context once it's no longer needed.
-  await context.close();
-  await browser.close();
-  logger.logInfo('Logged off users from site with id: %s', site.id);
 }
 
 async function shouldUpdateSite(setup: Setup): Promise<void> {
@@ -1213,9 +1273,11 @@ const methods: Record<string, (setup: Setup) => Promise<void>> = {
   updateProblem: shouldUpdateProblem,
   // Sites
   createSite: shouldCreateSite,
+  disableLoginSite: shouldDisableLoginSite,
+  enableLoginSite: shouldEnableLoginSite,
   getSite: shouldGetSite,
   getSites: shouldGetSites,
-  logoffUsersSite: shouldLogoffUsersSite,
+  forceLogoffSite: shouldForceLogoffSite,
   updateSite: shouldUpdateSite,
   // Users
   createUser: shouldCreateUser,

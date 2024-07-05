@@ -43,6 +43,51 @@ export async function createSite(page: Page, site: Site): Promise<Site> {
   return await getSiteFromForm(page);
 }
 
+export async function disableLoginSite(
+  page: Page,
+  id: Site['id']
+): Promise<void> {
+  await page.goto(BASE_URL + '/admin/site.php');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
+
+  await selectSite(page, id);
+  page.once('dialog', dialogHandler);
+  await page
+    .getByRole('button', { name: 'Logins' })
+    .getByText('Disable logins')
+    .click();
+}
+
+export async function enableLoginSite(
+  page: Page,
+  id: Site['id']
+): Promise<void> {
+  await page.goto(BASE_URL + '/admin/site.php');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
+
+  await selectSite(page, id);
+  page.once('dialog', dialogHandler);
+  await page
+    .getByRole('button', { name: 'Logins' })
+    .getByText('Enable logins')
+    .click();
+}
+
+export async function forceLogoffSite(
+  page: Page,
+  id: Site['id']
+): Promise<void> {
+  await page.goto(BASE_URL + '/admin/site.php');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
+
+  await selectSite(page, id);
+  page.once('dialog', dialogHandler);
+  await page.getByRole('button', { name: 'Logoff' }).click();
+}
+
 export async function getSite(page: Page, id: Site['id']): Promise<Site> {
   await page.goto(BASE_URL + '/admin/site.php');
   // Wait for load state
@@ -81,19 +126,6 @@ export async function getSites(page: Page): Promise<Site[]> {
   return sites;
 }
 
-export async function logoffUsersSite(
-  page: Page,
-  id: Site['id']
-): Promise<void> {
-  await page.goto(BASE_URL + '/admin/site.php');
-  // Wait for load state
-  await page.waitForLoadState('domcontentloaded');
-
-  await selectSite(page, id);
-  page.once('dialog', dialogHandler);
-  await page.getByRole('button', { name: 'Logoff' }).click();
-}
-
 export async function updateSite(page: Page, site: Site): Promise<Site> {
   await page.goto(BASE_URL + '/admin/site.php');
   // Wait for load state
@@ -130,7 +162,7 @@ async function checkSiteNotExists(page: Page, id: string) {
   }
 }
 
-export async function fillSiteForm(page: Page, site: Site): Promise<void> {
+async function fillSiteForm(page: Page, site: Site): Promise<void> {
   if (site.name !== undefined) {
     await page.locator('input[name="name"]').fill(site.name);
   }
