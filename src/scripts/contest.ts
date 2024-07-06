@@ -100,10 +100,7 @@ export async function getContests(page: Page): Promise<Contest[]> {
     // Wait for load state
     await page.waitForLoadState('domcontentloaded');
     await selectContest(page, option!);
-    const contest: Contest = await getContestFromForm(page);
-    if (contest !== undefined && contest.id !== '0') {
-      contests.push(contest);
-    }
+    contests.push(await getContestFromForm(page));
   }
   return contests;
 }
