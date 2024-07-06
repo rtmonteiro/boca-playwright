@@ -51,9 +51,40 @@ export async function deleteLanguage(
   const row = await checkLanguageExists(page, id);
   const language: Language = await getLanguageFromRow(page, id);
   page.on('dialog', dialogHandler);
-  await row.locator('td:nth-of-type(1) a').click();
+  await row.locator('td:nth-of-type(1) > a').click();
   page.removeListener('dialog', dialogHandler);
   return language;
+}
+
+export async function deleteLanguages(page: Page): Promise<Language[]> {
+  await page.goto(BASE_URL + '/admin/language.php');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
+
+  const loc = page.locator('td:nth-of-type(1)', {
+    hasNotText: 'Language #'
+  });
+  const rows = await page.locator('table:nth-of-type(3) > tbody > tr', {
+    has: loc
+  });
+  const rowCount = await rows.count();
+  const languages: Language[] = [];
+  // Find deletable languages
+  for (let i = 0; i < rowCount; i++) {
+    const row = rows.nth(i);
+    if ((await row.locator('td:nth-of-type(1) > a').count()) === 0) continue;
+    languages.push({
+      id: await row.locator('td:nth-of-type(1)').innerText(),
+      name: await row.locator('td:nth-of-type(2)').innerText(),
+      extension: await row.locator('td:nth-of-type(3)').innerText()
+    });
+  }
+  // Delete them
+  for (let i = 0; i < languages.length; i++) {
+    await deleteLanguage(page, languages[i].id);
+  }
+  // Return deleted languages
+  return languages;
 }
 
 export async function getLanguage(
@@ -109,8 +140,9 @@ export async function updateLanguage(
 
 async function checkLanguageExists(page: Page, id: string): Promise<Locator> {
   const loc = 'td:nth-of-type(1)';
+  const re = new RegExp(`^${id}$`);
   const row = await page.locator('table:nth-of-type(3) > tbody > tr', {
-    has: page.locator(loc, { hasText: id })
+    has: page.locator(loc, { hasText: re })
   });
   if ((await row.count()) === 0) {
     throw new LanguageError(LanguageMessages.NOT_FOUND);
@@ -123,8 +155,9 @@ async function checkLanguageNotExists(
   id: string
 ): Promise<Locator> {
   const loc = 'td:nth-of-type(1)';
+  const re = new RegExp(`^${id}$`);
   const row = await page.locator('table:nth-of-type(3) > tbody > tr', {
-    has: page.locator(loc, { hasText: id })
+    has: page.locator(loc, { hasText: re })
   });
   if ((await row.count()) > 0) {
     throw new LanguageError(LanguageMessages.ID_ALREADY_IN_USE);

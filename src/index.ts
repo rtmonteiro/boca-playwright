@@ -52,6 +52,7 @@ import {
 import {
   createLanguage,
   deleteLanguage,
+  deleteLanguages,
   getLanguage,
   getLanguages,
   updateLanguage
@@ -491,6 +492,36 @@ async function shouldDeleteLanguage(setup: Setup): Promise<void> {
   await context.close();
   await browser.close();
   logger.logInfo('Deleted language with id: %s', form.id);
+  const output = Output.getInstance();
+  output.setResult(form);
+}
+
+async function shouldDeleteLanguages(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Getting languages');
+
+  // validate setup file with zod
+  const validate = new Validate(setup);
+  const setupValidated = validate.checkAuthentication();
+  const admin: Auth = setupValidated.login;
+
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
+  // Create a new incognito browser context
+  const context = await browser.newContext();
+  // Create a new page inside context.
+  const page = await context.newPage();
+  page.setDefaultTimeout(TIMEOUT);
+  await authenticateUser(page, admin);
+  await validate.checkUserType(page, 'Admin');
+  const form = await deleteLanguages(page);
+  // Dispose context once it's no longer needed.
+  await context.close();
+  await browser.close();
+  logger.logInfo('Found %s languages', form.length);
   const output = Output.getInstance();
   output.setResult(form);
 }
@@ -1290,6 +1321,7 @@ const methods: Record<string, (setup: Setup) => Promise<void>> = {
   // Languages
   createLanguage: shouldCreateLanguage,
   deleteLanguage: shouldDeleteLanguage,
+  deleteLanguages: shouldDeleteLanguages,
   getLanguage: shouldGetLanguage,
   getLanguages: shouldGetLanguages,
   updateLanguage: shouldUpdateLanguage,

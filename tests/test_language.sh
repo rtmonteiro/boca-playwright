@@ -19,9 +19,10 @@
 #
 #========================================================================
 
-# Testing language methods (count: 120)
+# Testing language methods (count: 140)
 ./language/create_language.sh
 ./language/delete_language.sh
+./language/delete_languages.sh
 ./language/get_language.sh
 ./language/get_languages.sh
 ./language/update_language.sh
