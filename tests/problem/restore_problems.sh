@@ -48,7 +48,7 @@ oneTimeSetUp() {
 
 # It will be called before each test is run.
 setUp() {
-  # [ -f "./result.json" ] && rm "./result.json"
+  [ -f "./result.json" ] && rm "./result.json"
   return 0
 }
 
@@ -59,7 +59,7 @@ tearDown() {
 
 # It will be called after the last test completes.
 oneTimeTearDown() {
-  # [ -f "./result.json" ] && rm "./result.json"
+  [ -f "./result.json" ] && rm "./result.json"
   return 0
 }
 
