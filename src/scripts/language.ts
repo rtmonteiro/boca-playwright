@@ -73,11 +73,8 @@ export async function deleteLanguages(page: Page): Promise<Language[]> {
   for (let i = 0; i < rowCount; i++) {
     const row = rows.nth(i);
     if ((await row.locator('td:nth-of-type(1) > a').count()) === 0) continue;
-    languages.push({
-      id: await row.locator('td:nth-of-type(1)').innerText(),
-      name: await row.locator('td:nth-of-type(2)').innerText(),
-      extension: await row.locator('td:nth-of-type(3)').innerText()
-    });
+    const id = await row.locator('td:nth-of-type(1)').innerText();
+    languages.push(await getLanguage(page, id));
   }
   // Delete them
   for (let i = 0; i < languages.length; i++) {
@@ -113,11 +110,8 @@ export async function getLanguages(page: Page): Promise<Language[]> {
   const languages: Language[] = [];
   for (let i = 0; i < rowCount; i++) {
     const row = rows.nth(i);
-    languages.push({
-      id: await row.locator('td:nth-of-type(1)').innerText(),
-      name: await row.locator('td:nth-of-type(2)').innerText(),
-      extension: await row.locator('td:nth-of-type(3)').innerText()
-    });
+    const id = await row.locator('td:nth-of-type(1)').innerText();
+    languages.push(await getLanguage(page, id));
   }
   return languages;
 }
