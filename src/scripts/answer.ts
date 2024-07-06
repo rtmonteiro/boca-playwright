@@ -77,14 +77,8 @@ export async function deleteAnswers(page: Page): Promise<Answer[]> {
   for (let i = 0; i < rowCount; i++) {
     const row = rows.nth(i);
     if ((await row.locator('td:nth-of-type(1) > a').count()) === 0) continue;
-    answers.push({
-      id: await row.locator('td:nth-of-type(1)').innerText(),
-      description: await row.locator('td:nth-of-type(2)').innerText(),
-      shortname: await row.locator('td:nth-of-type(3)').innerText(),
-      type: (await row
-        .locator('td:nth-of-type(4)')
-        .innerText()) as Answer['type']
-    });
+    const id = await row.locator('td:nth-of-type(1)').innerText();
+    answers.push(await getAnswer(page, id));
   }
   // Delete them
   for (let i = 0; i < answers.length; i++) {
@@ -118,14 +112,8 @@ export async function getAnswers(page: Page): Promise<Answer[]> {
   const answers: Answer[] = [];
   for (let i = 0; i < rowCount; i++) {
     const row = rows.nth(i);
-    answers.push({
-      id: await row.locator('td:nth-of-type(1)').innerText(),
-      description: await row.locator('td:nth-of-type(2)').innerText(),
-      shortname: await row.locator('td:nth-of-type(3)').innerText(),
-      type: (await row
-        .locator('td:nth-of-type(4)')
-        .innerText()) as Answer['type']
-    });
+    const id = await row.locator('td:nth-of-type(1)').innerText();
+    answers.push(await getAnswer(page, id));
   }
   return answers;
 }
