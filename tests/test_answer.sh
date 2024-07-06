@@ -19,9 +19,10 @@
 #
 #========================================================================
 
-# Testing answer methods (count: 126)
+# Testing answer methods (count: 146)
 ./answer/create_answer.sh
 ./answer/delete_answer.sh
+./answer/delete_answers.sh
 ./answer/get_answer.sh
 ./answer/get_answers.sh
 ./answer/update_answer.sh

@@ -59,6 +59,41 @@ export async function deleteAnswer(
   return answer;
 }
 
+export async function deleteAnswers(page: Page): Promise<Answer[]> {
+  await page.goto(BASE_URL + '/admin/answer.php');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
+
+  const re = new RegExp(`^(Answer #|0 \\(fake\\))$`);
+  const loc = page.locator('td:nth-of-type(1)', {
+    hasNotText: re
+  });
+  const rows = await page.locator('table:nth-of-type(3) > tbody > tr', {
+    has: loc
+  });
+  const rowCount = await rows.count();
+  const answers: Answer[] = [];
+  // Find deletable answers
+  for (let i = 0; i < rowCount; i++) {
+    const row = rows.nth(i);
+    if ((await row.locator('td:nth-of-type(1) > a').count()) === 0) continue;
+    answers.push({
+      id: await row.locator('td:nth-of-type(1)').innerText(),
+      description: await row.locator('td:nth-of-type(2)').innerText(),
+      shortname: await row.locator('td:nth-of-type(3)').innerText(),
+      type: (await row
+        .locator('td:nth-of-type(4)')
+        .innerText()) as Answer['type']
+    });
+  }
+  // Delete them
+  for (let i = 0; i < answers.length; i++) {
+    await deleteAnswer(page, answers[i].id);
+  }
+  // Return deleted answers
+  return answers;
+}
+
 export async function getAnswer(page: Page, id: Answer['id']): Promise<Answer> {
   await page.goto(BASE_URL + '/admin/answer.php');
   // Wait for load state

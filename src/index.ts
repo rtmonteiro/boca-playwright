@@ -44,6 +44,7 @@ import {
 import {
   createAnswer,
   deleteAnswer,
+  deleteAnswers,
   getAnswer,
   getAnswers,
   updateAnswer
@@ -304,6 +305,36 @@ async function shouldDeleteAnswer(setup: Setup): Promise<void> {
   await context.close();
   await browser.close();
   logger.logInfo('Deleted answer with id: %s', form.id);
+  const output = Output.getInstance();
+  output.setResult(form);
+}
+
+async function shouldDeleteAnswers(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Deleting answers');
+
+  // validate setup file with zod
+  const validate = new Validate(setup);
+  const setupValidated = validate.checkAuthentication();
+  const admin: Auth = setupValidated.login;
+
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
+  // Create a new incognito browser context
+  const context = await browser.newContext();
+  // Create a new page inside context.
+  const page = await context.newPage();
+  page.setDefaultTimeout(TIMEOUT);
+  await authenticateUser(page, admin);
+  await validate.checkUserType(page, 'Admin');
+  const form = await deleteAnswers(page);
+  // Dispose context once it's no longer needed.
+  await context.close();
+  await browser.close();
+  logger.logInfo('Deleted %s answers', form.length);
   const output = Output.getInstance();
   output.setResult(form);
 }
@@ -1252,6 +1283,7 @@ const methods: Record<string, (setup: Setup) => Promise<void>> = {
   // Answers
   createAnswer: shouldCreateAnswer,
   deleteAnswer: shouldDeleteAnswer,
+  deleteAnswers: shouldDeleteAnswers,
   getAnswer: shouldGetAnswer,
   getAnswers: shouldGetAnswers,
   updateAnswer: shouldUpdateAnswer,
