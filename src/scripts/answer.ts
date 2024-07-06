@@ -148,8 +148,9 @@ export async function updateAnswer(
 
 async function checkAnswerExists(page: Page, id: string): Promise<Locator> {
   const loc = 'td:nth-of-type(1)';
+  const re = new RegExp(`^${id}$`);
   const row = await page.locator('table:nth-of-type(3) > tbody > tr', {
-    has: page.locator(loc, { hasText: id })
+    has: page.locator(loc, { hasText: re })
   });
   if ((await row.count()) === 0) {
     throw new AnswerError(AnswerMessages.NOT_FOUND);
@@ -159,8 +160,9 @@ async function checkAnswerExists(page: Page, id: string): Promise<Locator> {
 
 async function checkAnswerNotExists(page: Page, id: string): Promise<Locator> {
   const loc = 'td:nth-of-type(1)';
+  const re = new RegExp(`^${id}$`);
   const row = await page.locator('table:nth-of-type(3) > tbody > tr', {
-    has: page.locator(loc, { hasText: id })
+    has: page.locator(loc, { hasText: re })
   });
   if ((await row.count()) > 0) {
     throw new AnswerError(AnswerMessages.ID_ALREADY_IN_USE);
