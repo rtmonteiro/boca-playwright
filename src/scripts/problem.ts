@@ -67,6 +67,37 @@ export async function deleteProblem(
   return await getProblem(page, id);
 }
 
+export async function deleteProblems(page: Page): Promise<Problem[]> {
+  await page.goto(BASE_URL + '/admin/problem.php');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
+
+  const re = new RegExp(`^(Problem #|0 \\(fake\\))$`);
+  const loc = page.locator('td:nth-of-type(1)', {
+    hasNotText: re
+  });
+  const rows = await page
+    .locator('form[name=form0] > table > tbody > tr')
+    .filter({ has: loc });
+  const rowCount = await rows.count();
+  const problems: Problem[] = [];
+  // Find deletable problems
+  for (let i = 0; i < rowCount; i++) {
+    const row = rows.nth(i);
+    const columns = await row.locator('td').all();
+    const id = await columns[0].innerText();
+    if (id.indexOf('(deleted)') !== -1) continue;
+    problems.push(await getProblem(page, id));
+  }
+  // Delete them
+  for (let i = 0; i < problems.length; i++) {
+    // Delete problem and replace it with the deleted problem (isEnabled: No)
+    problems[i] = await deleteProblem(page, problems[i].id);
+  }
+  // Return deleted problems
+  return problems;
+}
+
 export async function downloadProblem(
   page: Page,
   problem: DownloadProblem
@@ -119,17 +150,8 @@ export async function getProblems(page: Page): Promise<Problem[]> {
   for (let i = 0; i < rowCount; i++) {
     const row = rows.nth(i);
     const columns = await row.locator('td').all();
-    const problem = {} as Problem;
-    problem.id = await columns[0].innerText();
-    problem.name = await columns[1].innerText();
-    problem.filePath = (await columns[5].innerText()).trim();
-    problem.colorName = await columns[6]
-      .locator('input[type=text]:nth-child(2)')
-      .inputValue();
-    problem.colorCode = await columns[6]
-      .locator('input[type=text]:nth-child(3)')
-      .inputValue();
-    problems.push(problem);
+    const id = await columns[0].innerText();
+    problems.push(await getProblem(page, id));
   }
   return problems;
 }

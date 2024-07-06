@@ -97,6 +97,7 @@ TODO
 
 - createProblem
 - deleteProblem
+- deleteProblems
 - downloadProblem
 - getProblem
 - getProblems

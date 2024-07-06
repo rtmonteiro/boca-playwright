@@ -19,9 +19,10 @@
 #
 #========================================================================
 
-# Testing problem methods (count: 216)
+# Testing problem methods (count: 236)
 ./problem/create_problem.sh
 ./problem/delete_problem.sh
+./problem/delete_problems.sh
 ./problem/download_problem_desc_file.sh
 ./problem/download_problem_pckg_file.sh
 ./problem/get_problem.sh
