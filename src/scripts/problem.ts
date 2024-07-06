@@ -179,6 +179,37 @@ export async function restoreProblem(
   return await getProblem(page, id);
 }
 
+export async function restoreProblems(page: Page): Promise<Problem[]> {
+  await page.goto(BASE_URL + '/admin/problem.php');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
+
+  const re = new RegExp(`^(Problem #|0 \\(fake\\))$`);
+  const loc = page.locator('td:nth-of-type(1)', {
+    hasNotText: re
+  });
+  const rows = await page
+    .locator('form[name=form0] > table > tbody > tr')
+    .filter({ has: loc });
+  const rowCount = await rows.count();
+  const problems: Problem[] = [];
+  // Find restorable problems
+  for (let i = 0; i < rowCount; i++) {
+    const row = rows.nth(i);
+    const columns = await row.locator('td').all();
+    const id = await columns[0].innerText();
+    if (id.indexOf('(deleted)') === -1) continue;
+    problems.push(await getProblem(page, id.replace('(deleted)', '')));
+  }
+  // Restore them
+  for (let i = 0; i < problems.length; i++) {
+    // Restore problem and replace it with the restored problem (isEnabled: Yes)
+    problems[i] = await restoreProblem(page, problems[i].id);
+  }
+  // Return restored problems
+  return problems;
+}
+
 export async function updateProblem(
   page: Page,
   problem: UpdateProblem

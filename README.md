@@ -96,12 +96,13 @@ TODO
 - updateLanguage
 
 - createProblem
-- deleteProblem
-- deleteProblems
+- deleteProblem (disabledProblem)
+- deleteProblems (disabledProblems)
 - downloadProblem
 - getProblem
 - getProblems
-- restoreProblem
+- restoreProblem (enableProblem)
+- restoreProblems (enableProblems)
 - updateProblem
 
 - createSite

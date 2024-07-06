@@ -19,7 +19,7 @@
 #
 #========================================================================
 
-# Testing problem methods (count: 236)
+# Testing problem methods (count: 256)
 ./problem/create_problem.sh
 ./problem/delete_problem.sh
 ./problem/delete_problems.sh
@@ -28,4 +28,5 @@
 ./problem/get_problem.sh
 ./problem/get_problems.sh
 ./problem/restore_problem.sh
+./problem/restore_problems.sh
 ./problem/update_problem.sh
