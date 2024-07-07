@@ -60,10 +60,12 @@ import {
 import {
   createProblem,
   deleteProblem,
+  deleteProblems,
   downloadProblem,
   getProblem,
   getProblems,
   restoreProblem,
+  restoreProblems,
   updateProblem
 } from './scripts/problem';
 import {
@@ -78,17 +80,19 @@ import {
 import {
   createUser,
   deleteUser,
+  deleteUsers,
   getUser,
   getUsers,
   importUsers,
   restoreUser,
+  restoreUsers,
   updateUser
 } from './scripts/user';
 import { retrieveFiles } from './scripts/report';
 
-const STEP_DURATION = 50;
+const STEP_DURATION = 100;
 const HEADLESS = true;
-let TIMEOUT = 3000;
+let TIMEOUT = 5000;
 export let BASE_URL = 'http://localhost:8000/boca';
 
 //#region Contest
@@ -682,6 +686,36 @@ async function shouldDeleteProblem(setup: Setup): Promise<void> {
   output.setResult(form);
 }
 
+async function shouldDeleteProblems(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Deleting problems');
+
+  // validate setup file with zod
+  const validate = new Validate(setup);
+  const setupValidated = validate.checkAuthentication();
+  const admin: Auth = setupValidated.login;
+
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
+  // Create a new incognito browser context
+  const context = await browser.newContext();
+  // Create a new page inside context.
+  const page = await context.newPage();
+  page.setDefaultTimeout(TIMEOUT);
+  await authenticateUser(page, admin);
+  await validate.checkUserType(page, 'Admin');
+  const form = await deleteProblems(page);
+  // Dispose context once it's no longer needed.
+  await context.close();
+  await browser.close();
+  logger.logInfo('Deleted %s problems', form.length);
+  const output = Output.getInstance();
+  output.setResult(form);
+}
+
 async function shouldDownloadProblem(setup: Setup): Promise<void> {
   // instantiate logger
   const logger = Logger.getInstance();
@@ -799,6 +833,36 @@ async function shouldRestoreProblem(setup: Setup): Promise<void> {
   await context.close();
   await browser.close();
   logger.logInfo('Restored problem with id: %s', form.id);
+  const output = Output.getInstance();
+  output.setResult(form);
+}
+
+async function shouldRestoreProblems(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Restoring problems');
+
+  // validate setup file with zod
+  const validate = new Validate(setup);
+  const setupValidated = validate.checkAuthentication();
+  const admin: Auth = setupValidated.login;
+
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
+  // Create a new incognito browser context
+  const context = await browser.newContext();
+  // Create a new page inside context.
+  const page = await context.newPage();
+  page.setDefaultTimeout(TIMEOUT);
+  await authenticateUser(page, admin);
+  await validate.checkUserType(page, 'Admin');
+  const form = await restoreProblems(page);
+  // Dispose context once it's no longer needed.
+  await context.close();
+  await browser.close();
+  logger.logInfo('Restored %s problems', form.length);
   const output = Output.getInstance();
   output.setResult(form);
 }
@@ -1101,7 +1165,7 @@ async function shouldDeleteUser(setup: Setup): Promise<void> {
   page.setDefaultTimeout(TIMEOUT);
   await authenticateUser(page, admin);
   await validate.checkUserType(page, 'Admin');
-  const form = await deleteUser(page, userId, admin);
+  const form = await deleteUser(page, userId);
   // Dispose context once it's no longer needed.
   await context.close();
   await browser.close();
@@ -1110,6 +1174,36 @@ async function shouldDeleteUser(setup: Setup): Promise<void> {
     form.id,
     form.siteId
   );
+  const output = Output.getInstance();
+  output.setResult(form);
+}
+
+async function shouldDeleteUsers(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Deleting users');
+
+  // validate setup file with zod
+  const validate = new Validate(setup);
+  const setupValidated = validate.checkAuthentication();
+  const admin: Auth = setupValidated.login;
+
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
+  // Create a new incognito browser context
+  const context = await browser.newContext();
+  // Create a new page inside context.
+  const page = await context.newPage();
+  page.setDefaultTimeout(TIMEOUT);
+  await authenticateUser(page, admin);
+  await validate.checkUserType(page, 'Admin');
+  const form = await deleteUsers(page);
+  // Dispose context once it's no longer needed.
+  await context.close();
+  await browser.close();
+  logger.logInfo('Deleted %s users', form.length);
   const output = Output.getInstance();
   output.setResult(form);
 }
@@ -1241,6 +1335,36 @@ async function shouldRestoreUser(setup: Setup): Promise<void> {
   output.setResult(form);
 }
 
+async function shouldRestoreUsers(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Restoring users');
+
+  // validate setup file with zod
+  const validate = new Validate(setup);
+  const setupValidated = validate.checkAuthentication();
+  const admin: Auth = setupValidated.login;
+
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
+  // Create a new incognito browser context
+  const context = await browser.newContext();
+  // Create a new page inside context.
+  const page = await context.newPage();
+  page.setDefaultTimeout(TIMEOUT);
+  await authenticateUser(page, admin);
+  await validate.checkUserType(page, 'Admin');
+  const form = await restoreUsers(page, admin);
+  // Dispose context once it's no longer needed.
+  await context.close();
+  await browser.close();
+  logger.logInfo('Restored %s users', form.length);
+  const output = Output.getInstance();
+  output.setResult(form);
+}
+
 async function shouldUpdateUser(setup: Setup): Promise<void> {
   // instantiate logger
   const logger = Logger.getInstance();
@@ -1328,12 +1452,16 @@ const methods: Record<string, (setup: Setup) => Promise<void>> = {
   // Problems
   createProblem: shouldCreateProblem,
   deleteProblem: shouldDeleteProblem,
+  deleteProblems: shouldDeleteProblems,
   disableProblem: shouldDeleteProblem,
+  disableProblems: shouldDeleteProblems,
   downloadProblem: shouldDownloadProblem,
   enableProblem: shouldRestoreProblem,
+  enableProblems: shouldRestoreProblems,
   getProblem: shouldGetProblem,
   getProblems: shouldGetProblems,
   restoreProblem: shouldRestoreProblem,
+  restoreProblems: shouldRestoreProblems,
   updateProblem: shouldUpdateProblem,
   // Sites
   createSite: shouldCreateSite,
@@ -1346,12 +1474,16 @@ const methods: Record<string, (setup: Setup) => Promise<void>> = {
   // Users
   createUser: shouldCreateUser,
   deleteUser: shouldDeleteUser,
+  deleteUsers: shouldDeleteUsers,
   disableUser: shouldDeleteUser,
+  disableUsers: shouldDeleteUsers,
   enableUser: shouldRestoreUser,
+  enableUsers: shouldRestoreUsers,
   getUser: shouldGetUser,
   getUsers: shouldGetUsers,
   importUsers: shouldImportUsers,
   restoreUser: shouldRestoreUser,
+  restoreUsers: shouldRestoreUsers,
   updateUser: shouldUpdateUser,
   // Reports
   generateReport: shouldGenerateReport

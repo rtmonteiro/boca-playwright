@@ -114,11 +114,13 @@ TODO
 - updateSite
 
 - createUser
-- deleteUser
+- deleteUser (disableUser)
+- deleteUsers (disableUsers)
 - getUser
 - getUsers
 - importUsers
-- restoreUser
+- restoreUser (enableUser)
+- restoreUsers (enableUsers)
 - updateUser
 
 - generateReport

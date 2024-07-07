@@ -41,31 +41,23 @@ export async function createUser(
   return await getUser(page, user);
 }
 
-export async function deleteUser(
-  page: Page,
-  user: GetUser,
-  admin: Auth
-): Promise<User> {
+export async function deleteUser(page: Page, user: GetUser): Promise<User> {
   await page.goto(BASE_URL + '/admin/user.php');
   // Wait for load state
   await page.waitForLoadState('domcontentloaded');
 
   const row = await checkUserExists(page, user);
-  if (await row.locator('td:nth-of-type(1) > a').isVisible()) {
+  if (
+    (await row.locator('td:nth-of-type(1) > a').isVisible()) &&
+    (await row.locator('td:nth-of-type(1)').innerText()) !== '1000' // Should not delete an admin user
+  ) {
     await row.locator('td:nth-of-type(1) > a').click();
     // Wait for load state
     await page.waitForLoadState('domcontentloaded');
 
     // Delete/Disable only if it is active/enabled (soft delete)
-    if (
-      (await row.locator('td:nth-of-type(1)').innerText()).indexOf(
-        '(inactive)'
-      ) === -1
-    ) {
-      if (await page.isVisible('input[name="passwordo"]')) {
-        await page.locator('input[name="passwordo"]').fill(admin.password);
-      }
-
+    const id = await row.locator('td:nth-of-type(1)').innerText();
+    if (id.indexOf('(inactive)') === -1) {
       page.once('dialog', dialogHandler);
       await page.getByRole('button', { name: 'Delete' }).click();
     }
@@ -75,14 +67,53 @@ export async function deleteUser(
   }
 }
 
+export async function deleteUsers(page: Page): Promise<User[]> {
+  await page.goto(`${BASE_URL}/admin/user.php`);
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
+
+  const thead = 'User #';
+  const loc1 = page.locator('tr > td:nth-of-type(1)', {
+    hasText: thead
+  });
+  const reAdminId = new RegExp(`^(1000)$`);
+  const loc2 = page.locator('td:nth-of-type(1)', {
+    hasNotText: thead && reAdminId
+  });
+  const rows = await page
+    .locator('table')
+    .filter({ has: loc1 })
+    .locator('tr')
+    .filter({ has: loc2 });
+  const rowCount = await rows.count();
+  const users: User[] = [];
+  // Find deletable users
+  for (let i = 0; i < rowCount; i++) {
+    const row = rows.nth(i);
+    if (await row.locator('td:nth-of-type(1) > a').isVisible()) {
+      // Delete/Disable only if it is active/enabled (soft delete)
+      const id = await row.locator('td:nth-of-type(1)').innerText();
+      const site = await row.locator('td:nth-of-type(2)').innerText();
+      if (id.indexOf('(inactive)') !== -1) continue;
+      users.push(await getUser(page, { id: id, siteId: site }));
+    }
+  }
+  // Delete them
+  for (let i = 0; i < users.length; i++) {
+    // Delete user and replace it with the deleted user (isEnabled: No)
+    users[i] = await deleteUser(page, users[i]);
+  }
+  return users;
+}
+
 export async function getUser(page: Page, user: GetUser): Promise<User> {
   await page.goto(`${BASE_URL}/admin/user.php`);
   // Wait for load state
   await page.waitForLoadState('domcontentloaded');
 
   const row = await checkUserExists(page, user);
-  if (await row.locator('td:nth-of-type(1) a').isVisible()) {
-    await row.locator('td:nth-of-type(1) a').click();
+  if (await row.locator('td:nth-of-type(1) > a').isVisible()) {
+    await row.locator('td:nth-of-type(1) > a').click();
     return await getUserFromForm(page);
   } else {
     return await getUserFromRow(row);
@@ -110,10 +141,9 @@ export async function getUsers(page: Page): Promise<User[]> {
   const users: User[] = [];
   for (let i = 0; i < rowCount; i++) {
     const row = rows.nth(i);
-    if (await row.locator('td:nth-of-type(1) a').isVisible()) {
-      await row.locator('td:nth-of-type(1) a').click();
-      const user: User = await getUserFromForm(page);
-      users.push(user);
+    if (await row.locator('td:nth-of-type(1) > a').isVisible()) {
+      await row.locator('td:nth-of-type(1) > a').click();
+      users.push(await getUserFromForm(page));
     } else {
       users.push(await getUserFromRow(row));
     }
@@ -142,8 +172,8 @@ export async function restoreUser(
   await page.waitForLoadState('domcontentloaded');
 
   const row = await checkUserExists(page, user);
-  if (await row.locator('td:nth-of-type(1) a').isVisible()) {
-    await row.locator('td:nth-of-type(1) a').click();
+  if (await row.locator('td:nth-of-type(1) > a').isVisible()) {
+    await row.locator('td:nth-of-type(1) > a').click();
     // Wait for load state
     await page.waitForLoadState('domcontentloaded');
 
@@ -166,6 +196,46 @@ export async function restoreUser(
     }
   }
   return await getUser(page, user);
+}
+
+export async function restoreUsers(page: Page, admin: Auth): Promise<User[]> {
+  await page.goto(`${BASE_URL}/admin/user.php`);
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
+
+  const thead = 'User #';
+  const loc1 = page.locator('tr > td:nth-of-type(1)', {
+    hasText: thead
+  });
+  const loc2 = page.locator('td:nth-of-type(1)', {
+    hasNotText: thead
+  });
+  const rows = await page
+    .locator('table')
+    .filter({ has: loc1 })
+    .locator('tr')
+    .filter({ has: loc2 });
+  const rowCount = await rows.count();
+  const users: User[] = [];
+  // Find restorable users
+  for (let i = 0; i < rowCount; i++) {
+    const row = rows.nth(i);
+    if (await row.locator('td:nth-of-type(1) > a').isVisible()) {
+      // Restore/Enable only if it is inactive/disabled (soft delete)
+      const id = await row.locator('td:nth-of-type(1)').innerText();
+      const site = await row.locator('td:nth-of-type(2)').innerText();
+      if (id.indexOf('(inactive)') === -1) continue;
+      users.push(
+        await getUser(page, { id: id.replace('(inactive)', ''), siteId: site })
+      );
+    }
+  }
+  // Restore them
+  for (let i = 0; i < users.length; i++) {
+    // Restore user and replace it with the restored user (isEnabled: Yes)
+    users[i] = await restoreUser(page, users[i], admin);
+  }
+  return users;
 }
 
 export async function updateUser(
@@ -196,9 +266,10 @@ async function checkUserExists(page: Page, user: GetUser): Promise<Locator> {
     // eslint-disable-next-line no-useless-escape
     hasText: re
   });
+  const re2 = new RegExp(`^${user.siteId}$`);
   const loc2 = page.locator('td:nth-of-type(2)', {
     // eslint-disable-next-line no-useless-escape
-    hasText: user.siteId
+    hasText: re2
   });
   const row = await page
     .locator('tr')
@@ -216,9 +287,10 @@ async function checkUserNotExists(page: Page, user: GetUser): Promise<Locator> {
     // eslint-disable-next-line no-useless-escape
     hasText: re
   });
+  const re2 = new RegExp(`^${user.siteId}$`);
   const loc2 = page.locator('td:nth-of-type(2)', {
     // eslint-disable-next-line no-useless-escape
-    hasText: user.siteId
+    hasText: re2
   });
   const row = await page
     .locator('tr')
@@ -307,7 +379,7 @@ async function getUserFromForm(page: Page): Promise<User> {
   }
   if (await page.locator('select[name="usertype"]').isVisible()) {
     user.type = capitalize(
-      (await page.locator('select[name="usertype"]').inputValue()) as string
+      await page.locator('select[name="usertype"]').inputValue()
     ) as User['type'];
   }
   if (await page.locator('select[name="userenabled"]').isVisible()) {

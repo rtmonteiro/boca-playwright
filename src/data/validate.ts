@@ -199,6 +199,12 @@ export class Validate {
       user: userSchema
     });
     setupType.parse(this.setup);
+    // If undefined, set siteId to 1 (zod default / input not working as expected)
+    if (this.setup.user) {
+      this.setup.user.siteId = this.setup.user.siteId
+        ? this.setup.user.siteId
+        : '1';
+    }
     return this.setup as z.infer<typeof setupType>;
   }
 

@@ -19,11 +19,13 @@
 #
 #========================================================================
 
-# Testing user methods (count: 221)
+# Testing user methods (count: 261)
 ./user/create_user.sh
 ./user/delete_user.sh
+./user/delete_users.sh
 ./user/get_user.sh
 ./user/get_users.sh
 ./user/import_users.sh
 ./user/restore_user.sh
+./user/restore_users.sh
 ./user/update_user.sh
