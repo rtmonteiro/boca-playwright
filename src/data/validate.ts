@@ -34,7 +34,7 @@ import {
   getProblemSchema,
   updateProblemSchema
 } from './problem';
-import { runSchema } from './run';
+import { getRunSchema, runSchema } from './run';
 import { type Setup } from './setup';
 import { getSiteSchema, siteSchema } from './site';
 import {
@@ -230,6 +230,16 @@ export class Validate {
     const setupType = z.object({
       login: authSchema,
       config: runSchema
+    });
+    setupType.parse(this.setup);
+    return this.setup as z.infer<typeof setupType>;
+  }
+
+  downloadRun(): z.infer<typeof setupType> {
+    const setupType = z.object({
+      login: authSchema,
+      config: runSchema,
+      run: getRunSchema
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;

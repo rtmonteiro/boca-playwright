@@ -22,6 +22,12 @@ import { z } from 'zod';
 
 export type Run = z.infer<typeof runSchema>;
 
+export type GetRun = z.infer<typeof getRunSchema>;
+
 export const runSchema = z.object({
   runPath: z.string()
+});
+
+export const getRunSchema = z.object({
+  id: z.string()
 });
