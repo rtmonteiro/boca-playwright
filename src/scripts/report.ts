@@ -84,7 +84,7 @@ async function saveFiles(
   await page.goBack();
 }
 
-export async function retrieveFiles(page: Page, outDir: string): Promise<void> {
+export async function downloadRuns(page: Page, outDir: string): Promise<void> {
   await page.goto(BASE_URL + '/admin');
   // Wait for load state
   await page.waitForLoadState('domcontentloaded');

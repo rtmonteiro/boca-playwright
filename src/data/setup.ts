@@ -26,7 +26,7 @@ import { contestSchema } from './contest';
 import { answerSchema } from './answer';
 import { languageSchema } from './language';
 import { problemSchema } from './problem';
-import { reportSchema } from './report';
+import { runSchema } from './run';
 import { siteSchema } from './site';
 import { importUsersSchema, userSchema } from './user';
 import { ReadMessages } from '../errors/read_errors';
@@ -59,7 +59,7 @@ export const setupSchema = z.object({
       userPath: z.string().optional(),
       resultFilePath: resultSchema
     })
-    .merge(reportSchema.partial())
+    .merge(runSchema.partial())
     .merge(importUsersSchema.partial()),
   login: authSchema,
   contest: contestSchema.partial().optional(),
