@@ -1,15 +1,15 @@
 {
-    "config": {
-      "url": "localhost:8000/boca",
-      "resultFilePath": "./resources/result.json"
-    },
-    "login": {
-      "username": "admin",
-      "password": "boca"
-    },
-    "language": {
-        "id": "6",
-        "name": "JavaScript",
-        "extension": "js"
-    }
+  "config": {
+    "url": "localhost:8000/boca",
+    "resultFilePath": "./resources/result.json"
+  },
+  "login": {
+    "username": "admin",
+    "password": "boca"
+  },
+  "language": {
+    "id": "6",
+    "name": "JavaScript",
+    "extension": "js"
   }
+}

@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-# 
+#
 # This program is released under license GNU GPL v3+ license.
 #
 #========================================================================
@@ -22,70 +22,66 @@
 version: '3.8'
 
 services:
+  devcontainer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ../..:/workspaces:cached
+    # Overrides default command so things don't shut down after the process ends.
+    command: sleep infinity
+    # Runs app on the same network as the database container, allows
+    # "forwardPorts" in devcontainer.json
+    network_mode: host
+    # Use "forwardPorts" in **devcontainer.json** to forward an app port locally.
+    # (Adding the "ports" property to this file will not forward from a Codespace.)
 
-    devcontainer:
-        build:
-            context: .
-            dockerfile: Dockerfile
-        volumes:
-            - ../..:/workspaces:cached
-        # Overrides default command so things don't shut down after the process ends.
-        command: sleep infinity
+  # web app
+  boca-web:
+    image: ghcr.io/joaofazolo/boca-docker/boca-web:latest
+    environment:
+      # database configuration
+      # privileged user password
+      - BOCA_DB_SUPER_PASSWORD=superpass
+    ports:
+      - 8000:80
 
-        # Runs app on the same network as the database container, allows
-        # "forwardPorts" in devcontainer.json
-        network_mode: host
+  # online judge
+  boca-jail:
+    image: ghcr.io/joaofazolo/boca-docker/boca-jail:latest
+    privileged: true
 
-        # Use "forwardPorts" in **devcontainer.json** to forward an app port locally. 
-        # (Adding the "ports" property to this file will not forward from a Codespace.)
+  # database
+  boca-db:
+    image: postgres:14-alpine
+    environment:
+      # database configuration
+      # privileged user password
+      - POSTGRES_PASSWORD=superpass
+      # this optional variable can be used to define another location -
+      # like a subdirectory - for the database files. The default is
+      # /var/lib/postgresql/data. If the data volume you're using is a
+      # filesystem mountpoint (like with GCE persistent disks) or remote
+      # folder that cannot be chowned to the postgres user (like some
+      # NFS mounts), Postgres initdb recommends a subdirectory be created
+      # to contain the data.
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      # volume mount to container's fs
+      - boca-data:/var/lib/postgresql/data
 
-    # web app
-    boca-web:
-        image: ghcr.io/joaofazolo/boca-docker/boca-web:latest
-        environment:
-            # database configuration
-            # privileged user password
-            - BOCA_DB_SUPER_PASSWORD=superpass
-        ports:
-            - 8000:80
-
-    # online judge
-    boca-jail:
-        image: ghcr.io/joaofazolo/boca-docker/boca-jail:latest
-        privileged: true
-
-    # database
-    boca-db:
-        image: postgres:14-alpine
-        environment:
-            # database configuration
-            # privileged user password
-            - POSTGRES_PASSWORD=superpass
-            # this optional variable can be used to define another location -
-            # like a subdirectory - for the database files. The default is
-            # /var/lib/postgresql/data. If the data volume you're using is a
-            # filesystem mountpoint (like with GCE persistent disks) or remote
-            # folder that cannot be chowned to the postgres user (like some 
-            # NFS mounts), Postgres initdb recommends a subdirectory be created
-            # to contain the data.
-            - PGDATA=/var/lib/postgresql/data/pgdata
-        volumes:
-            # volume mount to container's fs
-            - boca-data:/var/lib/postgresql/data
-
-    boca-adminer:
-        image: adminer:latest
-        environment:
-            - ADMINER_DEFAULT_SERVER=boca-db
-        ports:
-            - 8080:8080
+  boca-adminer:
+    image: adminer:latest
+    environment:
+      - ADMINER_DEFAULT_SERVER=boca-db
+    ports:
+      - 8080:8080
 
 volumes:
-
-    # example 1: when launching boca-docker for the first time Docker will 
-    # create a named volume (boca-data). Onwards every time one brings the
-    # application down and then rerun it `docker compose` will try to create
-    # a volume named `boca-data` but it would notice that a volume with that
-    # name already exists for this compose file. Then it will helpfully mount
-    # the same volume again.
-    boca-data:
+  # example 1: when launching boca-docker for the first time Docker will
+  # create a named volume (boca-data). Onwards every time one brings the
+  # application down and then rerun it `docker compose` will try to create
+  # a volume named `boca-data` but it would notice that a volume with that
+  # name already exists for this compose file. Then it will helpfully mount
+  # the same volume again.
+  boca-data:

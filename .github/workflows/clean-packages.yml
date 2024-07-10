@@ -65,7 +65,7 @@ jobs:
     steps:
       # Setting output parameters between steps, jobs and/or workflows
       # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-output-parameter
-      - 
+      -
         name: Write package_name variable to GITHUB_ENV
         id: setup
         run: |
@@ -79,7 +79,7 @@ jobs:
 
       # Set up GitHub Actions workflow with a specific version of Go
       # https://github.com/actions/setup-go
-      - 
+      -
         uses: actions/setup-go@v5
         with:
           go-version: 1.15
@@ -87,7 +87,7 @@ jobs:
 
       # Install and setup crane
       # https://github.com/imjasonh/setup-crane
-      - 
+      -
         uses: imjasonh/setup-crane@v0.4
 
       # Necessary if testing locally with 'act'
@@ -95,13 +95,13 @@ jobs:
 
       # Install GH CLI (self-hosted runners do not come with it out of the box)
       # https://github.com/dev-hanz-ops/install-gh-cli-action
-      # - 
+      # -
       #   name: Install GH CLI
       #   uses: dev-hanz-ops/install-gh-cli-action@v0.1.0
       #   with:
       #     gh-cli-version: 2.14.2 # optional
 
-      - 
+      -
         name: Compile untagged versions/releases to ignore
         id: untagged
         run: |
@@ -167,20 +167,20 @@ jobs:
 
       # Delete package versions
       # https://github.com/actions/delete-package-versions
-      - 
+      -
         name: Delete untagged Docker images on ghcr.io
         uses: actions/delete-package-versions@v5
         with:
-          # package-name: 
+          # package-name:
           #   '${{ steps.setup.outputs.package_name }}/${{ matrix.image }}'
-          package-name: 
+          package-name:
             '${{ matrix.image }}'
           package-type: 'container'
           delete-only-untagged-versions: 'true'
           ignore-versions: '${{ steps.untagged.outputs.digest_keys }}'
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - 
+      -
         name: Compile unsupported versions/releases to delete
         id: unsupported
         run: |
@@ -326,7 +326,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - 
+      -
         name: Delete multiple specific Docker images on ghcr.io
         uses: actions/delete-package-versions@v5
         if: ${{ steps.unsupported.outputs.version_ids != '' }}

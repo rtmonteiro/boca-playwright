@@ -87,7 +87,7 @@ jobs:
     steps:
       # Checkout a repository, so the workflow can access it
       # https://github.com/actions/checkout
-      - 
+      -
         name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -95,7 +95,7 @@ jobs:
 
       # Setting output parameters between steps, jobs and/or workflows
       # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions
-      - 
+      -
         name: Prepare inputs
         id: set-inputs
         run: |
@@ -248,7 +248,7 @@ jobs:
 
     steps:
 
-      - 
+      -
         name: Retry the workflow
         run: |
 
