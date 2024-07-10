@@ -18,18 +18,19 @@
 //
 // ========================================================================
 
-import { z } from 'zod';
 import * as fs from 'fs';
 import * as path from 'path';
-import { insertUsersSchema, userSchema } from './user';
-import { loginSchema } from './login';
+import { z } from 'zod';
+import { authSchema } from './auth';
 import { contestSchema } from './contest';
-import { siteSchema } from './site';
+import { answerSchema } from './answer';
 import { languageSchema } from './language';
 import { problemSchema } from './problem';
 import { reportSchema } from './report';
-import { Output } from '../output';
+import { siteSchema } from './site';
+import { importUsersSchema, userSchema } from './user';
 import { ReadMessages } from '../errors/read_errors';
+import { Output } from '../output';
 
 export type Setup = z.infer<typeof setupSchema>;
 
@@ -40,7 +41,7 @@ const resultSchema = z
     if (!filePath) return true;
     const output = Output.getInstance();
     const dirPath = path.dirname(filePath);
-    // Check if the path to file is writeble with fs.accessSync
+    // Check if the path to file is writeable with fs.accessSync
     try {
       fs.accessSync(dirPath, fs.constants.W_OK);
       return true;
@@ -59,11 +60,12 @@ export const setupSchema = z.object({
       resultFilePath: resultSchema
     })
     .merge(reportSchema.partial())
-    .merge(insertUsersSchema.partial()),
-  login: loginSchema,
-  user: userSchema.partial().optional(),
+    .merge(importUsersSchema.partial()),
+  login: authSchema,
   contest: contestSchema.partial().optional(),
-  site: siteSchema.partial().optional(),
+  answer: answerSchema.partial().optional(),
   language: languageSchema.partial().optional(),
-  problem: problemSchema.partial().optional()
+  problem: problemSchema.partial().optional(),
+  site: siteSchema.partial().optional(),
+  user: userSchema.partial().optional()
 });

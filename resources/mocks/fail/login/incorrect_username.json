@@ -1,0 +1,9 @@
+{
+  "config": {
+    "url": "localhost:8000/boca"
+  },
+  "login": {
+    "username": "sys",
+    "password": "boca"
+  }
+}

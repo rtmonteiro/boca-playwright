@@ -7,13 +7,13 @@
     "password": "boca"
   },
   "user": {
-    "userSiteNumber": 1,
-    "userNumber": "2019202359",
-    "userName": "ryanmonteiro",
-    "userType": "Team",
-    "userFullName": "Ryan Tavares Farias da Silva Monteiro",
-    "userDesc": "ryan.monteiro@aluno.ufes.br",
-    "userPassword": "boca",
-    "userChangePass": "Yes"
+    "siteId": 1,
+    "id": "2019202359",
+    "username": "ryanmonteiro",
+    "type": "Team",
+    "fullName": "Ryan Tavares Farias da Silva Monteiro",
+    "description": "ryan.monteiro@aluno.ufes.br",
+    "password": "boca",
+    "allowPasswordChange": "Yes"
   }
 }

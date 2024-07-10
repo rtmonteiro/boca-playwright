@@ -18,53 +18,68 @@
 //
 // ========================================================================
 
+import { type Page } from 'playwright';
 import { z } from 'zod';
-import { type Setup } from './setup';
-import { type User, userIdSchema, insertUsersSchema, userSchema } from './user';
-import { loginSchema } from './login';
-import { siteSchema } from './site';
-import { problemIdSchema, problemSchema } from './problem';
-import { languageIdSchema, languageSchema } from './language';
+import { authSchema } from './auth';
 import {
-  contestSchema,
   createContestSchema,
+  getContestSchema,
   updateContestSchema
 } from './contest';
-import { reportSchema } from './report';
+import { answerSchema, getAnswerSchema } from './answer';
+import { languageSchema, getLanguageSchema } from './language';
 import {
-  ContestMessages,
-  LoginError,
-  LoginMessages
-} from '../errors/read_errors';
-import { type Page } from 'playwright';
+  createProblemSchema,
+  downloadProblemSchema,
+  getProblemSchema,
+  updateProblemSchema
+} from './problem';
+import { reportSchema } from './report';
+import { type Setup } from './setup';
+import { getSiteSchema, siteSchema } from './site';
+import {
+  type User,
+  getUserSchema,
+  importUsersSchema,
+  userSchema
+} from './user';
+import { AuthError, AuthMessages } from '../errors/read_errors';
 
 export class Validate {
   constructor(public setup: Setup) {}
 
-  createContest(): z.infer<typeof setupType> {
+  checkAuthentication(): z.infer<typeof setupType> {
     const setupType = z.object({
-      login: loginSchema,
-      contest: createContestSchema.optional()
+      login: authSchema
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;
   }
 
-  updateContest(): z.infer<typeof setupType> {
+  async checkUserType(
+    page: Page,
+    type: User['type'] | 'System'
+  ): Promise<void> {
+    // Wait for load state
+    await page.waitForLoadState('domcontentloaded');
+
+    // Get url from page
+    const url = await page.url();
+    // Get the type from the url
+    const typeUrl = url.split('/').at(-2) as unknown as User['type'];
+    // Compare the types
+    if (type && type.toLocaleLowerCase() !== typeUrl) {
+      throw new AuthError(
+        AuthMessages.INVALID_TYPE,
+        `Expected type ${type} but got ${typeUrl}`
+      );
+    }
+  }
+
+  createContest(): z.infer<typeof setupType> {
     const setupType = z.object({
-      login: loginSchema,
-      contest: updateContestSchema
-        .refine(
-          (contest) => contest.id !== undefined,
-          ContestMessages.CONTEST_ID_REQUIRED
-        )
-        .refine(
-          (contest) =>
-            !Object.entries(contest)
-              .filter(([k]) => k !== 'id')
-              .every(([, v]) => v === undefined),
-          ContestMessages.ONE_FIELD_REQUIRED
-        )
+      login: authSchema,
+      contest: createContestSchema.optional()
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;
@@ -72,70 +87,35 @@ export class Validate {
 
   getContest(): z.infer<typeof setupType> {
     const setupType = z.object({
-      login: loginSchema,
-      contest: contestSchema.pick({ id: true })
+      login: authSchema,
+      contest: getContestSchema
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;
   }
 
-  getContests(): z.infer<typeof setupType> {
+  updateContest(): z.infer<typeof setupType> {
     const setupType = z.object({
-      login: loginSchema
+      login: authSchema,
+      contest: updateContestSchema
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;
   }
 
-  createUser(): z.infer<typeof setupType> {
+  createAnswer(): z.infer<typeof setupType> {
     const setupType = z.object({
-      login: loginSchema,
-      user: userSchema
+      login: authSchema,
+      answer: answerSchema
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;
   }
 
-  insertUsers(): z.infer<typeof setupType> {
+  getAnswer(): z.infer<typeof setupType> {
     const setupType = z.object({
-      login: loginSchema,
-      config: insertUsersSchema
-    });
-    setupType.parse(this.setup);
-    return this.setup as z.infer<typeof setupType>;
-  }
-
-  getUser(): z.infer<typeof setupType> {
-    const setupType = z.object({
-      login: loginSchema,
-      user: userIdSchema
-    });
-    setupType.parse(this.setup);
-    return this.setup as z.infer<typeof setupType>;
-  }
-
-  createSite(): z.infer<typeof setupType> {
-    const setupType = z.object({
-      login: loginSchema,
-      site: siteSchema // TODO - Review if it should be optional
-    });
-    setupType.parse(this.setup);
-    return this.setup as z.infer<typeof setupType>;
-  }
-
-  createProblem(): z.infer<typeof setupType> {
-    const setupType = z.object({
-      login: loginSchema,
-      problem: problemSchema
-    });
-    setupType.parse(this.setup);
-    return this.setup as z.infer<typeof setupType>;
-  }
-
-  getProblem() {
-    const setupType = z.object({
-      login: loginSchema,
-      problem: problemIdSchema
+      login: authSchema,
+      answer: getAnswerSchema
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;
@@ -143,17 +123,104 @@ export class Validate {
 
   createLanguage(): z.infer<typeof setupType> {
     const setupType = z.object({
-      login: loginSchema,
+      login: authSchema,
       language: languageSchema
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;
   }
 
-  deleteLanguage(): z.infer<typeof setupType> {
+  getLanguage(): z.infer<typeof setupType> {
     const setupType = z.object({
-      login: loginSchema,
-      language: languageIdSchema
+      login: authSchema,
+      language: getLanguageSchema
+    });
+    setupType.parse(this.setup);
+    return this.setup as z.infer<typeof setupType>;
+  }
+
+  createProblem(): z.infer<typeof setupType> {
+    const setupType = z.object({
+      login: authSchema,
+      problem: createProblemSchema
+    });
+    setupType.parse(this.setup);
+    return this.setup as z.infer<typeof setupType>;
+  }
+
+  downloadProblem(): z.infer<typeof setupType> {
+    const setupType = z.object({
+      login: authSchema,
+      problem: downloadProblemSchema
+    });
+    setupType.parse(this.setup);
+    return this.setup as z.infer<typeof setupType>;
+  }
+
+  getProblem(): z.infer<typeof setupType> {
+    const setupType = z.object({
+      login: authSchema,
+      problem: getProblemSchema
+    });
+    setupType.parse(this.setup);
+    return this.setup as z.infer<typeof setupType>;
+  }
+
+  updateProblem(): z.infer<typeof setupType> {
+    const setupType = z.object({
+      login: authSchema,
+      problem: updateProblemSchema
+    });
+    setupType.parse(this.setup);
+    return this.setup as z.infer<typeof setupType>;
+  }
+
+  createSite(): z.infer<typeof setupType> {
+    const setupType = z.object({
+      login: authSchema,
+      site: siteSchema
+    });
+    setupType.parse(this.setup);
+    return this.setup as z.infer<typeof setupType>;
+  }
+
+  getSite(): z.infer<typeof setupType> {
+    const setupType = z.object({
+      login: authSchema,
+      site: getSiteSchema
+    });
+    setupType.parse(this.setup);
+    return this.setup as z.infer<typeof setupType>;
+  }
+
+  createUser(): z.infer<typeof setupType> {
+    const setupType = z.object({
+      login: authSchema,
+      user: userSchema
+    });
+    setupType.parse(this.setup);
+    // If undefined, set siteId to 1 (zod default / input not working as expected)
+    if (this.setup.user) {
+      this.setup.user.siteId = this.setup.user.siteId
+        ? this.setup.user.siteId
+        : '1';
+    }
+    return this.setup as z.infer<typeof setupType>;
+  }
+
+  getUser(): z.infer<typeof setupType> {
+    const setupType = z.object({
+      login: authSchema,
+      user: getUserSchema
+    });
+    setupType.parse(this.setup);
+    return this.setup as z.infer<typeof setupType>;
+  }
+
+  importUsers(): z.infer<typeof setupType> {
+    const setupType = z.object({
+      login: authSchema,
+      config: importUsersSchema
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;
@@ -161,27 +228,10 @@ export class Validate {
 
   generateReport(): z.infer<typeof setupType> {
     const setupType = z.object({
-      login: loginSchema,
+      login: authSchema,
       config: reportSchema
     });
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;
-  }
-
-  async checkLoginType(
-    page: Page,
-    type: User['userType'] | 'System'
-  ): Promise<void> {
-    // Get url from page
-    const url = await page.url();
-    // Get the type from the url
-    const typeUrl = url.split('/').at(-2) as unknown as User['userType'];
-    // Compare the types
-    if (type.toLocaleLowerCase() !== typeUrl) {
-      throw new LoginError(
-        LoginMessages.INVALID_TYPE,
-        `Expected type ${type} but got ${typeUrl}`
-      );
-    }
   }
 }

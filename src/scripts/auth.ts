@@ -1,4 +1,4 @@
-// ========================================================================
+// =======================================================================
 // Copyright Universidade Federal do Espirito Santo (Ufes)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -18,11 +18,18 @@
 //
 // ========================================================================
 
-import { z } from 'zod';
+import { type Page } from 'playwright';
+import { type Auth } from '../data/auth';
+import { BASE_URL } from '../index';
 
-export type Login = z.infer<typeof loginSchema>;
+export async function authenticateUser(page: Page, user: Auth): Promise<void> {
+  await page.goto(BASE_URL + '/');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
 
-export const loginSchema = z.object({
-  username: z.string(),
-  password: z.string()
-});
+  await page.locator('input[name="name"]').click();
+  await page.locator('input[name="name"]').fill(user.username);
+  await page.locator('input[name="name"]').press('Tab');
+  await page.locator('input[name="password"]').fill(user.password);
+  await page.locator('input[name="password"]').press('Enter');
+}

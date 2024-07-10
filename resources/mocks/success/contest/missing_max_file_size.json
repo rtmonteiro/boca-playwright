@@ -1,0 +1,22 @@
+{
+  "config": {
+    "url": "localhost:8000/boca",
+    "resultFilePath": "./tests/result.json"
+  },
+  "login": {
+    "username": "system",
+    "password": "boca"
+  },
+  "contest": {
+    "id": "1",
+    "name": "2024/1 - INF15979 - BDI",
+    "startDate": "2024-03-14 13:00",
+    "endDate": "2024-07-20 23:59",
+    "stopAnsweringDate": "2024-07-20 23:44",
+    "stopScoreboardDate": "2024-07-20 22:59",
+    "penalty": "30",
+    "mainSiteUrl": "localhost:8000/boca",
+    "mainSiteId": "1",
+    "localSiteId": "1"
+  }
+}

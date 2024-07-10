@@ -18,9 +18,10 @@
 //
 // ========================================================================
 
+import { type Locator, type Page } from 'playwright';
+import { type Language } from '../data/language';
+import { LanguageError, LanguageMessages } from '../errors/read_errors';
 import { BASE_URL } from '../index';
-import { type LanguageId, type Language } from '../data/language';
-import { type Page } from 'playwright';
 import { dialogHandler } from '../utils/handlers';
 
 export async function createLanguage(
@@ -28,53 +29,152 @@ export async function createLanguage(
   language: Language
 ): Promise<Language> {
   await page.goto(BASE_URL + '/admin/language.php');
-  await page.locator("input[name='langnumber']").fill(language.id);
-  await page.locator("input[name='langname']").fill(language.name);
-  await page.locator("input[name='langextension']").fill(language.extension);
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
 
+  await checkLanguageNotExists(page, language.id);
+  await fillLanguageForm(page, language);
   page.on('dialog', dialogHandler);
-
-  await page.locator("input[name='Submit3']").click();
-
+  await page.getByRole('button', { name: 'Send' }).click();
   page.removeListener('dialog', dialogHandler);
-
-  return getLanguage(page, language);
+  return await getLanguage(page, language.id);
 }
 
 export async function deleteLanguage(
   page: Page,
-  language: LanguageId
-): Promise<void> {
+  id: Language['id']
+): Promise<Language> {
   await page.goto(BASE_URL + '/admin/language.php');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
 
-  const loc = language.id ? 'td:nth-of-type(1)' : 'td:nth-of-type(2)';
-
-  const row = await page.locator('table:nth-of-type(3) > tbody > tr', {
-    has: page.locator(loc, { hasText: language.id ?? language.name })
-  });
-
+  const row = await checkLanguageExists(page, id);
+  const language: Language = await getLanguageFromRow(page, id);
   page.on('dialog', dialogHandler);
-
-  await row.locator('td:nth-of-type(1) a').click();
-
+  await row.locator('td:nth-of-type(1) > a').click();
   page.removeListener('dialog', dialogHandler);
+  return language;
+}
+
+export async function deleteLanguages(page: Page): Promise<Language[]> {
+  await page.goto(BASE_URL + '/admin/language.php');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
+
+  const loc = page.locator('td:nth-of-type(1)', {
+    hasNotText: 'Language #'
+  });
+  const rows = await page.locator('table:nth-of-type(3) > tbody > tr', {
+    has: loc
+  });
+  const rowCount = await rows.count();
+  const languages: Language[] = [];
+  // Find deletable languages
+  for (let i = 0; i < rowCount; i++) {
+    const row = rows.nth(i);
+    if ((await row.locator('td:nth-of-type(1) > a').count()) === 0) continue;
+    const id = await row.locator('td:nth-of-type(1)').innerText();
+    languages.push(await getLanguage(page, id));
+  }
+  // Delete them
+  for (let i = 0; i < languages.length; i++) {
+    await deleteLanguage(page, languages[i].id);
+  }
+  // Return deleted languages
+  return languages;
 }
 
 export async function getLanguage(
   page: Page,
-  language: LanguageId
+  id: Language['id']
 ): Promise<Language> {
   await page.goto(BASE_URL + '/admin/language.php');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
 
-  const loc = language.id ? 'td:nth-of-type(1)' : 'td:nth-of-type(2)';
+  return await getLanguageFromRow(page, id);
+}
 
-  const row = await page.locator('table:nth-of-type(3) > tbody > tr', {
-    has: page.locator(loc, { hasText: language.id ?? language.name })
+export async function getLanguages(page: Page): Promise<Language[]> {
+  await page.goto(BASE_URL + '/admin/language.php');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
+
+  const loc = page.locator('td:nth-of-type(1)', {
+    hasNotText: 'Language #'
   });
+  const rows = await page.locator('table:nth-of-type(3) > tbody > tr', {
+    has: loc
+  });
+  const rowCount = await rows.count();
+  const languages: Language[] = [];
+  for (let i = 0; i < rowCount; i++) {
+    const row = rows.nth(i);
+    const id = await row.locator('td:nth-of-type(1)').innerText();
+    languages.push(await getLanguage(page, id));
+  }
+  return languages;
+}
 
-  return {
-    id: await row.locator('td:nth-of-type(1)').innerText(),
-    name: await row.locator('td:nth-of-type(2)').innerText(),
-    extension: await row.locator('td:nth-of-type(3)').innerText()
-  };
+export async function updateLanguage(
+  page: Page,
+  language: Language
+): Promise<Language> {
+  await page.goto(BASE_URL + '/admin/language.php');
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
+
+  await checkLanguageExists(page, language.id);
+  await fillLanguageForm(page, language);
+  page.on('dialog', dialogHandler);
+  await page.locator('input[name="Submit3"]').click();
+  page.removeListener('dialog', dialogHandler);
+  return await getLanguage(page, language.id);
+}
+
+async function checkLanguageExists(page: Page, id: string): Promise<Locator> {
+  const loc = 'td:nth-of-type(1)';
+  const re = new RegExp(`^${id}$`);
+  const row = await page.locator('table:nth-of-type(3) > tbody > tr', {
+    has: page.locator(loc, { hasText: re })
+  });
+  if ((await row.count()) === 0) {
+    throw new LanguageError(LanguageMessages.NOT_FOUND);
+  }
+  return row;
+}
+
+async function checkLanguageNotExists(
+  page: Page,
+  id: string
+): Promise<Locator> {
+  const loc = 'td:nth-of-type(1)';
+  const re = new RegExp(`^${id}$`);
+  const row = await page.locator('table:nth-of-type(3) > tbody > tr', {
+    has: page.locator(loc, { hasText: re })
+  });
+  if ((await row.count()) > 0) {
+    throw new LanguageError(LanguageMessages.ID_ALREADY_IN_USE);
+  }
+  return row;
+}
+
+async function fillLanguageForm(page: Page, language: Language): Promise<void> {
+  await page.locator("input[name='langnumber']").fill(language.id);
+  await page.locator("input[name='langname']").fill(language.name);
+  if (language.extension !== undefined) {
+    await page.locator("input[name='langextension']").fill(language.extension);
+  }
+}
+
+async function getLanguageFromRow(
+  page: Page,
+  id: Language['id']
+): Promise<Language> {
+  const language: Language = {} as Language;
+  const row = await checkLanguageExists(page, id);
+  language.id = await row.locator('td:nth-of-type(1)').innerText();
+  language.name = await row.locator('td:nth-of-type(2)').innerText();
+  language.extension = await row.locator('td:nth-of-type(3)').innerText();
+  return language;
 }
