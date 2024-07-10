@@ -42,3 +42,6 @@ RUN apt-get -y update \
     # Install yamllinter (YAML linter)
     yamllint \
     && rm -rf /var/lib/apt/lists/*
+
+# Clone the shunit2 repository to use in the tests
+RUN git clone https://github.com/kward/shunit2.git /opt/shunit2

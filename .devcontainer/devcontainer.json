@@ -29,11 +29,11 @@
   // Or use a Dockerfile or Docker Compose file. More info:
   // https://containers.dev/guide/dockerfile
   // "build": {
-  //     // Sets the run context to the same level of the .devcontainer folder.
-  //     "context": ".",
-  //     // Update the 'dockerFile' property if you aren't using the standard
-  //     // 'Dockerfile' filename.
-  //     "dockerfile": "Dockerfile"
+  //   // Sets the run context to the same level of the .devcontainer folder.
+  //   "context": ".",
+  //   // Update the 'dockerFile' property if you aren't using the standard
+  //   // 'Dockerfile' filename.
+  //   "dockerfile": "Dockerfile"
   // },
   "dockerComposeFile": "docker-compose.yml",
   "service": "devcontainer",
@@ -41,8 +41,8 @@
   // An array of Docker CLI arguments that should be used when running the
   // container.
   // "runArgs": [
-  //     "--name=devcontainer",
-  //     "--rm"
+  //   "--name=devcontainer",
+  //   "--rm"
   // ],
 
   // Use 'postCreateCommand' to run commands after the container is created.
@@ -73,6 +73,7 @@
       "settings": {},
       "extensions": [
         "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
         "foxundermoon.shell-format",
         "ms-azuretools.vscode-docker",
         "davidanson.vscode-markdownlint",

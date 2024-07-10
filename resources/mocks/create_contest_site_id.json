@@ -7,7 +7,7 @@
     "password": "boca"
   },
   "contest": {
-    "mainSiteNumber": "1",
-    "localSiteNumber": "2"
+    "mainSiteId": "1",
+    "localSiteId": "2"
   }
 }

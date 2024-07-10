@@ -18,49 +18,68 @@
 //
 // ========================================================================
 
+import * as fs from 'fs';
 import { z } from 'zod';
+import { TypeMessages, UserMessages } from '../errors/read_errors';
 
 export type User = z.infer<typeof userSchema>;
 
-export type UserId = z.infer<typeof userIdSchema>;
+export type GetUser = z.infer<typeof getUserSchema>;
 
-export const insertUsersSchema = z.object({
-  userPath: z.string()
+export const importUsersSchema = z.object({
+  userPath: z.string().refine((value) => {
+    // Check if the file exists with fs.accessSync
+    try {
+      fs.accessSync(value, fs.constants.R_OK);
+      return true;
+    } catch {
+      return false;
+    }
+  }, UserMessages.FILE_NOT_FOUND)
 });
 
 export const userSchema = z.object({
-  userSiteNumber: z.number().optional(),
-  userNumber: z.string(),
-  userName: z.string(),
-  userIcpcId: z.string().optional(),
-  userType: z.union([
-    z.literal('Team'),
-    z.literal('Judge'),
-    z.literal('Admin'),
-    z.literal('Staff'),
-    z.literal('Score'),
-    z.literal('Site')
-  ]),
-  userEnabled: z.union([z.literal('Yes'), z.literal('No')]).optional(),
-  userMultiLogin: z.union([z.literal('Yes'), z.literal('No')]).optional(),
-  userFullName: z.string(),
-  userDesc: z.string(),
-  userIp: z.string().ip().optional(),
-  userPassword: z.string().optional(),
-  userChangePass: z.union([z.literal('Yes'), z.literal('No')]).optional()
+  siteId: z
+    .string()
+    .refine((value) => parseInt(value) > 0, {
+      message: TypeMessages.POSITIVE_NUMBER_REQUIRED
+    })
+    .optional(),
+  id: z.string().refine((value) => parseInt(value) > 0, {
+    message: TypeMessages.POSITIVE_NUMBER_REQUIRED
+  }),
+  username: z
+    .string()
+    .refine(
+      (value) => value !== undefined && value !== '',
+      UserMessages.USERNAME_REQUIRED
+    ),
+  icpcId: z.string().optional(),
+  type: z
+    .union([
+      z.literal('Team'),
+      z.literal('Judge'),
+      z.literal('Admin'),
+      z.literal('Staff'),
+      z.literal('Score'),
+      z.literal('Site')
+    ])
+    .optional(),
+  isEnabled: z.union([z.literal('Yes'), z.literal('No')]).optional(),
+  isMultiLogin: z.union([z.literal('Yes'), z.literal('No')]).optional(),
+  fullName: z.string().optional(),
+  description: z.string().optional(),
+  ip: z.string().ip().optional(),
+  password: z.string().optional(),
+  allowPasswordChange: z.union([z.literal('Yes'), z.literal('No')]).optional()
 });
 
-export const userIdSchema = userSchema
+export const getUserSchema = userSchema
   .pick({
-    userName: true,
-    userNumber: true
+    siteId: true,
+    id: true
   })
-  .partial()
   .refine(
-    (user) => user.userName === undefined || user.userNumber === undefined,
-    'Only one of id or name should be provided.'
-  )
-  .refine(
-    (user) => user.userName !== undefined || user.userNumber !== undefined,
-    'At least one of id or name should be provided.'
+    (user) => user.siteId !== undefined && user.id !== undefined,
+    UserMessages.ID_AND_SITE_REQUIRED
   );

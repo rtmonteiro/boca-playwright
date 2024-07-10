@@ -19,10 +19,12 @@
 // ========================================================================
 
 import * as fs from 'fs';
-import { type User } from './data/user';
-import { type Problem } from './data/problem';
-import { type Language } from './data/language';
 import { type Contest } from './data/contest';
+import { type Answer } from './data/answer';
+import { type Language } from './data/language';
+import { type Problem } from './data/problem';
+import { type Site } from './data/site';
+import { type User } from './data/user';
 
 export class Output {
   private static instance: Output | null = null;
@@ -41,7 +43,21 @@ export class Output {
     return Output.instance;
   }
 
-  setResult(result: Contest | Contest[] | User | Problem | Language) {
+  setResult(
+    result:
+      | Contest
+      | Contest[]
+      | Answer
+      | Answer[]
+      | Language
+      | Language[]
+      | Problem
+      | Problem[]
+      | Site
+      | Site[]
+      | User
+      | User[]
+  ) {
     this.result = JSON.stringify(result, null, 2);
   }
 

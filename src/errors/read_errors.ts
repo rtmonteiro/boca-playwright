@@ -20,46 +20,95 @@
 
 export enum ExitErrors {
   OK = 0,
-  NOT_ENOUGH_ARGUMENTS = 11,
+  ARGS_VALIDATION = 1,
   CONFIG_VALIDATION = 12,
-  CONTEST_ERROR = 13,
-  PROBLEM_ERROR = 14,
-  LOGIN_ERROR = 15
+  AUTHENTICATION_ERROR = 13,
+  CONTEST_ERROR = 14,
+  ANSWER_ERROR = 15,
+  // CLARIFICATION_ERROR = 16,
+  LANGUAGE_ERROR = 17,
+  // LOG_ERROR = 18,
+  PROBLEM_ERROR = 19,
+  // RUN_ERROR = 20,
+  // TASK_ERROR = 21,
+  SITE_ERROR = 22,
+  USER_ERROR = 23
 }
 
 export enum ReadMessages {
-  SETUP_NOT_FOUND = 'Setup file not found',
-  SETUP_INVALID = 'Setup file is invalid',
-  RESULT_FILE_NOT_FOUND = 'Result file not found',
-  FORBIDDEN_PATH = "You don't have permission to access this path"
+  CONFIG_NOT_FOUND = 'Config file not found.',
+  SETUP_INVALID = 'Config file is invalid',
+  RESULT_FILE_NOT_FOUND = 'Result file not found.',
+  FORBIDDEN_PATH = "You don't have permission to access this path."
 }
 
-export enum ProblemMessages {
-  NOT_FOUND = 'Problem not found',
-  INVALID_COLOR_CODE = 'Invalid color code',
-  INVALID_FILE_EXTENSION = 'Invalid file extension',
-  FILE_NOT_FOUND = 'File not found',
-  ONLY_ID_OR_NAME_REQUIRED = 'Only one of id or name should be provided.'
+export enum TypeMessages {
+  POSITIVE_NUMBER_REQUIRED = 'Must be a positive integer number.'
+}
+
+export enum AuthMessages {
+  INVALID_TYPE = 'Invalid user type'
 }
 
 export enum ContestMessages {
-  NOT_FOUND = 'Contest not found',
-  CONTEST_ID_REQUIRED = 'Contest id is required',
-  ONE_FIELD_REQUIRED = 'At least one field is required',
-  NEGATIVE_DURATION = 'The end date must be greater than the start date'
+  ID_REQUIRED = 'Contest number (id) should be provided.',
+  NOT_FOUND = 'Contest not found.',
+  NEGATIVE_DURATION = 'The end date must be greater than the start date.'
 }
 
-export enum LoginMessages {
-  INVALID_USER = 'Invalid user',
-  INVALID_PASSWORD = 'Invalid password',
-  INVALID_TYPE = 'Invalid type'
+export enum AnswerMessages {
+  CANNOT_DELETE = 'Answer cannot be deleted.',
+  ID_ALREADY_IN_USE = 'Answer number (id) already in use.',
+  ID_REQUIRED = 'Answer number (id) should be provided.',
+  DESC_REQUIRED = 'Answer description should be provided.',
+  NOT_FOUND = 'Answer not found.'
+}
+
+export enum LanguageMessages {
+  ID_ALREADY_IN_USE = 'Language number (id) already in use.',
+  ID_REQUIRED = 'Language number (id) should be provided.',
+  NAME_REQUIRED = 'Language name should be provided.',
+  NOT_FOUND = 'Language not found.'
+}
+
+export enum ProblemMessages {
+  DESC_FILE_UNAVAILABLE = 'Problem desc file unavailable.',
+  FILE_NOT_FOUND = 'Problem package file (.zip) not found.',
+  ID_ALREADY_IN_USE = 'Problem number (id) already in use.',
+  ID_REQUIRED = 'Problem number (id) should be provided.',
+  INVALID_COLOR_CODE = 'Invalid color code (e.g., 00FF00).',
+  INVALID_FILE_EXTENSION = 'Invalid package file extension (required: .zip).',
+  NAME_REQUIRED = 'Problem name should be provided.',
+  NOT_FOUND = 'Problem not found.',
+  PCKG_FILE_UNAVAILABLE = 'Problem package file (.zip) unavailable.'
+}
+
+export enum SiteMessages {
+  ID_ALREADY_IN_USE = 'Site number (id) already in use.',
+  ID_REQUIRED = 'Site number (id) should be provided.',
+  NOT_FOUND = 'Site not found.',
+  NEGATIVE_DURATION = 'The end date must be greater than the start date.'
+}
+
+export enum UserMessages {
+  CANNOT_DELETE = 'User cannot be deleted/disabled.',
+  FILE_NOT_FOUND = 'File not found.',
+  ID_AND_SITE_REQUIRED = 'User and site number (id) should be provided.',
+  ID_AND_SITE_ALREADY_IN_USE = 'User number (id) already in use in this site.',
+  NOT_FOUND = 'User not found.',
+  USERNAME_REQUIRED = 'Username should be provided.'
 }
 
 type ErrorMessages =
   | ReadMessages
-  | ProblemMessages
+  | TypeMessages
+  | AuthMessages
   | ContestMessages
-  | LoginMessages;
+  | AnswerMessages
+  | LanguageMessages
+  | ProblemMessages
+  | SiteMessages
+  | UserMessages;
 
 export class ErrorBase extends Error {
   code: number;
@@ -80,9 +129,27 @@ export class ErrorBase extends Error {
   }
 }
 
+export class AuthError extends ErrorBase {
+  constructor(message: AuthMessages, cause?: unknown) {
+    super({ code: ExitErrors.CONFIG_VALIDATION, message, cause });
+  }
+}
+
 export class ContestError extends ErrorBase {
   constructor(message: ContestMessages, cause?: unknown) {
     super({ code: ExitErrors.CONTEST_ERROR, message, cause });
+  }
+}
+
+export class AnswerError extends ErrorBase {
+  constructor(message: AnswerMessages, cause?: unknown) {
+    super({ code: ExitErrors.ANSWER_ERROR, message, cause });
+  }
+}
+
+export class LanguageError extends ErrorBase {
+  constructor(message: LanguageMessages, cause?: unknown) {
+    super({ code: ExitErrors.LANGUAGE_ERROR, message, cause });
   }
 }
 
@@ -92,8 +159,14 @@ export class ProblemError extends ErrorBase {
   }
 }
 
-export class LoginError extends ErrorBase {
-  constructor(message: LoginMessages, cause?: unknown) {
-    super({ code: ExitErrors.CONFIG_VALIDATION, message, cause });
+export class SiteError extends ErrorBase {
+  constructor(message: SiteMessages, cause?: unknown) {
+    super({ code: ExitErrors.SITE_ERROR, message, cause });
+  }
+}
+
+export class UserError extends ErrorBase {
+  constructor(message: UserMessages, cause?: unknown) {
+    super({ code: ExitErrors.USER_ERROR, message, cause });
   }
 }

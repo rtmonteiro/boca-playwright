@@ -1,0 +1,23 @@
+{
+  "config": {
+    "url": "localhost:8000/boca",
+    "resultFilePath": "./tests/result.json"
+  },
+  "login": {
+    "username": "admin",
+    "password": "boca"
+  },
+  "user": {
+    "siteId": "1",
+    "id": "2019202359",
+    "username": "ryanmonteiro",
+    "icpcId": "ryanmonteiro2",
+    "type": "Team",
+    "isEnabled": "Yes",
+    "isMultiLogin": "Yes",
+    "fullName": "Ryan Tavares Farias da Silva Monteiro",
+    "description": "ryan.monteiro@aluno.ufes.br",
+    "ip": "127.0.0.1",
+    "password": "boca"
+  }
+}
