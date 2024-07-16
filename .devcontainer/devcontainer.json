@@ -72,9 +72,13 @@
     "vscode": {
       "settings": {},
       "extensions": [
-        "streetsidesoftware.code-spell-checker",
+        "esbenp.prettier-vscode",
         "dbaeumer.vscode-eslint",
-        "esbenp.prettier-vscode"
+        "foxundermoon.shell-format",
+        "ms-azuretools.vscode-docker",
+        "davidanson.vscode-markdownlint",
+        "fnando.linter",
+        "streetsidesoftware.code-spell-checker"
       ]
     }
   },

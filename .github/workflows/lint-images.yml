@@ -68,7 +68,7 @@ jobs:
     steps:
       # Setting output parameters between steps, jobs and/or workflows
       # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions
-      - 
+      -
         name: Write variables to GITHUB_OUTPUT
         id: setup
         run: |
@@ -107,10 +107,10 @@ jobs:
 
       # Checkout a repository, so the workflow can use the .dockleignore file
       # https://github.com/actions/checkout
-      - 
+      -
         name: Checkout repository
         uses: actions/checkout@v4
-          
+
       # Create and boot a builder that can be used in the following steps of
       # the workflow
       # https://github.com/docker/setup-buildx-action
@@ -120,7 +120,7 @@ jobs:
 
       # Login to a Docker registry (except on PR)
       # https://github.com/docker/login-action
-      - 
+      -
         name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -139,7 +139,7 @@ jobs:
 
       # Run Dockle best practices linter on image
       # https://github.com/erzz/dockle-action
-      - 
+      -
         name: Run Dockle best practices linter on image
         uses: erzz/dockle-action@v1
         with:
@@ -155,7 +155,7 @@ jobs:
       # Upload results to GitHub so they can be displayed in the repository'
       # security tab
       # https://github.com/github/codeql-action
-      # - 
+      # -
       #   name: Upload Dockle image lint results to GitHub Security tab
       #   uses: github/codeql-action/upload-sarif@v2
       #   with:

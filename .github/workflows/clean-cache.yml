@@ -1,4 +1,4 @@
----  
+---
 name: Delete GitHub Actions cache for repository
 
 # This workflow uses actions that are not certified by GitHub.
@@ -26,7 +26,7 @@ jobs:
   cleanup:
     permissions:
       # `actions:write` permission is required to delete caches
-      # See also: 
+      # See also:
       # https://docs.github.com/en/rest/actions/cache?apiVersion=2022-11-28#delete-a-github-actions-cache-for-a-repository-using-a-cache-id
       actions: write
       contents: read
@@ -35,7 +35,7 @@ jobs:
     steps:
       # Checkout a repository, so the workflow can access it
       # https://github.com/actions/checkout
-      - 
+      -
         name: Checkout repository
         uses: actions/checkout@v4
 
@@ -44,7 +44,7 @@ jobs:
 
       # Install GH CLI (self-hosted runners do not come with it out of the box)
       # https://github.com/dev-hanz-ops/install-gh-cli-action
-      # - 
+      # -
       #   name: Install GH CLI
       #   uses: dev-hanz-ops/install-gh-cli-action@v0.1.0
       #   with:
@@ -52,7 +52,7 @@ jobs:
 
       # Force deletion of caches overriding default cache eviction policy
       # https://github.com/actions/cache
-      - 
+      -
         name: Delete all cache entries
         run: |
 

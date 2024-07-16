@@ -18,7 +18,7 @@ on:
     # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#onworkflow_callinputs
     inputs:
       images:
-        description: 
+        description:
           Matrix of images to build (i.e., boca-playwright)
         required: true
         type: string
@@ -47,7 +47,7 @@ on:
       ref:
         # The branch, tag or SHA to checkout in builds. If empty, check out
         # the repository that triggered the workflow.
-        description: 
+        description:
           The branch, tag or SHA to checkout (empty for current branch)
         required: false
         type: string
@@ -61,7 +61,7 @@ env:
   OWNER_NAME: ${{ github.repository_owner }}
   # Use GitHub local artifacts
   DIGESTS_PATH: /tmp/digests
-     
+
 jobs:
   # Distribute build of each platform across multiple runners and
   # push by digest
@@ -80,13 +80,13 @@ jobs:
         image: ${{ fromJSON(inputs.images) }}
         parent: ${{ fromJSON(inputs.parents) }}
         platform: ${{ fromJSON(inputs.platforms) }}
-    name: 
+    name:
       build (${{ matrix.image }}, ${{ matrix.parent }}, ${{ matrix.platform }})
 
     steps:
       # Setting output parameters between steps, jobs and/or workflows
       # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions
-      - 
+      -
         name: Write variables to GITHUB_OUTPUT
         id: setup
         run: |
@@ -158,7 +158,7 @@ jobs:
 
       # Checkout a repository, so the workflow can access it
       # https://github.com/actions/checkout
-      - 
+      -
         name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -166,20 +166,20 @@ jobs:
 
       # Add support for more platforms with QEMU (optional)
       # https://github.com/docker/setup-qemu-action
-      - 
+      -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
       # Create and boot a builder that can be used in the following steps of
       # the workflow
       # https://github.com/docker/setup-buildx-action
-      - 
+      -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       # Login to a Docker registry (except on PR)
       # https://github.com/docker/login-action
-      - 
+      -
         name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -189,7 +189,7 @@ jobs:
 
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
-      - 
+      -
         name: Extract Docker metadata (${{ matrix.image }})
         id: meta
         uses: docker/metadata-action@v5
@@ -203,7 +203,7 @@ jobs:
 
             org.opencontainers.image.url=${{ steps.setup.outputs.image_name }}
 
-      - 
+      -
         name: Build and push image remotely (${{ matrix.image }})
         id: build
         uses: docker/build-push-action@v6
@@ -264,7 +264,7 @@ jobs:
       - build
 
     steps:
-      - 
+      -
         name: Write variables to GITHUB_OUTPUT
         id: setup
         run: |
@@ -356,7 +356,7 @@ jobs:
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - 
+      -
         name: Extract Docker metadata (${{ matrix.image }})
         id: meta
         uses: docker/metadata-action@v5
@@ -364,7 +364,7 @@ jobs:
           images: ${{ steps.setup.outputs.image_name }}
           tags: |
             ${{ steps.setup.outputs.extra_tags }}
-          flavor: >- 
+          flavor: >-
             latest=${{ matrix.parent == inputs.default_parent &&
             (github.event_name == 'push' && contains(github.ref,
             'refs/tags/') || inputs.latest == true ) }}
@@ -376,7 +376,7 @@ jobs:
 
             org.opencontainers.image.url=${{ steps.setup.outputs.image_name }}
 
-      - 
+      -
         name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -384,7 +384,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - 
+      -
         name: Create manifest list and push
         working-directory: ${{ steps.setup.outputs.digests_path }}
         run: |
@@ -394,10 +394,10 @@ jobs:
               '${{ steps.meta.outputs.json }}') \
               $(printf '${{ steps.setup.outputs.image_name }}@sha256:%s ' *)
 
-      - 
+      -
         name: Inspect image
         run: |
-      
+
           IMG="${{ steps.setup.outputs.image_name }}:"
           IMG+="${{ steps.meta.outputs.version }}"
           docker buildx imagetools inspect "${IMG}"
