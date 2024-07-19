@@ -55,7 +55,7 @@ async function saveFiles(
   const label = statusInt === 1 ? 'YES' : 'NO';
   let run = await page
     .locator(
-      'html > body > form > center:nth-of-type(1) > table > tbody > tr:nth-of-type(2) > td:nth-of-type(2)'
+      'form > center:nth-of-type(1) > table > tbody > tr:nth-of-type(2) > td:nth-of-type(2)'
     )
     .textContent();
   run = run?.trim() ?? '';
@@ -115,42 +115,18 @@ export async function downloadRun(
   runId: GetRun['id'],
   outDir: string
 ): Promise<void> {
-  await page.goto(`${BASE_URL}/admin/run/${runId}`);
+  await page.goto(`${BASE_URL}/admin/run.php`);
   // Wait for load state
   await page.waitForLoadState('domcontentloaded');
 
-  const username =
-    (await page
-      .locator('table > tbody > tr:nth-of-type(3) > td:nth-of-type(2)')
-      .textContent()) ?? '';
-  const problem =
-    (await page
-      .locator('table > tbody > tr:nth-of-type(5) > td:nth-of-type(2)')
-      .textContent()) ?? '';
+  const row = await page.locator('tr', {
+    has: await page.locator('td:nth-of-type(1)', { hasText: runId })
+  })
 
-  const dirPath = path.join(outDir, username, problem, runId);
+  const link = await row.locator('td:nth-of-type(1) > a')
 
-  // Verify if the folder exist and create it if not
-  if (!fs.existsSync(dirPath)) fs.mkdirSync(dirPath, { recursive: true });
+  const username = (await row.locator('td:nth-of-type(3)').textContent()) ?? '';
+  const problem = (await row.locator('td:nth-of-type(5)').textContent()) ?? '';
 
-  const code = page.locator(
-    'table > tbody > tr:nth-of-type(6) > td:nth-of-type(2) > a:nth-of-type(1)'
-  );
-  await downloadFile(page, dirPath, code);
-
-  const statusInt: number = Number(await page.locator('select').inputValue());
-  // const label = statusInt === 1 ? 'YES' : 'NO';
-  if (statusInt !== 0) {
-    const stdout = page.locator(
-      'form > center:nth-of-type(3) > table > tbody > tr:nth-of-type(3) > td:nth-of-type(2)'
-    );
-    await downloadFile(page, dirPath, stdout, 'stdout.txt');
-
-    const stderr = page.locator(
-      'form > center:nth-of-type(3) > table > tbody > tr:nth-of-type(4) > td:nth-of-type(2)'
-    );
-    await downloadFile(page, dirPath, stderr, 'stderr.txt');
-  }
-
-  await page.goBack();
+  await saveFiles(page, link, outDir, username, problem);
 }

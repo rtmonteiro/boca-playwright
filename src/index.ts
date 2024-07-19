@@ -1401,7 +1401,7 @@ async function shouldUpdateUser(setup: Setup): Promise<void> {
 async function shouldDownloadRuns(setup: Setup): Promise<void> {
   // instantiate logger
   const logger = Logger.getInstance();
-  logger.logInfo('Generating reports');
+  logger.logInfo('Downloading runs');
 
   // validate setup file with zod
   const validate = new Validate(setup);
@@ -1429,7 +1429,7 @@ async function shouldDownloadRuns(setup: Setup): Promise<void> {
 async function shouldDownloadRun(setup: Setup): Promise<void> {
   // instantiate logger
   const logger = Logger.getInstance();
-  logger.logInfo('Generating report');
+  logger.logInfo('Downloading run');
 
   // validate setup file with zod
   const validate = new Validate(setup);
