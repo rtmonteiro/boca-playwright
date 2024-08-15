@@ -123,7 +123,7 @@ TODO
 - restoreUsers (enableUsers)
 - updateUser
 
-- generateReport
+- downloadRuns
 
 ### Exemplos
 
@@ -177,10 +177,10 @@ docker run -it \
     npm start -- -p resources/setup.json -m createProblem
     ```
 
-- Gera um relatório de runs do site e deposita os arquivos na pasta definida na propriedade `outReportDir`
+- Gera um relatório de runs do site e deposita os arquivos na pasta definida na propriedade `runPath`
 
     ```bash
-    npm start -- -p resources/setup.json -m generateReport
+    npm start -- -p resources/setup.json -m downloadRuns
     ```
 
 ## How To Run On Different Node Release Images

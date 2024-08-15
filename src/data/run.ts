@@ -20,8 +20,27 @@
 
 import { z } from 'zod';
 
-export type Report = z.infer<typeof reportSchema>;
+export type Run = z.infer<typeof runSchema>;
 
-export const reportSchema = z.object({
-  outReportDir: z.string()
+export type RunType = z.infer<typeof runType>;
+
+export type GetRun = z.infer<typeof getRunSchema>;
+
+export const runSchema = z.object({
+  runPath: z.string()
+});
+
+export const getRunSchema = z.object({
+  id: z.string()
+});
+
+export const runType = z.object({
+  id: z.string(),
+  site: z.string(),
+  user: z.string(),
+  time: z.string(),
+  problem: z.string(),
+  language: z.string(),
+  status: z.string(),
+  answer: z.string()
 });

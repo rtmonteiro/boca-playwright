@@ -88,7 +88,7 @@ import {
   restoreUsers,
   updateUser
 } from './scripts/user';
-import { retrieveFiles } from './scripts/report';
+import { downloadRun, downloadRuns, getRun, getRuns } from './scripts/run';
 
 const STEP_DURATION = 100;
 const HEADLESS = true;
@@ -1398,16 +1398,16 @@ async function shouldUpdateUser(setup: Setup): Promise<void> {
 //#endregion
 
 //#region Reports
-async function shouldGenerateReport(setup: Setup): Promise<void> {
+async function shouldDownloadRuns(setup: Setup): Promise<void> {
   // instantiate logger
   const logger = Logger.getInstance();
-  logger.logInfo('Generating reports');
+  logger.logInfo('Downloading runs');
 
   // validate setup file with zod
   const validate = new Validate(setup);
-  const setupValidated = validate.generateReport();
+  const setupValidated = validate.downloadRuns();
   const admin: Auth = setupValidated.login;
-  const outDir = setupValidated.config.outReportDir;
+  const outDir = setupValidated.config.runPath;
 
   const browser = await chromium.launch({
     headless: HEADLESS,
@@ -1420,10 +1420,96 @@ async function shouldGenerateReport(setup: Setup): Promise<void> {
   page.setDefaultTimeout(TIMEOUT);
   await authenticateUser(page, admin);
   await validate.checkUserType(page, 'Admin');
-  await retrieveFiles(page, outDir);
+  await downloadRuns(page, outDir);
   // Dispose context once it's no longer needed.
   await context.close();
   await browser.close();
+}
+
+async function shouldDownloadRun(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Downloading run');
+
+  // validate setup file with zod
+  const validate = new Validate(setup);
+  const setupValidated = validate.downloadRun();
+  const admin: Auth = setupValidated.login;
+  const runId = setupValidated.run.id;
+  const outDir = setupValidated.config.runPath;
+
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
+  // Create a new incognito browser context
+  const context = await browser.newContext();
+  // Create a new page inside context.
+  const page = await context.newPage();
+  page.setDefaultTimeout(TIMEOUT);
+  await authenticateUser(page, admin);
+  await downloadRun(page, runId, outDir);
+  // Dispose context once it's no longer needed.
+  await context.close();
+  await browser.close();
+}
+
+async function shouldGetRun(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Getting run');
+
+  // validate setup file with zod
+  const validate = new Validate(setup);
+  const setupValidated = validate.getRun();
+  const admin: Auth = setupValidated.login;
+  const runId = setupValidated.run.id;
+
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
+  // Create a new incognito browser context
+  const context = await browser.newContext();
+  // Create a new page inside context.
+  const page = await context.newPage();
+  page.setDefaultTimeout(TIMEOUT);
+  await authenticateUser(page, admin);
+  const form = await getRun(page, runId);
+  // Dispose context once it's no longer needed.
+  await context.close();
+  await browser.close();
+  logger.logInfo('Found run with id: %s', form.id);
+  const output = Output.getInstance();
+  output.setResult(form);
+}
+
+async function shouldGetRuns(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Getting runs');
+
+  // validate setup file with zod
+  const validate = new Validate(setup);
+  const setupValidated = validate.getRuns();
+  const admin: Auth = setupValidated.login;
+
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
+  // Create a new incognito browser context
+  const context = await browser.newContext();
+  // Create a new page inside context.
+  const page = await context.newPage();
+  await authenticateUser(page, admin);
+  const form = await getRuns(page);
+  // Dispose context once it's no longer needed.
+  await context.close();
+  await browser.close();
+  logger.logInfo('Found %s runs', form.length);
+  const output = Output.getInstance();
+  output.setResult(form);
 }
 
 //#endregion
@@ -1486,7 +1572,10 @@ const methods: Record<string, (setup: Setup) => Promise<void>> = {
   restoreUsers: shouldRestoreUsers,
   updateUser: shouldUpdateUser,
   // Reports
-  generateReport: shouldGenerateReport
+  downloadRuns: shouldDownloadRuns,
+  downloadRun: shouldDownloadRun,
+  getRun: shouldGetRun,
+  getRuns: shouldGetRuns
 };
 
 function main(): number {
