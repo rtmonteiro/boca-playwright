@@ -22,6 +22,8 @@ import { z } from 'zod';
 
 export type Run = z.infer<typeof runSchema>;
 
+export type RunType = z.infer<typeof runType>;
+
 export type GetRun = z.infer<typeof getRunSchema>;
 
 export const runSchema = z.object({
@@ -30,4 +32,15 @@ export const runSchema = z.object({
 
 export const getRunSchema = z.object({
   id: z.string()
+});
+
+export const runType = z.object({
+  id: z.string(),
+  site: z.string(),
+  user: z.string(),
+  time: z.string(),
+  problem: z.string(),
+  language: z.string(),
+  status: z.string(),
+  answer: z.string()
 });
