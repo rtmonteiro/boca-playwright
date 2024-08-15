@@ -88,7 +88,7 @@ import {
   restoreUsers,
   updateUser
 } from './scripts/user';
-import { downloadRun, downloadRuns, getRun } from './scripts/run';
+import { downloadRun, downloadRuns, getRun, getRuns } from './scripts/run';
 
 const STEP_DURATION = 100;
 const HEADLESS = true;
@@ -1484,6 +1484,34 @@ async function shouldGetRun(setup: Setup): Promise<void> {
   output.setResult(form);
 }
 
+async function shouldGetRuns(setup: Setup): Promise<void> {
+  // instantiate logger
+  const logger = Logger.getInstance();
+  logger.logInfo('Getting runs');
+
+  // validate setup file with zod
+  const validate = new Validate(setup);
+  const setupValidated = validate.getRuns();
+  const admin: Auth = setupValidated.login;
+
+  const browser = await chromium.launch({
+    headless: HEADLESS,
+    slowMo: STEP_DURATION
+  });
+  // Create a new incognito browser context
+  const context = await browser.newContext();
+  // Create a new page inside context.
+  const page = await context.newPage();
+  await authenticateUser(page, admin);
+  const form = await getRuns(page);
+  // Dispose context once it's no longer needed.
+  await context.close();
+  await browser.close();
+  logger.logInfo('Found %s runs', form.length);
+  const output = Output.getInstance();
+  output.setResult(form);
+}
+
 //#endregion
 
 const methods: Record<string, (setup: Setup) => Promise<void>> = {
@@ -1546,7 +1574,8 @@ const methods: Record<string, (setup: Setup) => Promise<void>> = {
   // Reports
   downloadRuns: shouldDownloadRuns,
   downloadRun: shouldDownloadRun,
-  getRun: shouldGetRun
+  getRun: shouldGetRun,
+  getRuns: shouldGetRuns
 };
 
 function main(): number {

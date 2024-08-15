@@ -253,4 +253,12 @@ export class Validate {
     setupType.parse(this.setup);
     return this.setup as z.infer<typeof setupType>;
   }
+
+  getRuns(): z.infer<typeof setupType> {
+    const setupType = z.object({
+      login: authSchema
+    });
+    setupType.parse(this.setup);
+    return this.setup as z.infer<typeof setupType>;
+  }
 }

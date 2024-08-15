@@ -165,3 +165,40 @@ export async function getRun(
     answer: answer ?? ''
   };
 }
+
+export async function getRuns(page: Page): Promise<RunType[]> {
+  await page.goto(`${BASE_URL}/admin/run.php`);
+  // Wait for load state
+  await page.waitForLoadState('domcontentloaded');
+
+  const rows = await page
+    .locator('tr', {
+      has: await page.locator('td:nth-of-type(1)', { hasText: /\d+/ })
+    })
+    .all();
+
+  const runs: RunType[] = [];
+
+  for (const row of rows) {
+    const id = await row.locator('td:nth-of-type(1)').textContent();
+    const site = await row.locator('td:nth-of-type(2)').textContent();
+    const user = await row.locator('td:nth-of-type(3)').textContent();
+    const time = await row.locator('td:nth-of-type(4)').textContent();
+    const problem = await row.locator('td:nth-of-type(5)').textContent();
+    const language = await row.locator('td:nth-of-type(6)').textContent();
+    const status = await row.locator('td:nth-of-type(7)').textContent();
+    const answer = await row.locator('td:nth-of-type(10)').textContent();
+
+    runs.push({
+      id: id?.trim() ?? '',
+      site: site ?? '',
+      user: user ?? '',
+      time: time ?? '',
+      problem: problem ?? '',
+      language: language ?? '',
+      status: status ?? '',
+      answer: answer ?? ''
+    });
+  }
+  return runs;
+}
