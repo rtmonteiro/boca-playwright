@@ -63,7 +63,11 @@ async function saveFiles(
   const dirPath = path.join(outDir, username, problem, `${run}_${label}`);
 
   // Verify if the folder exist and create it if not
-  if (!fs.existsSync(dirPath)) fs.mkdirSync(dirPath, { recursive: true });
+  try {
+    fs.accessSync(dirPath);
+  } catch {
+    fs.mkdirSync(dirPath, { recursive: true });
+  }
 
   const code = page.locator(
     'table > tbody > tr:nth-of-type(6) > td:nth-of-type(2) > a:nth-of-type(1)'

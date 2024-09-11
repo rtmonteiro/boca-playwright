@@ -1,0 +1,98 @@
+@startuml
+
+class Setup
+
+class Config {
+    url: string
+    userPath: string
+    resultFilePath: string
+}
+
+class Login {
+    username: string
+    password: string
+}
+
+class Contest {
+    id: string
+    name: string
+    startDate: string
+    endDate: string
+    stopAnsweringDate: string
+    stopScoreboardDate: string
+    penalty: string
+    maxFileSize: string
+    mainSiteUrl: string
+    mainSiteId: string
+    localSiteId: string
+    isActive: "Yes" | "No"
+}
+
+class Answer {
+    id: string
+    description: string
+    shortname: string
+    type: "Yes" | "No"
+}
+
+class Language {
+    id: string
+    name: string
+    extension: string
+}
+
+class Problem {
+    id: string
+    name: string
+    filePath: string
+    colorName: string
+    colorCode: string
+    isEnabled: "Yes" | "No"
+}
+
+class Site {
+    id: string
+    name: string
+    startDate: string
+    endDate: string
+    stopAnsweringDate: string
+    stopScoreboardDate: string
+    runsClarsSiteIds: string
+    tasksSiteIds: string
+    globalScoreSiteIds: string
+    chiefUsername: string
+    isActive: "Yes" | "No"
+    enableAutoEnd: "Yes" | "No"
+    enableAutoJudge: "Yes" | "No"
+    scoreLevel: "-4" | "-3" | "-2" | "-1" | "0" | "1" | "2" | "3" | "4"
+}
+
+class User {
+    siteId: string
+    id: string
+    username: string
+    icpcId: string
+    type: "Team" | "Judge" | "Admin" | "Staff" | "Score" | "Site"
+    isEnabled: "Yes" | "No"
+    isMultiLogin: "Yes" | "No"
+    fullName: string
+    ip: string
+    password: string
+    allowPasswordChange: "Yes" | "No"
+}
+
+class Run {
+    id: string
+}
+
+Setup <|-- Config
+Setup <|-- Login
+Setup <|-- Contest
+Setup <|-- Answer
+Setup <|-- Language
+Setup <|-- Problem
+Setup <|-- Site
+Setup <|-- User
+Setup <|-- Run
+
+@enduml

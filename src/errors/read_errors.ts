@@ -68,7 +68,8 @@ export enum LanguageMessages {
   ID_ALREADY_IN_USE = 'Language number (id) already in use.',
   ID_REQUIRED = 'Language number (id) should be provided.',
   NAME_REQUIRED = 'Language name should be provided.',
-  NOT_FOUND = 'Language not found.'
+  NOT_FOUND = 'Language not found.',
+  NAME_WITHOUT_SPACES = 'Language name should not contain spaces.'
 }
 
 export enum ProblemMessages {

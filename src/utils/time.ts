@@ -28,6 +28,15 @@ export function defineDuration(
   return endDate.diff(startDate, 'minutes');
 }
 
+/**
+ *
+ * @param startDate Data de início do contest
+ * @param page Elemento Página do Playwright
+ * @param duration Duração do contest
+ * @param tolerance Tolêrancia para a data a ser definida
+ * @param inputField Seletor CSS do campo de data
+ * @param field Valor do campo de data
+ */
 export async function fillDateField(
   startDate: DateTime,
   page: Page,

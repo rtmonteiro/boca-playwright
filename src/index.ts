@@ -1602,7 +1602,9 @@ function main(): number {
   const output = Output.getInstance();
 
   // Check if path to config file is set and if it exists
-  if (!fs.existsSync(path)) {
+  try {
+    fs.accessSync(path)
+  } catch {
     logger.logError(ReadMessages.CONFIG_NOT_FOUND);
     exit(ExitErrors.ARGS_VALIDATION);
   }
