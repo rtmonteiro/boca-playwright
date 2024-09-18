@@ -27,9 +27,7 @@ export async function authenticateUser(page: Page, user: Auth): Promise<void> {
   // Wait for load state
   await page.waitForLoadState('domcontentloaded');
 
-  await page.locator('input[name="name"]').click();
   await page.locator('input[name="name"]').fill(user.username);
-  await page.locator('input[name="name"]').press('Tab');
   await page.locator('input[name="password"]').fill(user.password);
   await page.locator('input[name="password"]').press('Enter');
 }
