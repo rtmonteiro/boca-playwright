@@ -76,12 +76,12 @@ async function saveFiles(
 
   if (statusInt !== 0) {
     const stdout = page.locator(
-      'form > center:nth-of-type(3) > table > tbody > tr:nth-of-type(3) > td:nth-of-type(2)'
+      'form > center:nth-of-type(3) > table > tbody > tr:nth-of-type(3) > td:nth-of-type(2) a:nth-child(1)'
     );
     await downloadFile(page, dirPath, stdout, 'stdout.txt');
 
     const stderr = page.locator(
-      'form > center:nth-of-type(3) > table > tbody > tr:nth-of-type(4) > td:nth-of-type(2)'
+      'form > center:nth-of-type(3) > table > tbody > tr:nth-of-type(4) > td:nth-of-type(2) a:nth-child(1)'
     );
     await downloadFile(page, dirPath, stderr, 'stderr.txt');
   }
