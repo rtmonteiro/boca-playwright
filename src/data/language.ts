@@ -37,7 +37,8 @@ export const languageSchema = z.object({
     .refine(
       (value) => value !== undefined && value !== '',
       LanguageMessages.NAME_REQUIRED
-    ).refine(
+    )
+    .refine(
       (value) => !value.includes(' '),
       LanguageMessages.NAME_WITHOUT_SPACES
     ),

@@ -75,8 +75,8 @@ testCreateSiteMissingPathArgument() {
 testCreateSiteMissingMethodArgument() {
   config_file="resources/mocks/success/site/valid_site.json"
   aux_config_file="site_config.json"
-  id=`awk 'BEGIN {srand(); print srand()}'`
-  jq --arg x "$id" '.site.id = $x' "../${config_file}" > "${aux_config_file}"
+  id=$(awk 'BEGIN {srand(); print srand()}')
+  jq --arg x "$id" '.site.id = $x' "../${config_file}" >"${aux_config_file}"
   $cmd -- -p "${aux_config_file}" >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_ARGS_VALIDATION}" "${ret_code}"
@@ -92,8 +92,8 @@ testCreateSiteIncorrectPathArgument() {
 testCreateSiteIncorrectMethodArgument() {
   config_file="resources/mocks/success/site/valid_site.json"
   aux_config_file="site_config.json"
-  id=`awk 'BEGIN {srand(); print srand()}'`
-  jq --arg x "$id" '.site.id = $x' "../${config_file}" > "${aux_config_file}"
+  id=$(awk 'BEGIN {srand(); print srand()}')
+  jq --arg x "$id" '.site.id = $x' "../${config_file}" >"${aux_config_file}"
   $cmd -- -p "./tests/${aux_config_file}" -m createSiteFake >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_ARGS_VALIDATION}" "${ret_code}"
@@ -116,8 +116,8 @@ testCreateSiteMissingBocaUrl() {
 testCreateSiteMissingResultFilePath() {
   config_file="resources/mocks/success/setup/missing_result_file_path_admin.json"
   aux_config_file="site_config.json"
-  id=`awk 'BEGIN {srand(); print srand()}'`
-  jq --arg x "$id" '.site.id = $x' "../${config_file}" > "${aux_config_file}"
+  id=$(awk 'BEGIN {srand(); print srand()}')
+  jq --arg x "$id" '.site.id = $x' "../${config_file}" >"${aux_config_file}"
   $cmd -- -p "./tests/${aux_config_file}" -m createSite >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_SUCCESS}" "${ret_code}"
@@ -462,8 +462,8 @@ testCreateValidSite() {
   fi
 
   aux_config_file="site_config.json"
-  id=`awk 'BEGIN {srand(); print srand()}'`
-  jq --arg x "$id" '.site.id = $x' "../${config_file}" > "${aux_config_file}"
+  id=$(awk 'BEGIN {srand(); print srand()}')
+  jq --arg x "$id" '.site.id = $x' "../${config_file}" >"${aux_config_file}"
   $cmd -- -p "./tests/${aux_config_file}" -m createSite >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_SUCCESS}" "${ret_code}"
@@ -498,8 +498,7 @@ SHELL=$(ps -p $$)
 echo "${SHELL}"
 
 # Load and run shUnit2.
-if [ ! -d "/opt/shunit2" ] || [ ! -f "/opt/shunit2/shunit2" ];
-then
+if [ ! -d "/opt/shunit2" ] || [ ! -f "/opt/shunit2/shunit2" ]; then
   echo "Missing or noninstalled shUnit2 test framework."
   exit 1
 fi
