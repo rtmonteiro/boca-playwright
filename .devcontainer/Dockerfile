@@ -22,7 +22,7 @@ FROM mcr.microsoft.com/devcontainers/typescript-node:1-20
 
 LABEL authors="Ryan Tavares Farias da Silva Monteiro, Rodrigo Laiola Guimaraes"
 ENV CREATED_AT 2024-03-11
-ENV UPDATED_AT 2024-06-26
+ENV UPDATED_AT 2024-11-03
 
 # No interactive frontend during docker build
 ENV DEBIAN_FRONTEND noninteractive
