@@ -45,3 +45,10 @@ RUN apt-get -y update \
 
 # Clone the shunit2 repository to use in the tests
 RUN git clone https://github.com/kward/shunit2.git /opt/shunit2
+
+# Run as a non-root user
+USER node:node
+
+# Install Playwright and Chromium web browser
+RUN npx -y playwright install chromium \
+    && npx playwright install-deps chromium

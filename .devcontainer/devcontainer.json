@@ -46,7 +46,7 @@
   // ],
 
   // Use 'postCreateCommand' to run commands after the container is created.
-  "postCreateCommand": "bash .devcontainer/install_dependencies.sh && npm install",
+  "postCreateCommand": "npm install",
 
   // Indicates whether devcontainer.json supporting tools should stop the
   // containers when the related tool window is closed / shut down.
