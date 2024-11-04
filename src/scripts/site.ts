@@ -109,7 +109,7 @@ export async function getSites(page: Page): Promise<Site[]> {
     // Remove the last option (new)
     options.filter((option) => option !== 'new')
   );
-  if (options.some((option) => option === undefined) || options.length === 1) {
+  if (options.some((option) => option === undefined)) {
     throw new SiteError(SiteMessages.NOT_FOUND);
   }
   const sites: Site[] = [];
