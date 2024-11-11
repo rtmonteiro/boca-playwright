@@ -89,7 +89,9 @@ export async function getContests(page: Page): Promise<Contest[]> {
     optionEls.map(async (el) => el.textContent())
   ).then((options) =>
     // Remove the first option (empty) and the last option (new)
-    options.filter((option) => option !== 'new' && option !== '0')
+    options.filter(
+      (option) => option !== 'new' && option !== '0' && option !== '0*'
+    )
   );
   if (options.some((option) => option === undefined) || options.length === 2) {
     throw new ContestError(ContestMessages.NOT_FOUND);

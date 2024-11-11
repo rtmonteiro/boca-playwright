@@ -151,7 +151,7 @@ export async function getProblems(page: Page): Promise<Problem[]> {
     const row = rows.nth(i);
     const columns = await row.locator('td').all();
     const id = await columns[0].innerText();
-    problems.push(await getProblem(page, id));
+    problems.push(await getProblem(page, id.replace('(deleted)', '')));
   }
   return problems;
 }
