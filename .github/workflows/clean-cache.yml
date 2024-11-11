@@ -35,8 +35,7 @@ jobs:
     steps:
       # Checkout a repository, so the workflow can access it
       # https://github.com/actions/checkout
-      -
-        name: Checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       # Necessary if testing locally with 'act'
@@ -52,8 +51,7 @@ jobs:
 
       # Force deletion of caches overriding default cache eviction policy
       # https://github.com/actions/cache
-      -
-        name: Delete all cache entries
+      - name: Delete all cache entries
         run: |
 
           gh extension install actions/gh-actions-cache

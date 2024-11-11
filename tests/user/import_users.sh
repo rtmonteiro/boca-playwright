@@ -204,7 +204,7 @@ testImportUsersIncorrectPassword() {
 
 testImportUsersMissingUserData() {
   config_file="resources/mocks/fail/user/missing_user.json"
-  $cmd -- -p "${config_file}" -m importUsers >/dev/null 2>&1;
+  $cmd -- -p "${config_file}" -m importUsers >/dev/null 2>&1
   ret_code=$?
   assertEquals "${RET_CONFIG_VALIDATION}" "${ret_code}"
 }
@@ -243,8 +243,7 @@ SHELL=$(ps -p $$)
 echo "${SHELL}"
 
 # Load and run shUnit2.
-if [ ! -d "/opt/shunit2" ] || [ ! -f "/opt/shunit2/shunit2" ];
-then
+if [ ! -d "/opt/shunit2" ] || [ ! -f "/opt/shunit2/shunit2" ]; then
   echo "Missing or noninstalled shUnit2 test framework."
   exit 1
 fi

@@ -1603,7 +1603,7 @@ function main(): number {
 
   // Check if path to config file is set and if it exists
   try {
-    fs.accessSync(path)
+    fs.accessSync(path);
   } catch {
     logger.logError(ReadMessages.CONFIG_NOT_FOUND);
     exit(ExitErrors.ARGS_VALIDATION);

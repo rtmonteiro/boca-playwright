@@ -39,8 +39,7 @@ on:
       ref:
         # The branch, tag or SHA to checkout in builds. If empty, check out
         # the repository that triggered the workflow.
-        description:
-          The branch, tag or SHA to checkout (empty for current branch)
+        description: The branch, tag or SHA to checkout (empty for current branch)
         required: false
         type: string
       attempt_limit:
@@ -87,16 +86,14 @@ jobs:
     steps:
       # Checkout a repository, so the workflow can access it
       # https://github.com/actions/checkout
-      -
-        name: Checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           ref: '${{ inputs.ref }}'
 
       # Setting output parameters between steps, jobs and/or workflows
       # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions
-      -
-        name: Prepare inputs
+      - name: Prepare inputs
         id: set-inputs
         run: |
 
@@ -247,9 +244,7 @@ jobs:
       - build
 
     steps:
-
-      -
-        name: Retry the workflow
+      - name: Retry the workflow
         run: |
 
           ATTEMPT=$((${{ needs.setup-inputs.outputs.retry_countdown }}))

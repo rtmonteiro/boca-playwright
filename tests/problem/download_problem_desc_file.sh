@@ -285,9 +285,9 @@ testDownloadProblemDescFileUnavailable() {
 
 testDownloadValidProblemDescFile() {
   if [ -n "$1" ]; then
-      config_file="$1"
+    config_file="$1"
   else
-      config_file="resources/mocks/success/problem/valid_problem.json"
+    config_file="resources/mocks/success/problem/valid_problem.json"
   fi
 
   $cmd -- -p "${config_file}" -m downloadProblem >/dev/null 2>&1
