@@ -22,7 +22,7 @@ FROM mcr.microsoft.com/devcontainers/typescript-node:1-20
 
 LABEL authors="Ryan Tavares Farias da Silva Monteiro, Rodrigo Laiola Guimaraes"
 ENV CREATED_AT 2024-03-11
-ENV UPDATED_AT 2024-06-26
+ENV UPDATED_AT 2024-11-03
 
 # No interactive frontend during docker build
 ENV DEBIAN_FRONTEND noninteractive
@@ -45,3 +45,10 @@ RUN apt-get -y update \
 
 # Clone the shunit2 repository to use in the tests
 RUN git clone https://github.com/kward/shunit2.git /opt/shunit2
+
+# Run as a non-root user
+USER node:node
+
+# Install Playwright and Chromium web browser
+RUN npx -y playwright install chromium \
+    && npx playwright install-deps chromium
